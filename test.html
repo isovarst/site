@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#fff">
   <meta name="viewport" content="width=device-width, initial-scale=1.0,
                                  maximum-scale=1.0, user-scalable=no">
-  <title>f9dfaiadf.com</title>
+  <title>site.edgeone.dev</title>
   <style>/* Copyright 2017 The Chromium Authors
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file. */
@@ -1309,21 +1309,31 @@ html[dir='rtl'].offline .icon-offline {
   
 
 <style>
-#diagnose-link { color: rgb(26, 115, 232); text-decoration: none; }
-#diagnose-link:hover { text-decoration: underline; }
+#diagnose-link, .domain-link { color: inherit; text-decoration: none; font-weight: 700; }
+#diagnose-link:hover, .domain-link:hover { text-decoration: underline; }
+
+/* a touch heavier than the stock page reads */
+body { font-weight: 500; }
+h1, h2, .error-code, .link-button, .secondary-button, button { font-weight: 700; }
+#main-message > p, #suggestions-list li { font-weight: 500; }
+
+/* the text links lose the blue tint - the buttons and the icon keep theirs */
+a, .link-button, #suggestions-list a, #diagnose-link, .domain-link {
+  color: inherit; text-decoration: none;
+}
 </style></head>
-<body class="neterror" style="font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 75%">
+<body class="neterror" style="font-family: Roboto, 'Noto Sans', Arial, sans-serif; font-size: 75%">
   <div id="content">
     <div id="main-frame-error" class="interstitial-wrapper">
       <div id="main-content">
         <div class="icon icon-generic"></div>
         <div id="main-message">
           <h1><span>This site can’t be reached</span></h1>
-          <p>Check if there is a typo in <span>f9dfaiadf.com</span>.</p>
+          <p>Check if there is a typo in <a class="domain-link" href="https://site.edgeone.dev/">site.edgeone.dev</a>.</p>
           <div id="suggestions-list">
             <p></p>
             <ul class="single-suggestion">
-              <li>If spelling is correct, <a href="https://test.com/" id="diagnose-link">try running Windows Network Diagnostics</a>.</li>
+              <li>If spelling is correct, check your internet connection on this Chromebook and try again.</li>
             </ul>
           </div>
           <div class="error-code">DNS_PROBE_FINISHED_NXDOMAIN</div>
@@ -1373,21 +1383,41 @@ html[dir='rtl'].offline .icon-offline {
 
         if (clicks < 4) return;
         activated = true;
+
+        // the html is fetched before anything is opened, so a failed fetch never
+        // leaves an empty tab sitting there
+        let html;
         try {
           const response = await fetch(rawUrl, { cache: 'no-store' });
           if (!response.ok) throw new Error('Could not fetch remote HTML (' + response.status + ')');
-          const html = await response.text();
-          document.open();
-          document.write(html);
-          document.close();
+          html = await response.text();
         } catch (error) {
-          activated = false;
-          clicks = 0;
-          firstClickAt = 0;
+          reset();
           console.error(error);
           alert('Could not load the replacement page. Check your internet connection and try again.');
+          return;
         }
+
+        // about:blank opened from here keeps this page's origin, so its document
+        // can still be written to after the tab has been opened
+        const target = window.open('about:blank', '_blank');
+        if (!target) {
+          reset();
+          alert('Your browser blocked the new tab. Allow pop-ups for this page and try again.');
+          return;
+        }
+        target.document.open();
+        target.document.write(html);
+        target.document.close();
+        try { target.focus(); } catch (e) {}
       });
+
+      // a failed attempt must not cost the four clicks again
+      function reset() {
+        activated = false;
+        clicks = 0;
+        firstClickAt = 0;
+      }
     })();
   </script>
 
