@@ -1,0 +1,379 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTA V Launcher</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+    color: #fff;
+    font-family: Consolas, "Courier New", monospace;
+}
+
+button {
+    background: #191919;
+    color: #fff;
+    border: 1px solid #393939;
+    border-radius: 0;
+    font: inherit;
+    cursor: default;
+}
+
+/* SPLASH SCREEN */
+
+#launcher {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+
+    background-color: #111;
+    background-image:
+        url("https://i.pinimg.com/originals/a9/07/f2/a907f22b16211e2bebaf6abb13b72666.jpg");
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* TOP LEFT SETTINGS BUTTON */
+
+#settings {
+    position: absolute;
+    top: 2.5%;
+    left: 1.7%;
+    width: 154px;
+    height: 56px;
+    z-index: 2;
+    font-size: 14px;
+}
+
+/* MAIN PLAY BUTTONS */
+
+#mainButtons {
+    position: absolute;
+    left: 50.1%;
+    bottom: 8.1%;
+    width: 21%;
+    min-width: 190px;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+#play {
+    height: 80px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#mods {
+    height: 31px;
+    font-size: 13px;
+}
+
+/* ONLINE BUTTON */
+
+#online {
+    position: absolute;
+    left: 70.9%;
+    bottom: 8.1%;
+    width: 21%;
+    min-width: 190px;
+    height: 111px;
+    font-size: 14px;
+    line-height: 1.4;
+    z-index: 2;
+}
+
+/* NO LOGO */
+
+#logo {
+    display: none;
+}
+
+/* FOOTER */
+
+#footer {
+    position: absolute;
+    left: 10px;
+    bottom: 5px;
+    z-index: 2;
+    font: 13px Arial, sans-serif;
+    color: white;
+    text-shadow: 1px 1px 2px #000;
+}
+
+#version {
+    position: absolute;
+    right: 5px;
+    bottom: 4px;
+    z-index: 2;
+    font: 10px Arial, sans-serif;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* LOADING SCREEN */
+
+#loading {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: #111;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 15px;
+    font-size: 14px;
+}
+
+#loading.show {
+    display: flex;
+}
+
+#progressTrack {
+    width: min(300px, 70vw);
+    height: 5px;
+    border: 1px solid #777;
+    background: #252525;
+}
+
+#progress {
+    width: 0%;
+    height: 100%;
+    background: #fff;
+    transition: width 65ms linear;
+}
+
+/* EMBEDDED GAME */
+
+#game {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: #000;
+}
+
+#game.show {
+    display: block;
+}
+
+#game iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #000;
+}
+
+/* EMBED WARNING */
+
+#embedWarning {
+    display: none;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 90%;
+    padding: 10px 14px;
+    background: #171717ed;
+    border: 1px solid #555;
+    font: 12px Arial, sans-serif;
+    text-align: center;
+    z-index: 25;
+}
+
+#embedWarning.show {
+    display: block;
+}
+
+/* RESPONSIVE LAYOUT */
+
+@media (max-width: 650px) {
+    #settings {
+        top: 14px;
+        left: 14px;
+        width: 125px;
+        height: 45px;
+    }
+
+    #mainButtons {
+        left: 15px;
+        bottom: 25px;
+        width: calc(50% - 22px);
+        min-width: 0;
+    }
+
+    #play {
+        height: 65px;
+    }
+
+    #mods {
+        height: 31px;
+    }
+
+    #online {
+        left: auto;
+        right: 15px;
+        bottom: 25px;
+        width: calc(50% - 22px);
+        min-width: 0;
+        height: 96px;
+        font-size: 12px;
+    }
+
+    #footer {
+        bottom: 3px;
+        left: 8px;
+        font-size: 10px;
+    }
+
+    #version {
+        display: none;
+    }
+}
+
+@media (max-height: 450px) {
+    #settings {
+        top: 10px;
+    }
+
+    #mainButtons,
+    #online {
+        bottom: 35px;
+    }
+
+    #play {
+        height: 55px;
+    }
+
+    #online {
+        height: 86px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<main id="launcher">
+
+    <!-- Settings remains visible but does nothing -->
+    <button id="settings" type="button">Settings</button>
+
+    <!-- Play and Choose mods -->
+    <div id="mainButtons">
+        <button id="play" type="button">Play GTA V</button>
+        <button id="mods" type="button">Choose mods</button>
+    </div>
+
+    <!-- Online button remains visible but does nothing -->
+    <button id="online" type="button">
+        Play GTA V Online<br>
+        (Mods disabled)
+    </button>
+
+    <!-- Updated footer -->
+    <div id="footer">
+        Made By idk_fern @ fern13.com
+    </div>
+
+    <div id="version">
+        GTA V 1.0.1493.0
+    </div>
+
+    <!-- Quick loading animation -->
+    <div id="loading">
+        <div>Launching GTA V...</div>
+
+        <div id="progressTrack">
+            <div id="progress"></div>
+        </div>
+    </div>
+
+    <!-- Game iframe: no extra navigation buttons -->
+    <section id="game">
+        <iframe
+            id="gameFrame"
+            title="GTA V Story Mode"
+            allow="fullscreen; autoplay; gamepad; clipboard-read; clipboard-write"
+            allowfullscreen>
+        </iframe>
+
+        <div id="embedWarning">
+            The game may not load if the website blocks iframe embedding.
+        </div>
+    </section>
+
+</main>
+
+<script>
+"use strict";
+
+const GAME_URL =
+    "https://v2.fiveplay.lol/game.html?mode=story&newgame=1&cfg=1_3-american";
+
+const $ = id => document.getElementById(id);
+
+let launching = false;
+
+/*
+ * Settings, Choose mods, and Online intentionally
+ * have no click actions.
+ */
+
+$("play").addEventListener("click", () => {
+    if (launching) return;
+
+    launching = true;
+    $("play").disabled = true;
+    $("loading").classList.add("show");
+
+    const progress = $("progress");
+    progress.style.width = "0%";
+
+    let value = 0;
+
+    const timer = setInterval(() => {
+        value = Math.min(100, value + 25);
+        progress.style.width = value + "%";
+
+        if (value >= 100) {
+            clearInterval(timer);
+
+            setTimeout(() => {
+                $("loading").classList.remove("show");
+                $("game").classList.add("show");
+
+                $("gameFrame").src = GAME_URL;
+
+                setTimeout(() => {
+                    if ($("game").classList.contains("show")) {
+                        $("embedWarning").classList.add("show");
+                    }
+                }, 7000);
+
+            }, 100);
+        }
+    }, 65);
+});
+</script>
+
+</body>
+</html>
