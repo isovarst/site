@@ -1,117 +1,191 @@
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName PresentationCore
 
-$bgUrl = 'https://platform.vox.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/8768211/DDbjGHNXYAA9EHu.jpg?quality=90&strip=all&crop=0,0,100,100'
-$cartUrl = 'https://static.wikia.nocookie.net/southpark/images/c/c4/Eric-cartman.png/revision/latest/scale-to-width-down/250?cb=20180718082504'
-$mp3Url = 'https://www.image2url.com/r2/default/audio/1792545663900-4cf6346a-d028-42ef-bce1-4ce5fdb0a7fe.mp3'
-$dir = "$env:TEMP\CartmanScreen"
-New-Item -ItemType Directory -Force $dir | Out-Null
-$bgFile = "$dir\bg.jpg"
-$cartFile = "$dir\cart.png"
-$mp3File = "$dir\audio.mp3"
+$url = 'https://hackaday.com/wp-content/uploads/2023/02/TWC_Local_On_The_8s__Tornado_Warning_with_EAS_Oct_14_2016_.webp?w=400'
+$dir = Join-Path $env:TEMP 'EASViewer'
+$file = Join-Path $dir 'warning.webp'
 
-# Download in parallel
-$jobs = @(
-    Start-Job { Invoke-WebRequest $using:bgUrl -OutFile $using:bgFile }
-    Start-Job { Invoke-WebRequest $using:cartUrl -OutFile $using:cartFile }
-    Start-Job { Invoke-WebRequest $using:mp3Url -OutFile $using:mp3File }
-)
-$jobs | Wait-Job | Out-Null
-$bad = $jobs | Where-Object { $_.State -ne 'Completed' }
-$jobs | Receive-Job -ErrorAction SilentlyContinue | Out-Null
-$jobs | Remove-Job -Force
-if ($bad -or !(Test-Path $bgFile) -or !(Test-Path $cartFile)) {
-    Write-Host "Download failed. Check the URLs or internet connection."
-    return
-}
+New-Item -ItemType Directory -Path $dir -Force | Out-Null
 
-# Master volume to 100% using Windows audio endpoint
-try {
-    $ws = New-Object -ComObject WScript.Shell
-    # Windows master volume API is not built into WScript.Shell.
-    # The audio player's own volume is set to 100% below.
-} catch {}
+$source = @'
+using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 
-$form = New-Object Windows.Forms.Form
-$form.Text = 'Cartman - Press X to exit'
-$form.FormBorderStyle = 'None'
-$form.WindowState = 'Maximized'
-$form.TopMost = $true
-$form.BackColor = 'Black'
-$form.KeyPreview = $true
+public static class KeyboardBlocker
+{
+    private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+    private static HookProc callback = HookCallback;
+    private static IntPtr hook = IntPtr.Zero;
+    private static bool enabled = false;
 
-$bg = New-Object Windows.Forms.PictureBox
-$bg.Dock = 'Fill'
-$bg.SizeMode = 'Zoom'
-$bg.Image = [Drawing.Image]::FromFile($bgFile)
-$form.Controls.Add($bg)
-
-$cartImage = [Drawing.Image]::FromFile($cartFile)
-$items = @()
-$r = [Random]::new()
-
-1..5 | ForEach-Object {
-    $p = New-Object Windows.Forms.PictureBox
-    $p.Size = [Drawing.Size]::new(125,125)
-    $p.SizeMode = 'Zoom'
-    $p.Image = $cartImage
-    $p.Location = [Drawing.Point]::new(
-        $r.Next(0,[Math]::Max(1,$form.Width-125)),
-        $r.Next(0,[Math]::Max(1,$form.Height-125))
-    )
-    $form.Controls.Add($p)
-    $p.BringToFront()
-    $dx = $r.Next(4,10) * $(if($r.Next(2)){1}else{-1})
-    $dy = $r.Next(4,10) * $(if($r.Next(2)){1}else{-1})
-    $items += @{ C=$p; X=$dx; Y=$dy }
-}
-
-$timer = New-Object Windows.Forms.Timer
-$timer.Interval = 16
-$timer.Add_Tick({
-    foreach($i in $items) {
-        $c=$i.C
-        $x=$c.Left+$i.X
-        $y=$c.Top+$i.Y
-        if($x -le 0 -or $x+$c.Width -ge $form.ClientSize.Width){$i.X=-$i.X}
-        if($y -le 0 -or $y+$c.Height -ge $form.ClientSize.Height){$i.Y=-$i.Y}
-        $c.Left=[Math]::Max(0,[Math]::Min($form.ClientSize.Width-$c.Width,$x))
-        $c.Top=[Math]::Max(0,[Math]::Min($form.ClientSize.Height-$c.Height,$y))
+    [StructLayout(LayoutKind.Sequential)]
+    private struct KBDLLHOOKSTRUCT
+    {
+        public uint vkCode;
+        public uint scanCode;
+        public uint flags;
+        public uint time;
+        public IntPtr dwExtraInfo;
     }
-})
 
-$player = New-Object Windows.Media.MediaPlayer
-$player.Volume = 1.0
-$script:closing = $false
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr SetWindowsHookEx(
+        int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
 
-$form.Add_KeyDown({
-    if($_.KeyCode -eq [Windows.Forms.Keys]::X){$form.Close()}
-})
-$form.Add_FormClosing({
-    $script:closing=$true
-    $timer.Stop()
-    $player.Stop()
-    $player.Close()
-})
-$player.add_MediaEnded({
-    if(-not $script:closing){$player.Position=[TimeSpan]::Zero;$player.Play()}
-})
-$player.Open([Uri]$mp3File)
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
-$form.Add_Shown({
+    [DllImport("user32.dll")]
+    private static extern IntPtr CallNextHookEx(
+        IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+    private static extern IntPtr GetModuleHandle(string lpModuleName);
+
+    private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && enabled)
+        {
+            KBDLLHOOKSTRUCT key =
+                Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
+
+            if (key.vkCode == 0x5B || key.vkCode == 0x5C)
+                return (IntPtr)1;
+        }
+
+        return CallNextHookEx(hook, nCode, wParam, lParam);
+    }
+
+    public static void Start()
+    {
+        if (hook != IntPtr.Zero) return;
+
+        using (Process process = Process.GetCurrentProcess())
+        using (ProcessModule module = process.MainModule)
+        {
+            hook = SetWindowsHookEx(
+                13, callback, GetModuleHandle(module.ModuleName), 0);
+        }
+
+        enabled = hook != IntPtr.Zero;
+    }
+
+    public static void Stop()
+    {
+        enabled = false;
+
+        if (hook != IntPtr.Zero)
+        {
+            UnhookWindowsHookEx(hook);
+            hook = IntPtr.Zero;
+        }
+    }
+}
+'@
+
+Add-Type -TypeDefinition $source
+
+$form = $null
+$picture = $null
+$timer = $null
+$allowExit = $false
+
+try {
+    Invoke-WebRequest -Uri $url -OutFile $file -ErrorAction Stop
+
+    $form = New-Object Windows.Forms.Form
+    $form.Text = 'Viewer - Press X to exit'
+    $form.FormBorderStyle = 'None'
+    $form.WindowState = 'Normal'
+    $form.StartPosition = 'Manual'
+    $form.Bounds = [Windows.Forms.Screen]::PrimaryScreen.Bounds
+    $form.TopMost = $true
+    $form.BackColor = [Drawing.Color]::Black
+    $form.KeyPreview = $true
+    $form.ShowInTaskbar = $false
+
+    $picture = New-Object Windows.Forms.PictureBox
+    $picture.Location = New-Object Drawing.Point(0, 0)
+    $picture.BackColor = [Drawing.Color]::Black
+    $picture.SizeMode = 'StretchImage'
+    $picture.Image = [Drawing.Image]::FromFile($file)
+
+    $form.Controls.Add($picture)
+
+    $form.Add_Shown({
+        $bounds = [Windows.Forms.Screen]::PrimaryScreen.Bounds
+        $form.Bounds = $bounds
+        $picture.Left = 0
+        $picture.Top = 0
+        $picture.Width = $bounds.Width
+        $picture.Height = [int]($bounds.Height * 8 / 7)
+        $form.TopMost = $true
+        $form.Activate()
+        [KeyboardBlocker]::Start()
+    })
+
+    $timer = New-Object Windows.Forms.Timer
+    $timer.Interval = 500
+    $timer.Add_Tick({
+        if ($form -and -not $form.IsDisposed -and -not $allowExit) {
+            $bounds = [Windows.Forms.Screen]::PrimaryScreen.Bounds
+
+            if ($form.Bounds -ne $bounds) {
+                $form.Bounds = $bounds
+            }
+
+            if (-not $form.TopMost) {
+                $form.TopMost = $true
+            }
+        }
+    })
     $timer.Start()
-    $player.Play()
-    $form.Activate()
-})
 
-try { [void]$form.ShowDialog() }
+    $form.Add_KeyDown({
+        if ($_.KeyCode -eq [Windows.Forms.Keys]::X) {
+            $allowExit = $true
+            $form.Close()
+        }
+
+        $_.Handled = $true
+        $_.SuppressKeyPress = $true
+    })
+
+    $form.Add_FormClosing({
+        if (-not $allowExit) {
+            $_.Cancel = $true
+        }
+        else {
+            [KeyboardBlocker]::Stop()
+
+            if ($timer) {
+                $timer.Stop()
+            }
+
+            if ($picture.Image) {
+                $picture.Image.Dispose()
+                $picture.Image = $null
+            }
+        }
+    })
+
+    [void]$form.ShowDialog()
+}
+catch {
+    [KeyboardBlocker]::Stop()
+
+    [Windows.Forms.MessageBox]::Show(
+        $_.Exception.Message,
+        'Viewer error'
+    ) | Out-Null
+}
 finally {
-    $timer.Stop()
-    $player.Stop()
-    $player.Close()
-    $bg.Image.Dispose()
-    $cartImage.Dispose()
-    $form.Dispose()
+    [KeyboardBlocker]::Stop()
+
+    if ($timer) { $timer.Dispose() }
+    if ($form) { $form.Dispose() }
+
+    Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
 }
