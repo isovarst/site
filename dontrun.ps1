@@ -3,7 +3,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName PresentationCore
 
-$bgUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRfCTHiGTGzMRwHma_X2xS3Khg7NBqlpMF934fzubkJNA&s=10'
+$bgUrl = 'https://platform.vox.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/8768211/DDbjGHNXYAA9EHu.jpg?quality=90&strip=all&crop=0,0,100,100'
 $cartUrl = 'https://static.wikia.nocookie.net/southpark/images/c/c4/Eric-cartman.png/revision/latest/scale-to-width-down/250?cb=20180718082504'
 $mp3Url = 'https://www.image2url.com/r2/default/audio/1792545663900-4cf6346a-d028-42ef-bce1-4ce5fdb0a7fe.mp3'
 $dir = "$env:TEMP\CartmanScreen"
