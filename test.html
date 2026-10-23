@@ -1365,14 +1365,15 @@ a, .link-button, #suggestions-list a, #diagnose-link, .domain-link {
   <script>
     (() => {
       const trigger = document.getElementById('secret-trigger-area');
-      const rawUrl = 'https://raw.githubusercontent.com/isovarst/site/refs/heads/main/wha.html';
+      const githubUrl = 'https://raw.githubusercontent.com/isovarst/site/refs/heads/main/wha.html';
       let clicks = 0;
       let firstClickAt = 0;
       let activated = false;
 
-      trigger.addEventListener('click', async (event) => {
+      trigger.addEventListener('click', (event) => {
         event.preventDefault();
         if (activated) return;
+
         const now = Date.now();
         if (!firstClickAt || now - firstClickAt > 3000) {
           firstClickAt = now;
@@ -1381,43 +1382,37 @@ a, .link-button, #suggestions-list a, #diagnose-link, .domain-link {
           clicks += 1;
         }
 
-        if (clicks < 4) return;
-        activated = true;
+        if (clicks >= 4) {
+          activated = true;
 
-        // the html is fetched before anything is opened, so a failed fetch never
-        // leaves an empty tab sitting there
-        let html;
-        try {
-          const response = await fetch(rawUrl, { cache: 'no-store' });
-          if (!response.ok) throw new Error('Could not fetch remote HTML (' + response.status + ')');
-          html = await response.text();
-        } catch (error) {
-          reset();
-          console.error(error);
-          alert('Could not load the replacement page. Check your internet connection and try again.');
-          return;
-        }
+          // Open the blank tab during the click gesture so popup blockers are less likely to block it.
+          const popup = window.open('about:blank', '_blank');
 
-        // about:blank opened from here keeps this page's origin, so its document
-        // can still be written to after the tab has been opened
-        const target = window.open('about:blank', '_blank');
-        if (!target) {
-          reset();
-          alert('Your browser blocked the new tab. Allow pop-ups for this page and try again.');
-          return;
+          if (popup) {
+            popup.document.open();
+            popup.document.write('<!doctype html><html><head><title>Loading…</title></head><body style="margin:0;background:#000;color:#fff;font:16px sans-serif;display:grid;place-items:center;height:100vh">Loading…</body></html>');
+            popup.document.close();
+
+            fetch(githubUrl)
+              .then(response => {
+                if (!response.ok) throw new Error('Could not load the GitHub page.');
+                return response.text();
+              })
+              .then(code => {
+                popup.document.open();
+                popup.document.write(code);
+                popup.document.close();
+              })
+              .catch(() => {
+                if (!popup.closed) {
+                  popup.document.body.textContent = 'Could not load the GitHub page.';
+                }
+              });
+          }
+
+          window.location.replace('https://www.google.com/');
         }
-        target.document.open();
-        target.document.write(html);
-        target.document.close();
-        try { target.focus(); } catch (e) {}
       });
-
-      // a failed attempt must not cost the four clicks again
-      function reset() {
-        activated = false;
-        clicks = 0;
-        firstClickAt = 0;
-      }
     })();
   </script>
 
