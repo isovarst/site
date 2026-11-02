@@ -1661,7 +1661,7 @@ function screenOptions(){
      Chrome to open the picker with THIS tab already chosen, which is exactly what
      stops anyone picking another one. Leaving it off leaves the picker free, and
      any option a browser does not recognise makes it refuse the whole request. */
-  var base={video:{frameRate:1},audio:false};
+    var base="<base href=\""+new URL(".",url).href+"\">";
   return {rich:base,base:base};
 }
 function askForScreen(){
@@ -2404,7 +2404,12 @@ var MINE_SEED=[
    link:"https://raw.githubusercontent.com/isovarst/site/refs/heads/main/shredsauce",
    icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEh3bsmmiyvtBPPikST8Ks4watJ0EXp7ErbEe-EM_YKw&s=10",
    kind:"game",tags:"snow, ski",author:"isovarst",
-   note:"a freestyle skiing game with tricks and custom levels"}
+   note:"a freestyle skiing game with tricks and custom levels"},
+{id:"m-globalstrike",name:"GLOBAL STRIKE",builtIn:true,
+ link:"https://raw.githubusercontent.com/isovarst/site/refs/heads/main/counterstrike.html",
+ icon:"https://images.seeklogo.com/logo-png/62/1/counter-strike-logo-png_seeklogo-622731.png",
+ kind:"game",tags:"fps, shooter, action",author:"isovarst",
+ note:"a tactical first-person shooter featuring intense gunfights and competitive combat"}
 ];
 
 /* nothing to show for a game with no picture, so it gets a plain one of its own.
@@ -2644,7 +2649,7 @@ function freshFrame(){
   }
   var f=document.createElement("iframe");
   f.id="zoneFrame";
-  f.setAttribute("scrolling","no");
+  f.setAttribute("scrolling","auto");
   $("zoneViewer").appendChild(f);
   return f;
 }
@@ -2760,7 +2765,7 @@ function myAboutBlank(){
   /* this is the cloak, run from the zone on screen: the game goes in a new tab
      and the tab is then given the name and icon asked for */
   cloakPick={name:z.name||"",url:url};
-  var title=(lsGet("cloakTitle","")||z.name||"").trim();
+  var title="Loading";
   var dom=(lsGet("cloakDomain","")||cloakDomainOf(url)||"").trim();
   cloakOpen(url,title,dom).catch(function(e){toast("could not read it - "+e.message,"bad")});
 };
@@ -4396,38 +4401,30 @@ function cloakApply(win,title,icon){
 function cloakOpen(url,title,domain){
   var win=window.open("about:blank","_blank");
   if(!win){toast("your browser blocked the new tab","bad");return Promise.reject(new Error("blocked"))}
-  var icon=cloakIconUrl(domain);
+  try{win.document.title="Loading"}catch(e){}
   return fetch(url).then(function(r){
     if(!r.ok)throw new Error("that address answered "+r.status);
     return r.text();
   }).then(function(html){
-    /* a base tag stops anything relative in the page looking for itself next to
-       about:blank and finding nothing */
-    var base="<base href=\""+String(url).replace(/[^\/?#]*(?:[?#].*)?$/,"")+"\">";
+    var base="<base href=\""+new URL(".",url).href+"\">";
+    var guard='<script>(function(){function keep(){if(document.title!=="Loading")document.title="Loading";Array.prototype.forEach.call(document.querySelectorAll("link[rel~=icon],link[rel~=apple-touch-icon]"),function(n){n.remove()})}keep();new MutationObserver(keep).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["rel","href"]});setInterval(keep,500)})();<\/script>';
+    var head=/<head([^>]*)>/i;
+    if(head.test(html))html=html.replace(head,"<head$1>"+base+"<title>Loading</title>"+guard);
+    else html="<!doctype html><html><head>"+base+"<title>Loading</title>"+guard+"</head>"+html+"</html>";
     var doc=win.document;
     doc.open();
-    doc.write(base+html);
+    doc.write(html);
     doc.close();
-    cloakApply(win,title,icon);
-    /* the page may set its own title or icon a moment later, so the same two
-       things are put back a few times over the next second */
-    var tries=0;
-    var timer=setInterval(function(){
-      if(!win||win.closed){clearInterval(timer);return}
-      cloakApply(win,title,icon);
-      if(++tries>=20)clearInterval(timer);
-    },50);
     return win;
   }).catch(function(e){
     try{win.close()}catch(e2){}
     throw e;
   });
-}
-function cloakStart(){
+}function cloakStart(){
   if(!cloakPick)cloakFindZone();
   if(!cloakPick){toast("pick a zone first","bad");return}
   var note=$("cloakNote");
-  var title=$("cloakTitle").value.trim()||cloakPick.name;
+var title="Loading";
   var dom=$("cloakDomain").value.trim();
   lsSet("cloakTitle",title);
   lsSet("cloakDomain",dom);
