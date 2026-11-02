@@ -1,0 +1,205 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Bootstrap</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: #eee;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+}
+
+#terminal {
+    height: 100vh;
+    padding: 28px;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.line {
+    opacity: 0;
+    animation: appear .12s forwards;
+}
+
+.dim { color: #777; }
+.white { color: #fff; }
+.success { color: #bdbdbd; }
+.warning { color: #999; }
+
+#cursor {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: #fff;
+    vertical-align: middle;
+    animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+@keyframes appear {
+    to { opacity: 1; }
+}
+
+#status {
+    position: fixed;
+    bottom: 20px;
+    left: 28px;
+    color: #888;
+    font-size: 11px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="terminal"></div>
+<div id="status">BOOTSTRAP PROCESS INITIALIZED</div>
+
+<script>
+(async function () {
+
+    const URL =
+        "https://cdn.jsdelivr.net/gh/woahhcrackers/Global-Strike@main/sf-gs.html";
+
+    const terminal = document.getElementById("terminal");
+    const status = document.getElementById("status");
+
+    const sleep = ms =>
+        new Promise(resolve => setTimeout(resolve, ms));
+
+    function timestamp() {
+        return new Date().toISOString().replace("T", " ").replace("Z", "");
+    }
+
+    function log(message, type = "") {
+        const line = document.createElement("div");
+        line.className = "line " + type;
+        line.textContent = `[${timestamp()}] ${message}`;
+        terminal.appendChild(line);
+        terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function randomHex(length = 8) {
+        return Array.from(
+            crypto.getRandomValues(new Uint8Array(length)),
+            x => x.toString(16).padStart(2, "0")
+        ).join("").toUpperCase();
+    }
+
+    try {
+
+        log("GLOBAL STRIKE // REMOTE EXECUTION ENVIRONMENT");
+        log("Copyright (c) Global Strike Project", "dim");
+        log("--------------------------------------------------", "dim");
+
+        await sleep(250);
+
+        log("BOOT: Initializing runtime environment...");
+        log("BOOT: JavaScript engine detected.");
+        log("BOOT: Browser user agent: " + navigator.userAgent);
+        log("BOOT: Session ID: " + randomHex(12));
+
+        await sleep(350);
+
+        log("NET: Initializing remote resource subsystem...");
+        log("NET: Resolving CDN endpoint...");
+        log("NET: Target: cdn.jsdelivr.net");
+        log("NET: Protocol: HTTPS / TLS");
+        log("NET: Cache policy: REVALIDATE");
+
+        await sleep(400);
+
+        log("FETCH: Establishing remote connection...");
+        status.textContent = "FETCHING REMOTE RESOURCE";
+
+        const response = await fetch(URL + "?t=" + Date.now(), {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP STATUS " + response.status);
+        }
+
+        log("HTTP: Response received: " + response.status, "success");
+        log("HTTP: Content-Type: " +
+            (response.headers.get("content-type") || "unknown"));
+
+        await sleep(250);
+
+        log("FETCH: Downloading document payload...");
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let html = "";
+        let received = 0;
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) break;
+
+            received += value.length;
+            html += decoder.decode(value, { stream: true });
+
+            status.textContent =
+                "RECEIVED " + received.toLocaleString() + " BYTES";
+        }
+
+        html += decoder.decode();
+
+        log("FETCH: Transfer complete.", "success");
+        log("FETCH: Received " + received.toLocaleString() + " bytes.");
+
+        await sleep(300);
+
+        log("VERIFY: Checking document payload...");
+        log("VERIFY: HTML document received.");
+        log("RUNTIME: Preparing document handoff...");
+
+        await sleep(500);
+
+        log("RUNTIME: Replacing bootstrap document.", "success");
+        log("RUNTIME: Transferring control to Global Strike...");
+
+        status.textContent = "INITIALIZATION COMPLETE";
+
+        await sleep(500);
+
+        document.open();
+        document.write(html);
+        document.close();
+
+    } catch (error) {
+
+        log("FATAL: Resource initialization failed.", "warning");
+        log("ERROR: " + error.message, "warning");
+        log("HINT: Check network connectivity and CDN CORS policy.", "dim");
+
+        status.textContent = "BOOTSTRAP FAILED";
+    }
+
+})();
+</script>
+
+</body>
+</html>
