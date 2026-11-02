@@ -2332,35 +2332,36 @@ function isHiddenZone(name){
   }
   return false;
 }
+
 var MINE_SEED=[
   {id:"m-vulpez-movies",name:"Vulpez Movies",builtIn:true,
    link:"https://raw.githubusercontent.com/L3br00n/MovieHtml/refs/heads/main/index.html",
-   icon:"data:image/png;base64,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",
+   icon:"data:image/png;base64,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",
    kind:"tool",tags:"movies, video, film",author:"L3br00n",
    note:"films and shows, in a page"},
 
   {id:"m-pink-bike",name:"Pink Bike",builtIn:true,
    link:"https://raw.githubusercontent.com/brickyosu/ugs-files-sorted/refs/heads/main/P/clpinkbike.html",
    icon:"https://es.pinkbike.org/246/sprt/i/share/grimdonutgame.jpg",
-   kind:"game",tags:"pink, bike, classic",author:"brickyosu",
+   kind:"game",tags:"bike, classic",author:"brickyosu",
    note:"the pink one"},
 
   {id:"m-gust",name:"Gust",builtIn:true,
    link:"https://raw.githubusercontent.com/L3br00n/Gang-Beasts/refs/heads/main/GUST.html",
    icon:"https://avatars.githubusercontent.com/u/240241840?s=280&v=4",
-   kind:"tool",tags:"browser, gust, web",author:"L3br00n",
+   kind:"tool",tags:"browser, web",author:"L3br00n",
    note:"a browser you can use right in the page"},
 
   {id:"m-screen-share",name:"Screen Share",builtIn:true,
    link:"https://raw.githubusercontent.com/L3br00n/Gang-Beasts/refs/heads/main/Screen_Sharer_Redesigned.html",
    icon:"https://sc.filehippo.net/images/t_app-icon-l/p/f1b86a00-e1bc-415e-8130-b99b2f72f16a/2096453466/screen-share-screen-mirroring-app-for-windows-10-icon.png",
-   kind:"tool",tags:"screen, share, streaming",author:"L3br00n",
+   kind:"tool",tags:"screen, share",author:"L3br00n",
    note:"share your screen with another person"},
 
   {id:"m-bhop",name:"Bhop",builtIn:true,
    link:"https://raw.githubusercontent.com/L3br00n/Gang-Beasts/refs/heads/main/Bhop.html",
    icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQucupE6g75qVQ6WDmOriNkXRMCrD3rs_x0ZFpdF27PQg&s=10",
-   kind:"game",tags:"bhop, movement",author:"L3br00n",
+   kind:"game",tags:"movement, arcade",author:"L3br00n",
    note:"a bunny hopping movement game"},
 
   {id:"m-gang-beasts",name:"Gang Beasts (WASM)",builtIn:true,
@@ -2397,8 +2398,15 @@ var MINE_SEED=[
    link:"https://raw.githubusercontent.com/Alezander9/Flowline/main/flowline.html",
    icon:"https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=500&q=80",
    kind:"game",tags:"snow, ski",author:"Alezander9",
-   note:"a mountain freeride game"}
+   note:"a mountain freeride game"},
+
+  {id:"m-shredsauce",name:"SHREDSAUCE",builtIn:true,
+   link:"https://raw.githubusercontent.com/isovarst/site/refs/heads/main/shredsauce",
+   icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQEh3bsmmiyvtBPPikST8Ks4watJ0EXp7ErbEe-EM_YKw&s=10",
+   kind:"game",tags:"snow, ski",author:"isovarst",
+   note:"a freestyle skiing game with tricks and custom levels"}
 ];
+
 /* nothing to show for a game with no picture, so it gets a plain one of its own.
    mid grey, so it reads on a dark page and a light one alike */
 var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
