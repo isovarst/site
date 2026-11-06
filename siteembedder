@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,18 +7,25 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#0b0b0b;color:#eee;font-family:Arial,sans-serif;font-size:13px}
-main{width:min(680px,92%);margin:65px auto}
+input,select,button{font:inherit}
+main{width:min(1000px,94%);margin:55px auto}
 h1{font-size:22px;font-weight:600;margin:0 0 7px}
 p{color:#777;font-size:12px;margin:0 0 25px}
-input,select,button{font:inherit}
 input[type=text],input[type=url],input[type=number],select{width:100%;height:36px;background:#111;border:1px solid #303030;border-radius:4px;padding:0 10px;color:#eee;outline:none}
 input:focus,select:focus{border-color:#777}
 input::placeholder{color:#555}
 button{height:36px;padding:0 15px;border:1px solid #444;background:#eee;color:#111;border-radius:4px;font-weight:600;cursor:pointer}
 button:hover{background:#ccc}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:25px;align-items:start}
 .url-row{display:flex;gap:8px}
 .url-row input{flex:1;min-width:0}
 .status{color:#777;font-size:11px;margin-top:10px;min-height:15px}
+.presets{border:1px solid #292929;border-radius:5px;background:#101010;padding:13px}
+.presets-title{font-size:11px;font-weight:600;margin:0 0 10px;color:#ddd}
+.preset{display:block;width:100%;height:auto;text-align:left;padding:11px 9px;border:1px solid transparent;border-radius:3px;background:transparent;color:#eee;margin-top:3px;transition:background .15s,border-color .15s}
+.preset:hover{background:#191919;border-color:#303030}
+.preset-name{display:block;font-size:12px;font-weight:600;margin-bottom:4px}
+.preset-url{display:block;color:#777;font-size:10px;font-weight:400;overflow-wrap:anywhere}
 .section{border-top:1px solid #292929;margin-top:25px;padding-top:18px}
 .section-title{font-size:12px;font-weight:600;margin-bottom:15px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
@@ -32,7 +38,7 @@ button:hover{background:#ccc}
 .actions button{background:#171717;color:#ddd;border-color:#444}
 .actions button:hover{background:#252525}
 .settings-status{color:#999;font-size:11px;margin-top:10px;min-height:14px}
-@media(max-width:520px){main{margin:35px auto}.grid,.checks{grid-template-columns:1fr}.url-row{flex-direction:column}.url-row button{width:100%}}
+@media(max-width:650px){main{margin:35px auto}.layout{grid-template-columns:1fr}.presets{order:2}.grid,.checks{grid-template-columns:1fr}.url-row{flex-direction:column}.url-row button{width:100%}}
 </style>
 </head>
 <body>
@@ -40,11 +46,20 @@ button:hover{background:#ccc}
 <h1>Embed</h1>
 <p>Open a website in a new about:blank tab.</p>
 
+<div class="layout">
+<div>
 <div class="url-row">
 <input id="url" type="text" placeholder="https://example.com" spellcheck="false">
 <button id="open">Open</button>
 </div>
 <div class="status" id="status">Ready.</div>
+</div>
+
+<aside class="presets">
+<div class="presets-title">PRESETS</div>
+<div id="presetList"></div>
+</aside>
+</div>
 
 <div class="section">
 <div class="section-title">About:blank tab</div>
@@ -140,12 +155,15 @@ button:hover{background:#ccc}
 
 <script>
 const $=id=>document.getElementById(id);
+
 const defaults={
 tabName:"Loading",favicon:"",countdown:3,loadingText:"Loading",useCountdown:true,showLoading:true,
 sandbox:true,scripts:true,sameOrigin:true,forms:true,popups:false,popupEscape:false,downloads:false,modals:false,pointerLock:false,orientation:false,presentation:false,fullscreen:true,autoplay:true,clipboard:false,scrolling:true,
 iframeTitle:"Embedded website",frameName:"embeddedFrame",referrer:"strict-origin-when-cross-origin",customAllow:"",customSandbox:""
 };
+
 const fields=Object.keys(defaults);
+
 function getSettings(){
 const result={};
 for(const key of fields){
@@ -154,6 +172,7 @@ result[key]=el.type==="checkbox"?el.checked:el.type==="number"?Number(el.value):
 }
 return result;
 }
+
 function setSettings(values){
 for(const [key,value] of Object.entries(values)){
 const el=$(key);
@@ -162,11 +181,13 @@ if(el.type==="checkbox")el.checked=!!value;
 else el.value=value;
 }
 }
+
 function escapeHTML(value){
 return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
-function getURL(){
-let value=$("url").value.trim();
+
+function getURL(inputValue=$("url").value){
+let value=String(inputValue||"").trim();
 if(!value)return null;
 if(!/^https?:\/\//i.test(value))value="https://"+value;
 try{
@@ -174,6 +195,7 @@ const parsed=new URL(value);
 return ["http:","https:"].includes(parsed.protocol)?parsed.href:null;
 }catch{return null}
 }
+
 function getSandboxTokens(s){
 if(!s.sandbox)return null;
 const tokens=[];
@@ -186,6 +208,7 @@ for(const [key,token] of Object.entries(map))if(s[key])tokens.push(token);
 if(s.customSandbox.trim())tokens.push(...s.customSandbox.trim().split(/\s+/));
 return [...new Set(tokens)].join(" ");
 }
+
 function getAllow(s){
 const permissions=[];
 if(s.fullscreen)permissions.push("fullscreen");
@@ -194,21 +217,27 @@ if(s.clipboard)permissions.push("clipboard-read","clipboard-write");
 if(s.customAllow.trim())permissions.push(...s.customAllow.split(/[;,]+/).map(x=>x.trim()).filter(Boolean));
 return [...new Set(permissions)].join("; ");
 }
-function openEmbed(){
-const url=getURL();
+
+function openEmbed(presetUrl=null){
+const url=getURL(presetUrl===null?$("url").value:presetUrl);
 if(!url){
 $("status").textContent="Enter a valid website URL.";
 return;
 }
+
 const s=getSettings();
 const tab=window.open("about:blank","_blank");
+
 if(!tab){
 $("status").textContent="Popup blocked. Allow popups and try again.";
 return;
 }
+
 $("status").textContent="Tab opened.";
+
 const title=s.tabName||"Loading";
 const loadingText=s.loadingText||"Loading";
+
 try{
 tab.document.open();
 tab.document.write(`<!DOCTYPE html>
@@ -232,6 +261,7 @@ ${s.showLoading?`<div id="loading"><div class="spinner"></div><span>${escapeHTML
 </html>`);
 tab.document.close();
 tab.document.title=title;
+
 if(s.favicon.trim()){
 const link=tab.document.createElement("link");
 link.rel="icon";
@@ -242,54 +272,97 @@ tab.document.head.appendChild(link);
 $("status").textContent="Could not initialize the tab.";
 return;
 }
+
 const duration=s.useCountdown?Math.max(0,Math.min(60,Number(s.countdown)||0)):0;
 const loading=tab.document.getElementById("loading");
+
 if(duration>0&&loading){
 let remaining=duration;
 loading.innerHTML='<div class="spinner"></div><span>'+escapeHTML(loadingText)+" in "+remaining+"...</span>";
+
 const interval=setInterval(()=>{
 if(tab.closed){clearInterval(interval);return}
 remaining--;
 if(remaining>0)loading.innerHTML='<div class="spinner"></div><span>'+escapeHTML(loadingText)+" in "+remaining+"...</span>";
 },1000);
+
 setTimeout(()=>{
 clearInterval(interval);
 if(!tab.closed)loadIframe(tab,url,s);
 },duration*1000);
+
 }else{
 if(duration>0){
 setTimeout(()=>{if(!tab.closed)loadIframe(tab,url,s)},duration*1000);
 }else loadIframe(tab,url,s);
 }
 }
+
 function loadIframe(tab,url,s){
 if(tab.closed)return;
+
 try{
 const doc=tab.document;
 const loading=doc.getElementById("loading");
 if(loading)loading.remove();
+
 const iframe=doc.createElement("iframe");
 iframe.src=url;
 iframe.title=s.iframeTitle;
 iframe.name=s.frameName;
 iframe.referrerPolicy=s.referrer;
 iframe.setAttribute("scrolling",s.scrolling?"yes":"no");
+
 const sandbox=getSandboxTokens(s);
 if(sandbox!==null)iframe.setAttribute("sandbox",sandbox);
+
 const allow=getAllow(s);
 if(allow)iframe.setAttribute("allow",allow);
+
 iframe.allowFullscreen=!!s.fullscreen;
 doc.body.appendChild(iframe);
+
 }catch(e){
-try{tab.document.body.innerHTML="<div style='font:13px Arial;padding:25px;color:white;background:#080808'>Unable to load website.</div>"}catch{}
+try{
+tab.document.body.innerHTML="<div style='font:13px Arial;padding:25px;color:white;background:#080808'>Unable to load website.</div>";
+}catch{}
 }
 }
+
+/* ADD OR REMOVE PRESETS HERE */
+const PRESETS=[
+{name:"Roblox",url:"https://tru.ss/"},
+{name:"HopEarth",url:"https://hop.earth"},
+{name:"Fortnite",url:"https://retrora.lol/"},
+{name:"Bonvo Skiing",url:"https://bonvo.ski/en/ride"},
+];
+
+/* Automatically creates the preset buttons */
+$("presetList").innerHTML=PRESETS.map((preset,index)=>`
+<button class="preset" type="button" data-preset-index="${index}">
+<span class="preset-name">${escapeHTML(preset.name)}</span>
+<span class="preset-url">${escapeHTML(preset.url)}</span>
+</button>
+`).join("");
+
+$("presetList").querySelectorAll(".preset").forEach(button=>{
+button.addEventListener("click",()=>{
+const preset=PRESETS[Number(button.dataset.presetIndex)];
+if(preset)openEmbed(preset.url);
+});
+});
+
 $("open").addEventListener("click",openEmbed);
-$("url").addEventListener("keydown",e=>{if(e.key==="Enter")openEmbed()});
+
+$("url").addEventListener("keydown",e=>{
+if(e.key==="Enter")openEmbed();
+});
+
 $("reset").addEventListener("click",()=>{
 setSettings(defaults);
 $("settingsStatus").textContent="Settings reset.";
 });
+
 setSettings(defaults);
 </script>
 </body>
