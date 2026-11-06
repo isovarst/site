@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Embed</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b0b;color:#eee;font-family:Arial,sans-serif;font-size:13px}
+main{width:min(680px,92%);margin:65px auto}
+h1{font-size:22px;font-weight:600;margin:0 0 7px}
+p{color:#777;font-size:12px;margin:0 0 25px}
+input,select,button{font:inherit}
+input[type=text],input[type=url],input[type=number],select{width:100%;height:36px;background:#111;border:1px solid #303030;border-radius:4px;padding:0 10px;color:#eee;outline:none}
+input:focus,select:focus{border-color:#777}
+input::placeholder{color:#555}
+button{height:36px;padding:0 15px;border:1px solid #444;background:#eee;color:#111;border-radius:4px;font-weight:600;cursor:pointer}
+button:hover{background:#ccc}
+.url-row{display:flex;gap:8px}
+.url-row input{flex:1;min-width:0}
+.status{color:#777;font-size:11px;margin-top:10px;min-height:15px}
+.section{border-top:1px solid #292929;margin-top:25px;padding-top:18px}
+.section-title{font-size:12px;font-weight:600;margin-bottom:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field label{display:block;font-size:11px;color:#aaa;margin-bottom:6px}
+.field small{display:block;color:#666;font-size:10px;margin-top:5px}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check{display:flex;align-items:center;gap:8px;color:#aaa;font-size:11px;cursor:pointer}
+.check input{accent-color:white}
+.actions{display:flex;gap:8px;margin-top:18px}
+.actions button{background:#171717;color:#ddd;border-color:#444}
+.actions button:hover{background:#252525}
+.settings-status{color:#999;font-size:11px;margin-top:10px;min-height:14px}
+@media(max-width:520px){main{margin:35px auto}.grid,.checks{grid-template-columns:1fr}.url-row{flex-direction:column}.url-row button{width:100%}}
+</style>
+</head>
+<body>
+<main>
+<h1>Embed</h1>
+<p>Open a website in a new about:blank tab.</p>
+
+<div class="url-row">
+<input id="url" type="text" placeholder="https://example.com" spellcheck="false">
+<button id="open">Open</button>
+</div>
+<div class="status" id="status">Ready.</div>
+
+<div class="section">
+<div class="section-title">About:blank tab</div>
+<div class="grid">
+<div class="field">
+<label for="tabName">Tab name</label>
+<input id="tabName" type="text" value="Loading">
+</div>
+<div class="field">
+<label for="favicon">Favicon URL</label>
+<input id="favicon" type="url" placeholder="Leave empty for no favicon">
+</div>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Countdown and loading</div>
+<div class="grid">
+<div class="field">
+<label for="countdown">Countdown duration (seconds)</label>
+<input id="countdown" type="number" min="0" max="60" value="3">
+</div>
+<div class="field">
+<label for="loadingText">Loading text</label>
+<input id="loadingText" type="text" value="Loading">
+</div>
+</div>
+<div class="checks" style="margin-top:15px">
+<label class="check"><input id="useCountdown" type="checkbox" checked> Enable countdown</label>
+<label class="check"><input id="showLoading" type="checkbox" checked> Show loading screen</label>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Iframe permissions</div>
+<div class="checks">
+<label class="check"><input id="sandbox" type="checkbox" checked> Enable sandbox</label>
+<label class="check"><input id="scripts" type="checkbox" checked> Allow scripts</label>
+<label class="check"><input id="sameOrigin" type="checkbox" checked> Allow same-origin</label>
+<label class="check"><input id="forms" type="checkbox" checked> Allow forms</label>
+<label class="check"><input id="popups" type="checkbox"> Allow popups</label>
+<label class="check"><input id="popupEscape" type="checkbox"> Allow popup escape</label>
+<label class="check"><input id="downloads" type="checkbox"> Allow downloads</label>
+<label class="check"><input id="modals" type="checkbox"> Allow modals</label>
+<label class="check"><input id="pointerLock" type="checkbox"> Allow pointer lock</label>
+<label class="check"><input id="orientation" type="checkbox"> Allow orientation lock</label>
+<label class="check"><input id="presentation" type="checkbox"> Allow presentation</label>
+<label class="check"><input id="fullscreen" type="checkbox" checked> Allow fullscreen</label>
+<label class="check"><input id="autoplay" type="checkbox" checked> Allow autoplay</label>
+<label class="check"><input id="clipboard" type="checkbox"> Allow clipboard</label>
+<label class="check"><input id="scrolling" type="checkbox" checked> Allow scrolling</label>
+</div>
+</div>
+
+<div class="section">
+<div class="section-title">Advanced</div>
+<div class="grid">
+<div class="field">
+<label for="iframeTitle">Iframe title</label>
+<input id="iframeTitle" type="text" value="Embedded website">
+</div>
+<div class="field">
+<label for="frameName">Frame name</label>
+<input id="frameName" type="text" value="embeddedFrame">
+</div>
+<div class="field">
+<label for="referrer">Referrer policy</label>
+<select id="referrer">
+<option value="no-referrer">No referrer</option>
+<option value="origin">Origin</option>
+<option value="same-origin">Same origin</option>
+<option value="strict-origin">Strict origin</option>
+<option value="strict-origin-when-cross-origin" selected>Strict origin when cross-origin</option>
+<option value="unsafe-url">Unsafe URL</option>
+</select>
+</div>
+<div class="field">
+<label for="customAllow">Custom allow permissions</label>
+<input id="customAllow" type="text" placeholder="camera; microphone">
+</div>
+<div class="field">
+<label for="customSandbox">Custom sandbox tokens</label>
+<input id="customSandbox" type="text" placeholder="allow-scripts allow-forms">
+</div>
+</div>
+</div>
+
+<div class="actions">
+<button id="reset">Reset defaults</button>
+</div>
+<div class="settings-status" id="settingsStatus"></div>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const defaults={
+tabName:"Loading",favicon:"",countdown:3,loadingText:"Loading",useCountdown:true,showLoading:true,
+sandbox:true,scripts:true,sameOrigin:true,forms:true,popups:false,popupEscape:false,downloads:false,modals:false,pointerLock:false,orientation:false,presentation:false,fullscreen:true,autoplay:true,clipboard:false,scrolling:true,
+iframeTitle:"Embedded website",frameName:"embeddedFrame",referrer:"strict-origin-when-cross-origin",customAllow:"",customSandbox:""
+};
+const fields=Object.keys(defaults);
+function getSettings(){
+const result={};
+for(const key of fields){
+const el=$(key);
+result[key]=el.type==="checkbox"?el.checked:el.type==="number"?Number(el.value):el.value;
+}
+return result;
+}
+function setSettings(values){
+for(const [key,value] of Object.entries(values)){
+const el=$(key);
+if(!el)continue;
+if(el.type==="checkbox")el.checked=!!value;
+else el.value=value;
+}
+}
+function escapeHTML(value){
+return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function getURL(){
+let value=$("url").value.trim();
+if(!value)return null;
+if(!/^https?:\/\//i.test(value))value="https://"+value;
+try{
+const parsed=new URL(value);
+return ["http:","https:"].includes(parsed.protocol)?parsed.href:null;
+}catch{return null}
+}
+function getSandboxTokens(s){
+if(!s.sandbox)return null;
+const tokens=[];
+const map={
+scripts:"allow-scripts",sameOrigin:"allow-same-origin",forms:"allow-forms",popups:"allow-popups",
+popupEscape:"allow-popups-to-escape-sandbox",downloads:"allow-downloads",modals:"allow-modals",
+pointerLock:"allow-pointer-lock",orientation:"allow-orientation-lock",presentation:"allow-presentation"
+};
+for(const [key,token] of Object.entries(map))if(s[key])tokens.push(token);
+if(s.customSandbox.trim())tokens.push(...s.customSandbox.trim().split(/\s+/));
+return [...new Set(tokens)].join(" ");
+}
+function getAllow(s){
+const permissions=[];
+if(s.fullscreen)permissions.push("fullscreen");
+if(s.autoplay)permissions.push("autoplay");
+if(s.clipboard)permissions.push("clipboard-read","clipboard-write");
+if(s.customAllow.trim())permissions.push(...s.customAllow.split(/[;,]+/).map(x=>x.trim()).filter(Boolean));
+return [...new Set(permissions)].join("; ");
+}
+function openEmbed(){
+const url=getURL();
+if(!url){
+$("status").textContent="Enter a valid website URL.";
+return;
+}
+const s=getSettings();
+const tab=window.open("about:blank","_blank");
+if(!tab){
+$("status").textContent="Popup blocked. Allow popups and try again.";
+return;
+}
+$("status").textContent="Tab opened.";
+const title=s.tabName||"Loading";
+const loadingText=s.loadingText||"Loading";
+try{
+tab.document.open();
+tab.document.write(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${escapeHTML(title)}</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080808;color:white;font-family:Arial,sans-serif}
+#loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#080808;color:#999;font-size:13px}
+.spinner{width:24px;height:24px;border:2px solid #333;border-top-color:white;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:white}
+</style>
+</head>
+<body>
+${s.showLoading?`<div id="loading"><div class="spinner"></div><span>${escapeHTML(loadingText)}</span></div>`:""}
+</body>
+</html>`);
+tab.document.close();
+tab.document.title=title;
+if(s.favicon.trim()){
+const link=tab.document.createElement("link");
+link.rel="icon";
+link.href=s.favicon.trim();
+tab.document.head.appendChild(link);
+}
+}catch(e){
+$("status").textContent="Could not initialize the tab.";
+return;
+}
+const duration=s.useCountdown?Math.max(0,Math.min(60,Number(s.countdown)||0)):0;
+const loading=tab.document.getElementById("loading");
+if(duration>0&&loading){
+let remaining=duration;
+loading.innerHTML='<div class="spinner"></div><span>'+escapeHTML(loadingText)+" in "+remaining+"...</span>";
+const interval=setInterval(()=>{
+if(tab.closed){clearInterval(interval);return}
+remaining--;
+if(remaining>0)loading.innerHTML='<div class="spinner"></div><span>'+escapeHTML(loadingText)+" in "+remaining+"...</span>";
+},1000);
+setTimeout(()=>{
+clearInterval(interval);
+if(!tab.closed)loadIframe(tab,url,s);
+},duration*1000);
+}else{
+if(duration>0){
+setTimeout(()=>{if(!tab.closed)loadIframe(tab,url,s)},duration*1000);
+}else loadIframe(tab,url,s);
+}
+}
+function loadIframe(tab,url,s){
+if(tab.closed)return;
+try{
+const doc=tab.document;
+const loading=doc.getElementById("loading");
+if(loading)loading.remove();
+const iframe=doc.createElement("iframe");
+iframe.src=url;
+iframe.title=s.iframeTitle;
+iframe.name=s.frameName;
+iframe.referrerPolicy=s.referrer;
+iframe.setAttribute("scrolling",s.scrolling?"yes":"no");
+const sandbox=getSandboxTokens(s);
+if(sandbox!==null)iframe.setAttribute("sandbox",sandbox);
+const allow=getAllow(s);
+if(allow)iframe.setAttribute("allow",allow);
+iframe.allowFullscreen=!!s.fullscreen;
+doc.body.appendChild(iframe);
+}catch(e){
+try{tab.document.body.innerHTML="<div style='font:13px Arial;padding:25px;color:white;background:#080808'>Unable to load website.</div>"}catch{}
+}
+}
+$("open").addEventListener("click",openEmbed);
+$("url").addEventListener("keydown",e=>{if(e.key==="Enter")openEmbed()});
+$("reset").addEventListener("click",()=>{
+setSettings(defaults);
+$("settingsStatus").textContent="Settings reset.";
+});
+setSettings(defaults);
+</script>
+</body>
+</html>
