@@ -646,6 +646,7 @@ body.wn-open{overflow:hidden}
           <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
           <li><b>embedder</b> <span>- open other sites inside</span></li>
           <li><b>geometry dash full</b> <span>- the full game, in your browser</span></li>
+          <li><b>lumin's catalog</b> <span>- over 1,000 more games, added to your list</span></li>
         </ul>
       </div>
       <div class="wn-sec">
@@ -906,6 +907,16 @@ body.wn-open{overflow:hidden}
         <label>how it should answer</label>
         <textarea id="persona" rows="4" placeholder="Optional. Anything you add here is added to how the assistant behaves."></textarea>
         <div class="note">Maths and facts are checked and worked through step by step unless you tell it otherwise.</div>
+      </div>
+      <h3>games</h3>
+      <div class="field">
+        <label>duplicate games</label>
+        <div class="note">Lumin's catalog is added to your list. When two games share a name,
+          only one is kept - pick which one wins.</div>
+        <select id="dupPref" class="msel">
+          <option value="lumin">lumin's version</option>
+          <option value="mine">my version</option>
+        </select>
       </div>
       <h3>data</h3>
       <div class="field">
@@ -2488,6 +2499,134 @@ function mineZone(m,i){
 }
 var mineEdits=[];
 
+var LS_DUP="appDupPref";
+var LUMIN_SRC="https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js";
+var LUMIN_ICON="https://a.luminsdk.com/api/v1/icon/";
+var LUMIN={ready:false,loading:false,error:"",games:[],promise:null};
+function dupPref(){return lsGet(LS_DUP,"lumin")==="mine"?"mine":"lumin"}
+function luminGames(){return LUMIN.games||[]}
+function luminZones(){
+  if(!LUMIN.ready)return [];
+  return LUMIN.games.map(function(g,i){
+    return {
+      id:"lumin-"+String(g.id||i).replace(/[^a-z0-9]+/gi,"-"),
+      name:String(g.name||"untitled").slice(0,60),
+      cover:g.image_token?LUMIN_ICON+g.image_token:MINE_BLANK,
+      url:"",
+      author:"lumin",
+      authorLink:"",
+      special:["lumin"],
+      lumin:g
+    };
+  });
+}
+function zoneNameKey(n){return String(n||"").trim().toLowerCase()}
+function dedupeZones(){
+  var pref=dupPref(),byName={},order=[];
+  zones.forEach(function(z){
+    var k=zoneNameKey(z.name);
+    if(!byName[k]){byName[k]=[];order.push(k)}
+    byName[k].push(z);
+  });
+  var drop=[];
+  order.forEach(function(k){
+    var group=byName[k];
+    if(group.length<2)return;
+    if(!group.some(function(z){return z.lumin}))return;
+    var keep=0,i;
+    if(pref==="lumin"){
+      for(i=0;i<group.length;i++){if(group[i].lumin){keep=i;break}}
+    }else{
+      for(i=0;i<group.length;i++){if(!group[i].lumin){keep=i;break}}
+    }
+    for(i=0;i<group.length;i++){if(i!==keep)drop.push(group[i])}
+  });
+  if(!drop.length)return;
+  for(var d=zones.length-1;d>=0;d--){
+    if(drop.indexOf(zones[d])>-1)zones.splice(d,1);
+  }
+}
+function ensureLuminScript(){
+  return new Promise(function(resolve,reject){
+    if(typeof window.Lumin!=="undefined")return resolve();
+    var old=document.querySelector("script[data-lumin-sdk]");
+    if(old){
+      old.addEventListener("load",function(){resolve()});
+      old.addEventListener("error",function(){reject(new Error("the lumin script was blocked"))});
+      return;
+    }
+    var s=document.createElement("script");
+    s.src=LUMIN_SRC;
+    s.async=true;
+    s.setAttribute("data-lumin-sdk","1");
+    s.onload=function(){resolve()};
+    s.onerror=function(){reject(new Error("the lumin script was blocked"))};
+    document.head.appendChild(s);
+  });
+}
+function fetchAllLumin(){
+  return window.Lumin.getGames({page:1,limit:500}).then(function(first){
+    var games=(first&&first.games?first.games:[]).slice();
+    var pages=Math.max(1,Number(first&&first.pages)||1);
+    var chain=Promise.resolve();
+    for(var p=2;p<=pages;p++){
+      (function(pg){
+        chain=chain.then(function(){return window.Lumin.getGames({page:pg,limit:500})})
+          .then(function(next){if(next&&next.games)games=games.concat(next.games)});
+      })(p);
+    }
+    return chain.then(function(){LUMIN.games=games});
+  });
+}
+function loadLumin(){
+  if(LUMIN.ready)return Promise.resolve(true);
+  if(LUMIN.promise)return LUMIN.promise;
+  if(location.protocol==="file:"){
+    LUMIN.error="the page has to be served for lumin games";
+    setTimeout(function(){
+      toast("lumin's games need this served - open it with Start Launcher","bad");
+    },1500);
+    return Promise.resolve(false);
+  }
+  LUMIN.loading=true;
+  LUMIN.promise=ensureLuminScript().then(function(){
+    return window.Lumin.init({headless:true});
+  }).then(function(){
+    return fetchAllLumin();
+  }).then(function(){
+    LUMIN.loading=false;
+    LUMIN.ready=true;
+    return true;
+  }).catch(function(err){
+    LUMIN.loading=false;
+    LUMIN.promise=null;
+    LUMIN.error=String((err&&err.message)||err||"the lumin catalog could not load");
+    return false;
+  });
+  return LUMIN.promise;
+}
+function openLuminZone(z){
+  if(!z||!z.lumin)return;
+  if(!LUMIN.ready){
+    toast("lumin games are still loading","bad");
+    loadLumin().then(function(ok){if(ok)syncMineZones()});
+    return;
+  }
+  var token=++zoneToken;
+  showZoneHead(z);
+  var f=freshFrame();
+  zoneLoading(f,z.name).then(function(){
+    return window.Lumin.getGameUrl(z.lumin.id);
+  }).then(function(res){
+    if(token!==zoneToken)return;
+    if(!res||!res.url)throw new Error("no play link came back");
+    f.src=res.url;
+  }).catch(function(err){
+    if(token!==zoneToken)return;
+    zoneFailed(f,z.name,String((err&&err.message)||err||"it would not load"));
+    toast("could not load "+z.name,"bad");
+  });
+}
 
 function syncMineZones(){
   if(typeof zones==="undefined"||!zones.length)return false;
@@ -2497,12 +2636,12 @@ function syncMineZones(){
   }
   var mine=mineAll().map(mineZone);
   for(var i=zones.length-1;i>=0;i--){
-    if(zones[i]&&zones[i].special&&zones[i].special.indexOf("user")>-1)zones.splice(i,1);
+    if(!zones[i])continue;
+    if(zones[i].lumin||(zones[i].special&&zones[i].special.indexOf("user")>-1))zones.splice(i,1);
   }
-  mine.forEach(function(z){
-
-    zones.unshift(z);
-  });
+  var add=mine.concat(luminZones());
+  for(var a=add.length-1;a>=0;a--)zones.unshift(add[a]);
+  dedupeZones();
 
   var sel=$("filterOptions");
   if(sel){
@@ -2555,6 +2694,7 @@ function installZoneHooks(){
   window.openZone=function(z){
     if(!z)return;
     recordPlay(z);
+    if(z.lumin&&!z.url){openLuminZone(z);return}
     playAnyZone(z);
   };
 
@@ -4706,6 +4846,9 @@ function paintSettings(){
   paintModelPickers();
   paintPicPickers();
 
+  var dp=$("dupPref");
+  if(dp)dp.value=dupPref();
+
   var kn=$("keyNote");
   if(kn&&keyCheck)kn.textContent=keyCheck;
 }
@@ -4811,6 +4954,12 @@ function adoptKeys(){
     if(kn)kn.textContent="not checked yet - press Test key";
   });
 });
+var _dupSel=$("dupPref");
+if(_dupSel)_dupSel.onchange=function(){
+  lsSet(LS_DUP,this.value==="mine"?"mine":"lumin");
+  syncMineZones();
+  toast("duplicate games now favour "+(dupPref()==="lumin"?"lumin":"yours"));
+};
 $("saveSettings").onclick=function(){
   adoptKeys();
   settings.model=$("modelSelect").value||settings.model;
@@ -5017,6 +5166,7 @@ window.APP={
   ytGo:ytGo, ytSearch:ytSearch, ytHome:ytHome, ytPlay:ytPlay, ytId:ytId,
   ytTrending:ytTrending, ytChannel:openChannel,
   mine:mineAll, mineSync:syncMineZones, minePaint:paintMineTable, addMine:addMine,
+  luminLoad:loadLumin, luminSync:syncMineZones, luminGames:luminGames, dupPref:dupPref,
   mode:mode, setMode:applyMode,
   markdown:mdToHtml, setFavicon:setFavicon,
   takeShot:takeShot, shotFromVideo:shotFromVideo, shotClip:shotClip,
@@ -5076,6 +5226,13 @@ try { if (window.__appAfterAlice) window.__appAfterAlice(); } catch (e) { consol
     document.body.classList.remove("wn-open");
   });
 })();
+
+
+if(window.APP&&window.APP.luminLoad){
+  window.APP.luminLoad().then(function(ok){
+    if(ok&&window.APP.mineSync)window.APP.mineSync();
+  }).catch(function(){});
+}
 
 
 setInterval(function(){
