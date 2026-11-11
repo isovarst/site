@@ -157,9 +157,34 @@ button:hover{background:#ccc}
 const $=id=>document.getElementById(id);
 
 const defaults={
-tabName:"Loading",favicon:"",countdown:3,loadingText:"Loading",useCountdown:true,showLoading:true,
-sandbox:true,scripts:true,sameOrigin:true,forms:true,popups:false,popupEscape:false,downloads:false,modals:false,pointerLock:false,orientation:false,presentation:false,fullscreen:true,autoplay:true,clipboard:false,scrolling:true,
-iframeTitle:"Embedded website",frameName:"embeddedFrame",referrer:"strict-origin-when-cross-origin",customAllow:"",customSandbox:""
+tabName:"Loading",
+favicon:"",
+countdown:3,
+loadingText:"Loading",
+useCountdown:true,
+showLoading:true,
+
+sandbox:true,
+scripts:true,
+sameOrigin:true,
+forms:true,
+popups:true,
+popupEscape:true,
+downloads:false,
+modals:true,
+pointerLock:true,
+orientation:true,
+presentation:true,
+fullscreen:true,
+autoplay:true,
+clipboard:true,
+scrolling:true,
+
+iframeTitle:"Embedded website",
+frameName:"embeddedFrame",
+referrer:"strict-origin-when-cross-origin",
+customAllow:"",
+customSandbox:""
 };
 
 const fields=Object.keys(defaults);
