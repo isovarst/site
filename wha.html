@@ -612,15 +612,17 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
   border-bottom:1px solid var(--tx);flex-shrink:0}
 .wn-head b{font-size:13px;letter-spacing:1px;font-weight:700}
 .wn-ver{margin-left:auto;font-size:11px;color:var(--mut)}
-.wn-body{padding:12px;overflow:auto;font-size:12.5px;line-height:1.6}
+.wn-body{padding:12px;overflow:auto;font-size:13px;line-height:1.6}
 .wn-sec{margin-bottom:14px}
 .wn-sec:last-child{margin-bottom:0}
-.wn-sec h4{margin:0 0 6px;font-size:11px;color:var(--mut);
+.wn-sec h4{margin:0 0 6px;font-size:12px;color:var(--mut);
   text-transform:lowercase;letter-spacing:1px;font-weight:700}
 .wn-sec ul{margin:0;padding-left:18px;list-style:square}
 .wn-sec li{margin:2px 0}
 .wn-sec li b{font-weight:700}
 .wn-sec li span{color:var(--mut)}
+.wn-big{font-size:18px;font-weight:700;letter-spacing:-.3px;line-height:1.3;margin:2px 0 4px}
+.wn-note{font-size:12px;color:var(--mut);margin-top:6px}
 .wn-foot{border-top:1px solid var(--tx);padding:8px 12px;display:flex;
   justify-content:flex-end;flex-shrink:0}
 #whatsNewGo{padding:6px 14px;border:1px solid var(--tx);background:var(--tx);
@@ -641,6 +643,9 @@ body.wn-open{overflow:hidden}
     <div class="wn-body">
       <div class="wn-sec">
         <h4>added</h4>
+        <div class="wn-big">way more game collections</div>
+        <div class="wn-note">this is experimental - some games will work and some won't.
+          it's a big new catalog, so i don't know which is which yet.</div>
         <ul>
           <li><b>madden nfl 09</b> <span>- football, with a controller</span></li>
           <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
@@ -660,7 +665,8 @@ body.wn-open{overflow:hidden}
         <ul>
           <li>the games list refreshes itself every 30 seconds</li>
           <li>a game you remove now stays removed</li>
-          <li>new stats tab tracks visits and your most played games</li>
+          <li>stats are global now - visits, games played and games tried only ever go up</li>
+          <li>a game only shows up in stats after you have played it for over a minute</li>
           <li>this update log</li>
         </ul>
       </div>
@@ -954,14 +960,11 @@ body.wn-open{overflow:hidden}
       <h3>most used games</h3>
       <table class="mtable" id="statTable">
         <thead>
-          <tr><th>#</th><th>game</th><th>plays</th><th></th></tr>
+          <tr><th>#</th><th>game</th><th>plays</th><th>time</th><th></th></tr>
         </thead>
         <tbody id="statRows"></tbody>
       </table>
-      <div class="stat-empty" id="statEmpty">no games played yet.</div>
-      <div class="actions">
-        <button class="act" id="statReset">reset stats</button>
-      </div>
+      <div class="stat-empty" id="statEmpty">no games played for over a minute yet.</div>
     </div>
   </section>
 </main>
@@ -2584,7 +2587,7 @@ function loadLumin(){
   if(location.protocol==="file:"){
     LUMIN.error="the page has to be served for lumin games";
     setTimeout(function(){
-      toast("lumin's games need this served - open it with Start Launcher","bad");
+      toast("lumin's games only load when this page is served, not opened as a file","bad");
     },1500);
     return Promise.resolve(false);
   }
@@ -2694,11 +2697,13 @@ function installZoneHooks(){
   window.openZone=function(z){
     if(!z)return;
     recordPlay(z);
+    playClockStart(z);
     if(z.lumin&&!z.url){openLuminZone(z);return}
     playAnyZone(z);
   };
 
   window.closeZone=function(){
+    playClockFlush();
     var v=$("zoneViewer");
     if(!v)return;
     zoneToken++;
@@ -5099,34 +5104,78 @@ function recordPlay(z){
     var name=String(z.name||z.id||"unknown");
     var obj=statPlays();
     var e=obj[name];
-    if(typeof e==="number")e={n:e,id:""};
-    if(!e||typeof e!=="object")e={n:0,id:""};
+    if(typeof e==="number")e={n:e,id:"",t:0};
+    if(!e||typeof e!=="object")e={n:0,id:"",t:0};
     e.n=(e.n||0)+1;
+    if(e.t==null)e.t=0;
     if(z.id)e.id=z.id;
     obj[name]=e;
     statSave(obj);
     if(activeTab==="stats")paintStats();
   }catch(err){}
 }
+var playClock=null,playClockZone=null;
+function playClockName(z){return String(z.name||z.id||"unknown")}
+function playClockFlush(){
+  if(!playClock)return;
+  var secs=Math.round((Date.now()-playClock.start)/1000);
+  var name=playClock.name;
+  playClock=null;
+  if(secs<1)return;
+  try{
+    var obj=statPlays();
+    var e=obj[name];
+    if(typeof e==="number")e={n:e,id:"",t:0};
+    if(!e||typeof e!=="object")e={n:0,id:"",t:0};
+    e.t=(e.t||0)+secs;
+    obj[name]=e;
+    statSave(obj);
+    if(activeTab==="stats")paintStats();
+  }catch(err){}
+}
+function playClockStart(z){
+  playClockFlush();
+  if(!z)return;
+  playClockZone=z;
+  playClock={name:playClockName(z),start:Date.now()};
+}
+function zoneViewerOpen(){
+  var v=$("zoneViewer");
+  return !!(v&&v.style.display==="block");
+}
+document.addEventListener("visibilitychange",function(){
+  if(document.hidden)playClockFlush();
+  else if(playClockZone&&!playClock&&zoneViewerOpen())playClock={name:playClockName(playClockZone),start:Date.now()};
+});
+window.addEventListener("pagehide",playClockFlush);
+function statTime(s){
+  s=Math.round(s||0);
+  if(s<60)return s+"s";
+  var m=Math.floor(s/60);
+  if(m<60)return m+"m";
+  return Math.floor(m/60)+"h "+(m%60)+"m";
+}
 function paintStats(){
   var v=$("statVisits");
   if(v)v.textContent=String(parseInt(lsGet(LS_VISITS,"0"),10)||0);
   var obj=statPlays();
-  var rows=[];
-  var total=0;
+  var all=[],total=0,tried=0;
   for(var k in obj){
     if(!Object.prototype.hasOwnProperty.call(obj,k))continue;
     var e=obj[k];
     var n=typeof e==="number"?e:(e&&e.n)||0;
+    var t=typeof e==="number"?0:(e&&e.t)||0;
     if(!n)continue;
+    tried++;
     total+=n;
-    rows.push({name:k,n:n});
+    all.push({name:k,n:n,t:t});
   }
-  rows.sort(function(a,b){return b.n-a.n});
   var pv=$("statPlays");
   if(pv)pv.textContent=String(total);
   var uv=$("statUnique");
-  if(uv)uv.textContent=String(rows.length);
+  if(uv)uv.textContent=String(tried);
+  var rows=all.filter(function(r){return r.t>60});
+  rows.sort(function(a,b){return b.t-a.t||b.n-a.n});
   var body=$("statRows");
   var empty=$("statEmpty");
   var table=$("statTable");
@@ -5139,23 +5188,16 @@ function paintStats(){
   }
   if(empty)empty.hidden=true;
   if(table)table.hidden=false;
-  var max=rows[0].n||1;
+  var max=rows[0].t||1;
   body.innerHTML=rows.slice(0,25).map(function(r,i){
-    var pct=Math.max(4,Math.round((r.n/max)*100));
+    var pct=Math.max(4,Math.round((r.t/max)*100));
     return '<tr><td class="stat-rank">'+(i+1)+'</td>'+
       '<td class="m-name">'+esc(r.name)+'</td>'+
       '<td>'+r.n+'</td>'+
+      '<td>'+statTime(r.t)+'</td>'+
       '<td><span class="stat-bar"><i style="width:'+pct+'%"></i></span></td></tr>';
   }).join("");
 }
-if($("statReset"))$("statReset").onclick=function(){
-  if(!window.confirm("reset all stats?"))return;
-  statSave({});
-  lsSet(LS_VISITS,"0");
-  countVisit();
-  paintStats();
-  toast("stats reset");
-};
 countVisit();
 paintStats();
 
