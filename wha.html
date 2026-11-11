@@ -8,8 +8,7 @@
 <title>Home</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23ffffff'/%3E%3C/svg%3E">
 <style>
-/* dark is the default. the whole page is these nine values and nothing else,
-   and body.light swaps them for the light set. */
+
 :root{
   --bg:#111111;
   --surf:#111111;
@@ -49,21 +48,22 @@ button,input,select,textarea{font:inherit;color:inherit;border-radius:0}
 ::-webkit-scrollbar-track{background:var(--surf2)}
 ::-webkit-scrollbar-thumb{background:var(--line2);border:3px solid var(--bg)}
 
-/* ---------- top bar ---------- */
+
 header{position:sticky;top:0;z-index:60;background:var(--bg);border-bottom:1px solid var(--tx)}
 .header-content{max-width:1040px;margin:0 auto;padding:0 12px;
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:38px}
 
-/* ---------- tabs: plain words, no icons ---------- */
+
 .tabs{display:flex;flex-wrap:wrap}
 .tab{padding:6px 12px;border:0;border-right:1px solid var(--line);border-radius:0;
   background:transparent;color:var(--mut);cursor:pointer;font-size:13px;white-space:nowrap}
 .tab:first-child{border-left:1px solid var(--line)}
 .tab:hover{background:var(--surf2);color:var(--tx)}
 .tab.on{color:var(--bg);background:var(--tx);font-weight:700}
+.hidden-tab{display:none!important}
 
 .search-container{display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap}
-/* the one control that is on every tab, so it sits outside the games tools */
+
 .modebtn{padding:4px 8px;border:1px solid var(--tx);border-radius:0;background:var(--tx);
   color:var(--bg);cursor:pointer;font-size:12px;white-space:nowrap;flex-shrink:0}
 .modebtn:hover{background:var(--bg);color:var(--tx)}
@@ -95,11 +95,11 @@ main{max-width:1040px;margin:0 auto;padding:14px 12px 60px}
 .view{display:none}
 .view.on{display:block}
 
-/* ---------- a page heading ---------- */
+
 .pagehead{margin:0 0 12px;padding-bottom:4px;border-bottom:1px solid var(--tx);
   font-size:15px;font-weight:700;letter-spacing:1px;text-transform:lowercase}
 
-/* ---------- games: a plain list, one row each ---------- */
+
 details{margin-bottom:18px}
 summary{font-size:13px;font-weight:700;cursor:pointer;padding:6px 0;
   list-style:none;user-select:none}
@@ -118,7 +118,7 @@ summary:hover{background:var(--surf2)}
   text-align:left;font-size:13px;min-height:0;cursor:pointer;color:var(--tx);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ---------- the game, full window ---------- */
+
 #zoneViewer{position:fixed;inset:0;z-index:200;background:var(--bg);display:none}
 .zone-header{position:absolute;top:0;left:0;right:0;z-index:2;height:36px;
   display:flex;align-items:center;gap:10px;padding:0 10px;
@@ -139,7 +139,7 @@ summary:hover{background:var(--surf2)}
   padding:2px 4px;font-size:12px;flex-shrink:0}
 .info-button:hover{color:var(--tx);background:var(--surf2)}
 
-/* ---------- popup ---------- */
+
 #popupOverlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:none;
   align-items:center;justify-content:center;padding:20px}
 .popup{background:var(--bg);border:1px solid var(--tx);
@@ -155,7 +155,7 @@ summary:hover{background:var(--surf2)}
   width:100%;margin-bottom:6px}
 .settings-button:hover{background:var(--tx);color:var(--bg)}
 
-/* ---------- chat ---------- */
+
 .chat-wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;height:78vh;
   border:1px solid var(--tx)}
 .chat-head{display:flex;align-items:center;gap:10px;padding:7px 10px;
@@ -178,7 +178,7 @@ summary:hover{background:var(--surf2)}
 .msg:first-child{border-top:0}
 .msg.you,.msg.ai{align-self:stretch}
 
-/* ---------- how an answer is laid out ---------- */
+
 .msg .body>:first-child{margin-top:0}
 .msg .body{white-space:normal}
 .msg .body>:last-child{margin-bottom:0}
@@ -227,7 +227,7 @@ summary:hover{background:var(--surf2)}
 .msg .shots img{width:70px;height:70px;object-fit:cover;border:1px solid var(--line);
   cursor:zoom-in}
 .hint{font-size:11.5px;color:var(--mut)}
-/* ---------- messages that pop up on their own ---------- */
+
 #toastHost{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:9999;
   display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
 .toast{background:var(--surf);color:var(--tx);border:1px solid var(--tx);padding:8px 12px;
@@ -259,7 +259,7 @@ summary:hover{background:var(--surf2)}
 .send:disabled{opacity:.35;cursor:default}
 .tools{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
 
-/* ---------- near fullscreen ---------- */
+
 body.wide{display:flex;flex-direction:column;height:100vh;overflow:hidden}
 body.wide header{flex:0 0 auto}
 body.wide main{flex:1 1 auto;min-height:0;width:100%;max-width:none;margin:0;padding:0}
@@ -271,7 +271,7 @@ body.wide #viewGoogle.on,body.wide #viewYoutube.on{display:flex;flex-direction:c
 body.wide .px-frame-wrap{flex:1 1 auto;height:auto;min-height:0;border-left:0;border-right:0}
 body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:0}
 
-/* ---------- web ---------- */
+
 .tabs-px{display:flex;gap:0;overflow-x:auto;border:1px solid var(--line2);flex-shrink:0}
 .ptab{display:flex;align-items:center;gap:6px;height:26px;padding:0 8px;
   border-right:1px solid var(--line);background:var(--bg);cursor:pointer;
@@ -290,7 +290,7 @@ body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:
 .px-out{display:flex;align-items:center;gap:8px;padding:8px 0 0;flex-wrap:wrap}
 .px-out .hint{flex:1;min-width:170px}
 
-/* ---------- your games table ---------- */
+
 .mtable{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:12px}
 .mtable th{text-align:left;font-size:11px;color:var(--mut);
   padding:5px 7px;border-bottom:1px solid var(--tx)}
@@ -308,6 +308,14 @@ body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:
   padding:0 5px}
 .mtable .mini:hover{background:var(--tx);color:var(--bg)}
 .mtable .m-lock{font-size:11px;color:var(--mut);padding-right:4px;white-space:nowrap}
+.stat-grid{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.stat-card{flex:1 1 140px;border:1px solid var(--line);padding:10px 12px;background:var(--surf2)}
+.stat-card .stat-n{font-size:26px;font-weight:700;line-height:1.1}
+.stat-card .stat-l{font-size:11px;color:var(--mut);text-transform:lowercase;letter-spacing:1px;margin-top:2px}
+.stat-empty{font-size:12px;color:var(--mut);padding:8px 0}
+.stat-rank{font-size:11px;color:var(--mut);padding-right:8px;white-space:nowrap}
+.stat-bar{height:8px;background:var(--dim);border:1px solid var(--line);min-width:40px}
+.stat-bar i{display:block;height:100%;background:var(--tx)}
 .mine-form{margin-top:4px}
 .mf-row{display:flex;align-items:center;gap:8px;padding:5px 0}
 .mf-lab{width:70px;flex-shrink:0;font-size:11px;color:var(--mut);text-transform:lowercase}
@@ -317,7 +325,7 @@ body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:
   background:var(--surf2) center/cover no-repeat;flex-shrink:0}
 #mfError{color:var(--tx);min-height:14px}
 
-/* ---------- the popped out assistant ---------- */
+
 #aiDock{position:fixed;right:18px;bottom:18px;z-index:400;width:360px;max-width:calc(100vw - 36px)}
 #aiDock[hidden]{display:none}
 .ai-panel{display:flex;flex-direction:column;height:min(500px,calc(100vh - 120px));
@@ -327,7 +335,7 @@ body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:
   cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}
 .ai-bar.dragging{cursor:grabbing}
 .ai-x.ai-win.on{color:var(--tx)}
-/* its own window: no page behind it, so it fills edge to edge */
+
 body.app-window{background:var(--bg);overflow:hidden}
 body.app-window #aiDock{position:static;width:100%;max-width:none;height:100vh}
 body.app-window #aiDock .ai-panel{height:100%;border:0}
@@ -374,7 +382,7 @@ body.app-window .ai-bar{cursor:default}
   .ai-panel{height:min(440px,calc(100vh - 100px))}
 }
 
-/* ---------- maths ---------- */
+
 .msg .body .math,.ai-log .ai-ai .math,.math{white-space:nowrap}
 .math.big{display:block;text-align:center;margin:6px 0 10px;font-size:1.1em;
   white-space:normal}
@@ -387,12 +395,12 @@ body.app-window .ai-bar{cursor:default}
 .math .frac i:last-child{padding-top:1px}
 .math .sqrt{border-top:1px solid currentColor;padding:0 .12em 0 .06em;margin-left:-.04em}
 .math .boxed{border:1px solid currentColor;padding:.02em .3em;margin:0 .08em}
-/* latex spacing, kept as empty boxes so a copied answer carries no stray marks */
+
 .math .sp1{display:inline-block;width:.18em}
 .math .sp2{display:inline-block;width:.5em}
 .math .sp4{display:inline-block;width:1.1em}
 .math .spm{display:inline-block;width:0;margin-left:-.18em}
-/* ---------- task lists and pictures in an answer ---------- */
+
 .ans li.task,.ai-log li.task{list-style:none;position:relative;padding-left:1.8em}
 .ans li.task .tick,.ai-log li.task .tick{position:absolute;left:0;top:.15em;width:1.1em;
   height:1.1em;border:1px solid var(--line2);display:inline-grid;place-items:center;
@@ -403,7 +411,7 @@ body.app-window .ai-bar{cursor:default}
 .ans a.pic img,.ai-log a.pic img{max-width:min(100%,420px);height:auto;
   border:1px solid var(--line);display:block}
 
-/* ---------- videos ---------- */
+
 .yt-wrap{display:flex;flex-direction:column;height:100%;min-height:0}
 .yt-rail{display:flex;gap:0;padding:0 12px 0;flex-shrink:0;overflow-x:auto;
   border-bottom:1px solid var(--line)}
@@ -419,7 +427,7 @@ body.app-window .ai-bar{cursor:default}
 .yt-more{display:flex;align-items:center;justify-content:center;gap:12px;
   padding:6px 12px 16px;flex-shrink:0}
 .yt-more[hidden]{display:none}
-/* ---------- shorts: one at a time, up and down ---------- */
+
 .yt-shorts{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0}
 .yt-shorts[hidden]{display:none}
 .yt-shorts-col{flex:1 1 auto;min-height:0;overflow-y:auto;scroll-snap-type:y mandatory;
@@ -446,7 +454,7 @@ body.app-window .ai-bar{cursor:default}
   font-size:11px;color:var(--mut)}
 .yt-short .cap span img{width:18px;height:18px;border-radius:50%;object-fit:cover;
   border:1px solid var(--line)}
-/* ---------- subscriptions ---------- */
+
 .yt-card.chan{border-color:var(--line2);background:var(--surf2)}
 .yt-sub-row{display:flex;align-items:center;gap:11px;padding:8px 10px;
   grid-column:1/-1;border:1px solid var(--line);background:var(--bg)}
@@ -527,7 +535,7 @@ body.app-window .ai-bar{cursor:default}
 .yt-under-txt b{display:block;font-size:12.5px;white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis}
 .yt-under-txt span{font-size:11px;color:var(--mut)}
-/* the channel of whatever is playing, so you can walk into their videos */
+
 .yt-chan{display:flex;align-items:center;gap:10px;margin-top:8px;padding-top:8px;
   border-top:1px solid var(--line);cursor:pointer;width:fit-content;max-width:100%}
 .yt-chan[hidden]{display:none}
@@ -548,10 +556,10 @@ body.app-window .ai-bar{cursor:default}
   margin-top:3px;line-height:1.5}
 .yt-loading{display:flex;align-items:center;gap:10px;padding:14px 2px;
   grid-column:1/-1;color:var(--mut);font-size:12.5px}
-/* a row of placeholders while it is on its way */
+
 .yt-skel{background:var(--bg);border:1px solid var(--line);height:190px}
 
-/* ---------- options ---------- */
+
 .panel{max-width:720px;margin:0 auto;border:1px solid var(--tx);padding:0 16px 16px}
 .panel .pagehead{margin:12px -16px 12px;padding:8px 16px 4px;background:var(--bg)}
 .panel h3{margin:16px 0 6px;font-size:12.5px;border-bottom:1px solid var(--line);
@@ -578,7 +586,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
 .act.primary{background:var(--tx);color:var(--bg);border-color:var(--tx)}
 .row2{display:flex;gap:6px}
 
-/* ---------- responsive ---------- */
+
 @media(max-width:820px){
   .header-content{padding:0 8px}
   .tabs{width:100%;overflow-x:auto}
@@ -594,17 +602,82 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 
+
+#whatsNew{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;padding:20px}
+#whatsNew[hidden]{display:none}
+.wn-box{background:var(--bg);border:1px solid var(--tx);max-width:520px;width:100%;
+  max-height:82vh;display:flex;flex-direction:column}
+.wn-head{display:flex;align-items:center;gap:8px;padding:8px 12px;
+  border-bottom:1px solid var(--tx);flex-shrink:0}
+.wn-head b{font-size:13px;letter-spacing:1px;font-weight:700}
+.wn-ver{margin-left:auto;font-size:11px;color:var(--mut)}
+.wn-body{padding:12px;overflow:auto;font-size:12.5px;line-height:1.6}
+.wn-sec{margin-bottom:14px}
+.wn-sec:last-child{margin-bottom:0}
+.wn-sec h4{margin:0 0 6px;font-size:11px;color:var(--mut);
+  text-transform:lowercase;letter-spacing:1px;font-weight:700}
+.wn-sec ul{margin:0;padding-left:18px;list-style:square}
+.wn-sec li{margin:2px 0}
+.wn-sec li b{font-weight:700}
+.wn-sec li span{color:var(--mut)}
+.wn-foot{border-top:1px solid var(--tx);padding:8px 12px;display:flex;
+  justify-content:flex-end;flex-shrink:0}
+#whatsNewGo{padding:6px 14px;border:1px solid var(--tx);background:var(--tx);
+  color:var(--bg);cursor:pointer;font-size:12px}
+#whatsNewGo:hover{background:var(--bg);color:var(--tx)}
+body.wn-open{overflow:hidden}
+
 </style>
 </head>
-<body>
+<body class="wn-open">
+
+<div id="whatsNew" role="dialog" aria-modal="true" aria-labelledby="wnTitle">
+  <div class="wn-box">
+    <div class="wn-head">
+      <b id="wnTitle">what's new</b>
+      <span class="wn-ver">update log</span>
+    </div>
+    <div class="wn-body">
+      <div class="wn-sec">
+        <h4>added</h4>
+        <ul>
+          <li><b>madden nfl 09</b> <span>- football, with a controller</span></li>
+          <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
+          <li><b>embedder</b> <span>- open other sites inside</span></li>
+          <li><b>geometry dash full</b> <span>- the full game, in your browser</span></li>
+        </ul>
+      </div>
+      <div class="wn-sec">
+        <h4>popular right now</h4>
+        <ul>
+          <li><b>flowline</b> <span>- very popular right now</span></li>
+        </ul>
+      </div>
+      <div class="wn-sec">
+        <h4>changed</h4>
+        <ul>
+          <li>the games list refreshes itself every 30 seconds</li>
+          <li>a game you remove now stays removed</li>
+          <li>new stats tab tracks visits and your most played games</li>
+          <li>this update log</li>
+        </ul>
+      </div>
+    </div>
+    <div class="wn-foot">
+      <button id="whatsNewGo" type="button">got it</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <div class="header-content">
     <nav class="tabs" id="tabs">
       <button class="tab on" data-tab="games">games</button>
-      <button class="tab" data-tab="chat">ask</button>
+      <button class="tab hidden-tab" data-tab="chat">ask</button>
       <button class="tab" data-tab="google">web</button>
       <button class="tab" data-tab="youtube">videos</button>
+      <button class="tab" data-tab="stats">stats</button>
       <button class="tab" data-tab="settings">options</button>
     </nav>
 
@@ -632,7 +705,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
 </header>
 
 <main>
-  <!-- ==================== GAMES ==================== -->
+
   <section class="view on" id="viewGames">
     <h1 class="pagehead">games</h1>
     <details id="featuredZonesWrapper" open>
@@ -645,7 +718,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
     </details>
   </section>
 
-  <!-- ==================== ASK ==================== -->
+
   <section class="view" id="viewChat">
     <div class="chat-wrap">
       <div class="chat-head">
@@ -677,7 +750,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
     </div>
   </section>
 
-  <!-- ==================== WEB ==================== -->
+
   <section class="view" id="viewGoogle">
     <h1 class="pagehead">web</h1>
     <div class="tabs-px" id="pxTabs"></div>
@@ -698,7 +771,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
     </div>
   </section>
 
-  <!-- ==================== VIDEOS ==================== -->
+
   <section class="view" id="viewYoutube">
     <div class="yt-wrap">
       <nav class="yt-rail" id="ytRail">
@@ -773,7 +846,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
     </div>
   </section>
 
-  <!-- ==================== OPTIONS ==================== -->
+
   <section class="view" id="viewSettings">
     <div class="panel">
       <h1 class="pagehead">options</h1>
@@ -849,9 +922,40 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
       </div>
     </div>
   </section>
+
+  <section class="view" id="viewStats">
+    <div class="panel">
+      <h1 class="pagehead">stats</h1>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-n" id="statVisits">0</div>
+          <div class="stat-l">visits</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-n" id="statPlays">0</div>
+          <div class="stat-l">games played</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-n" id="statUnique">0</div>
+          <div class="stat-l">games tried</div>
+        </div>
+      </div>
+      <h3>most used games</h3>
+      <table class="mtable" id="statTable">
+        <thead>
+          <tr><th>#</th><th>game</th><th>plays</th><th></th></tr>
+        </thead>
+        <tbody id="statRows"></tbody>
+      </table>
+      <div class="stat-empty" id="statEmpty">no games played yet.</div>
+      <div class="actions">
+        <button class="act" id="statReset">reset stats</button>
+      </div>
+    </div>
+  </section>
 </main>
 
-<!-- the assistant, on its own, so you can ask it something while a game is open -->
+
 <div id="aiDock" hidden>
   <div id="aiPanel" class="ai-panel">
     <div class="ai-bar">
@@ -870,7 +974,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
   </div>
 </div>
 
-<!-- the game viewer, exactly where the original expects it -->
+
 <div id="zoneViewer">
   <div class="zone-header">
     <div class="zone-title">
@@ -900,23 +1004,15 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
 </div>
 
 <script>
-/* alice.js blanks out canvas.toDataURL near the end of the file it ships, which is
-   there to stop screen grabs. Keep the real one before that happens, because our
-   screen button needs it. Nothing about how zones load is touched. */
+
 var NATIVE_TO_DATA_URL = HTMLCanvasElement.prototype.toDataURL;
 
 "use strict";
 
-/* Everything below lives inside a function on purpose. alice.js is a plain script
-   with its own top-level consts - it declares `settings` of its own, for one - and
-   a second top-level declaration of the same name is a syntax error that stops the
-   zone system loading at all. A wrapper means nothing here can ever collide with
-   anything in there. */
+
 (function(){
 
-/* ============================================================
-   1. STORAGE
-   ============================================================ */
+
 var LS={key:"appGroqKey",gemKey:"appGeminiKey",model:"appModel",settings:"appSettings",
         chats:"appChats",active:"appActive",marks:"appMarks",pxUrl:"appPxUrl",
         fav:"appFav"};
@@ -928,20 +1024,17 @@ var GROQ_URL="https://api.groq.com/openai/v1/chat/completions";
 var GROQ_MODELS_URL="https://api.groq.com/openai/v1/models";
 var GEMINI_HOST="https://generativelanguage.googleapis.com/v1beta/models/";
 var GEM_MODELS=["gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash","gemini-3.1-flash-lite","gemini-flash-latest"];
-/* Groq serves a handful of models that can look at a picture, but not to every
-   key - a 404 here means the account cannot reach that model at all. The list is
-   therefore read off the key itself once it is known, and the names below are only
-   a starting point for a key whose model list could not be fetched. */
+
 var VISION_MODEL=/vl|vision|scout|maverick/i;
 var GROQ_VISION_FALLBACK=["qwen/qwen2.5-vl-32b-instruct","meta-llama/llama-4-scout-17b-16e-instruct",
                           "meta-llama/llama-4-maverick-17b-128e-instruct"];
 var visionModels=GROQ_VISION_FALLBACK.slice();
 var visionKnown=false;
-/* what the last check of the chat key said, so the page can be honest about it */
+
 var keyCheck="";
-/* groq also serves guard models and whisper on the models list; neither can chat */
+
 var BAD_MODEL=/guard|whisper|whisper-large|omni-moderation/i;
-/* whichever model actually produced the last answer */
+
 var lastAnswerModel="";
 
 function lsGet(k,fallback){try{var v=localStorage.getItem(k);return v==null?fallback:v}catch(e){return fallback}}
@@ -951,9 +1044,7 @@ var settings=Object.assign({model:"",temperature:.7,maxTokens:3072,persona:""},
                            JSON.parse(lsGet(LS.settings,"null")||"{}"));
 var apiKey=lsGet(LS.key,DEFAULT_KEY);
 var gemKey=lsGet(LS.gemKey,DEFAULT_GEM);
-/* Both keys have been replaced at some point. A browser that still has an old one
-   saved would quietly keep using it and report that the new key was refused, so
-   a saved key that is known to be finished is swapped for the current one. */
+
 var OLD_GEM="AQ.Ab8RN6JK_-s31crhZNCjOM7IjXGILo0GkM0Fv5NaLsXBNmP4yA";
 var RETIRED_KEYS=["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",
                   OLD_GEM];
@@ -961,11 +1052,7 @@ if(gemKey===OLD_GEM){gemKey=DEFAULT_GEM;lsSet(LS.gemKey,gemKey)}
 if(RETIRED_KEYS.indexOf(apiKey)>=0){apiKey=DEFAULT_KEY;lsSet(LS.key,apiKey)}
 var models=[];
 
-/* ============================================================
-   1b. LIGHT AND DARK
-   Dark is the default. One class on the body swaps the nine colours, and
-   nothing else in the page knows the difference.
-   ============================================================ */
+
 var LS_MODE="appMode";
 function mode(){return document.body.classList.contains("light")?"light":"dark"}
 function applyMode(want,keep){
@@ -983,12 +1070,10 @@ if($("modeBtn"))$("modeBtn").onclick=function(){
 };
 applyMode(lsGet(LS_MODE,"dark"),true);
 
-/* ============================================================
-   2. TABS
-   ============================================================ */
-var TAB_IDS=["games","chat","google","youtube","settings"];
+
+var TAB_IDS=["games","chat","google","youtube","stats","settings"];
 var activeTab="games";
-/* these three take over the window rather than sitting in the middle of the page */
+
 var WIDE_TABS=["chat","google","youtube"];
 
 function setTab(id){
@@ -1001,36 +1086,30 @@ function setTab(id){
   Array.prototype.forEach.call(document.querySelectorAll("#tabs .tab"),function(b){
     b.classList.toggle("on",b.dataset.tab===id);
   });
-  /* the zone search belongs to the zones tab */
+
   var g=document.getElementById("gamesTools");
   if(g)g.style.display=(id==="games")?"":"none";
   document.body.classList.toggle("wide",WIDE_TABS.indexOf(id)>-1);
-  /* the address bar stays exactly where it was. switching tabs is not a place */
+
   if(id==="chat")$("input").focus();
+  if(id==="stats")paintStats();
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest&&e.target.closest("#tabs .tab");
   if(b)setTab(b.dataset.tab);
 });
 (function(){
-  /* an old link with a #tab on the end still opens that tab, but pressing a tab
-     afterwards never rewrites the address */
+
   var h=(location.hash||"").replace("#","");
   if(TAB_IDS.indexOf(h)>=0)setTab(h);
 })();
-/* alice.js puts the id of the zone you opened into the address bar. The page
-   stays one file. */
+
 try{
   history.pushState=function(){};
   history.replaceState=function(){};
 }catch(e){}
 
-/* ============================================================
-   4. SMALL HELPERS
-   ============================================================ */
-/* Once the assistant has been moved into its own window its controls live over
-   there, so a lookup that misses here checks that window before giving up.
-   Both documents belong to this file, so this is allowed. */
+
 function $(id){
   var e=document.getElementById(id);
   if(e)return e;
@@ -1057,11 +1136,7 @@ function toast(msg,kind){
     setTimeout(function(){t.remove()},320);
   },kind==="bad"?6000:3200);
 }
-/* ---------- maths ----------
-   Models write maths in LaTeX. Left alone it comes out as $$30 + 21 = 51$$ and
-   \times, which is exactly what nobody wants. This turns the common commands into
-   the real symbols, keeps fractions stacked, and leaves the text inside the
-   brackets alone so the whole line can still be copied out. */
+
 var MATH_WORDS={
   times:"×",cdot:"·",div:"÷",pm:"±",mp:"∓",le:"≤",leq:"≤",ge:"≥",geq:"≥",ne:"≠",neq:"≠",
   approx:"≈",equiv:"≡",sim:"∼",propto:"∝",rightarrow:"→",to:"→",Leftarrow:"⇐",
@@ -1078,72 +1153,66 @@ var MATH_WORDS={
   chi:"χ",psi:"ψ",omega:"ω",Gamma:"Γ",Delta:"Δ",Theta:"Θ",Lambda:"Λ",Xi:"Ξ",Pi:"Π",
   Sigma:"Σ",Phi:"Φ",Psi:"Ψ",Omega:"Ω"
 };
-/* is this $...$ actually maths, or just money?
-   A single symbol or number between dollars is maths - $9$, $x$, $1$, $n$.
-   A run of words with two dollar signs in it is a price, and is left alone. */
+
 function looksMath(s){
   if(!s)return false;
   var t=String(s).replace(/\s+/g," ").trim();
   if(!t||t.length>400)return false;
-  /* latex wins over everything else - it can only be maths */
+
   if(/\\[a-zA-Z]/.test(t))return true;
   if(/[=+\-*/^_<>|]/.test(t)&&(/[\dxn]/i.test(t)||/[a-zA-Z]/.test(t)))return true;
   var words=t.split(" ");
-  /* a run of words with dollars in it is a price, not an equation */
+
   if(words.length>4)return false;
   if(words.length===1&&/^[a-zA-Z0-9]{1,20}(?:,[ ]?[a-zA-Z0-9]{1,20}){0,2}$/.test(t))return true;
   return false;
 }
 function mathGroup(inner){
-  /* strips one layer of braces */
+
   var t=String(inner);
   t=t.replace(/^\{(.*)\}$/,"$1");
   return t;
 }
-/* Spacing is part of how an equation reads, so each command gets a real width
-   instead of being dropped. They are empty spans rather than characters, which
-   keeps the text clean when the answer is copied out. */
+
 function latexSpacing(out){
-  /* the punctuation commands never take a letter after them, so they need no
-     lookahead - and having one meant "\;x" slipped through untouched */
+
   out=out.replace(/\\qquad/g,'<span class="sp4"></span>');
   out=out.replace(/\\quad/g,'<span class="sp2"></span>');
   out=out.replace(/\\thinspace/g,'<span class="sp1"></span>');
   out=out.replace(/\\[,;]/g,'<span class="sp1"></span>');
   out=out.replace(/\\:/g,'<span class="sp2"></span>');
   out=out.replace(/\\!/g,'<span class="spm"></span>');
-  /* \ followed by a plain space is an explicit space */
+
   out=out.replace(/\\ (?=[^ ])/g," ");
   return out;
 }
 function latexToText(s){
   var out=String(s==null?"":s);
   out=latexSpacing(out);
-  /* these are dropped: they only affect size, and a big display is decided by
-     the \(..\) or \[..\] the maths came in */
+
   out=out.replace(/\\(?:left|right|displaystyle|textstyle|limits|nolimits)(?![a-zA-Z])/g,"");
   out=out.replace(/\\begin\{[^}]*\}|\\end\{[^}]*\}/g,"");
   out=out.replace(/\\(?:text|mathrm|mbox|textbf|mathit|operatorname|textnormal)\{([^{}]*)\}/g,"$1");
   out=out.replace(/\\begin\{[a-z]*matrix\}/gi,"").replace(/\\end\{[a-z]*matrix\}/gi,"");
   out=out.replace(/\\\\/g," ");
-  /* \boxed{96} - a value the answer is really pointing at */
+
   out=out.replace(/\\(?:boxed|fbox|framebox)\{([^{}]*)\}/g,
     '<span class="boxed">$1</span>');
-  /* \frac{a}{b} and \frac ab */
+
   out=out.replace(/\\d?frac\{([^{}]*)\}\{([^{}]*)\}/g,
     '<span class="frac"><i>$1</i><i>$2</i></span>');
   out=out.replace(/\\d?frac\s*([0-9a-zA-Z])\s*([0-9a-zA-Z])/g,
     '<span class="frac"><i>$1</i><i>$2</i></span>');
-  /* \sqrt{..}, \sqrt[..]{..} and \sqrt x */
+
   out=out.replace(/\\sqrt\s*\[\s*[^\]]*\]\s*\{([^{}]*)\}/g,"√<span class=\"sqrt\">$1</span>");
   out=out.replace(/\\sqrt\{([^{}]*)\}/g,"√<span class=\"sqrt\">$1</span>");
   out=out.replace(/\\sqrt\s*([0-9a-zA-Z])/g,"√<span class=\"sqrt\">$1</span>");
-  /* powers and subscripts */
+
   out=out.replace(/\^\{([^{}]*)\}/g,"<sup>$1</sup>");
   out=out.replace(/\^([0-9a-zA-Z+\-−]+)/g,"<sup>$1</sup>");
   out=out.replace(/_\{([^{}]*)\}/g,"<sub>$1</sub>");
   out=out.replace(/_([0-9a-zA-Z+\-−]+)/g,"<sub>$1</sub>");
-  /* any command left over */
+
   out=out.replace(/\\([a-zA-Z]+)/g,function(_,w){
     var m=MATH_WORDS[w];
     if(m)return m;
@@ -1151,20 +1220,13 @@ function latexToText(s){
     return "";
   });
   out=out.replace(/\\([^a-zA-Z])/g,"$1");
-  /* curly braces only ever group things here */
+
   out=out.replace(/[{}]/g,"");
   out=out.replace(/~/g," ");
   out=out.replace(/[ \t]{2,}/g," ");
   return out;
 }
-/* LaTeX comes in four flavours and all four were being missed: $$..$$, $..$,
-   \[..\] and \(..\). The bracket forms are what a model reaches for the moment
-   it writes a long equation, so they are taken out before the dollar forms.
 
-   The brackets themselves already say "this is maths", so whatever sits between
-   them is taken - a line holding nothing but \(a \, b\) was being refused as not
-   maths and left on the page as raw text. Dollars are not trusted on their own,
-   or "$5 and $10 and $15" turns into three equations. */
 function pullMath(src,store){
   var show=function(inner,big){
     store.push('<span class="math'+(big?" big":"")+'">'+latexToText(inner.trim())+"</span>");
@@ -1193,14 +1255,7 @@ function pullMath(src,store){
   return src;
 }
 
-/* ============================================================
-   MARKDOWN
-   Enough of it to render an answer properly: headings, lists, tables, quotes, code
-   with a language, links, bold, italic and inline code. Everything is escaped first
-   and every character is left exactly as the model wrote it, so symbols like ×, ’
-   and – survive and the whole thing can be copied back out again.
-   ============================================================ */
-/* a few shortcodes, because ":smile:" written out is worse than the face */
+
 var EMOJI={
   smile:"\uD83D\uDE04", grinning:"\uD83D\uDE01", grin:"\uD83D\uDE01", joy:"\uD83D\uDE02",
   heart:"❤️", thumbsup:"\uD83D\uDC4D", "+1":"\uD83D\uDC4D", thumbsdown:"\uD83D\uDC4E",
@@ -1216,38 +1271,28 @@ var EMOJI={
 };
 function mdToHtml(t){
   var src=String(t==null?"":t).replace(/\r\n?/g,"\n");
-  /* pull fenced code out first so nothing inside it gets touched */
+
   var blocks=[];
   src=src.replace(/```([a-zA-Z0-9+#._-]*)\n?([\s\S]*?)(?:```|$)/g,function(_,lang,code){
     blocks.push({lang:lang||"",code:code.replace(/\n$/,"")});
     return "@@CODE"+(blocks.length-1)+"@@";
   });
-/* a backslash in front of punctuation is an escape, not latex. this has to
-     happen before inline code is found, or an escaped backtick reads as the start
-     of a code span and the pair either side of it is swallowed whole. letters are
-     left alone so \alpha still reaches the maths renderer as latex, and round
-     brackets are left alone too or \(..\) would never reach it at all */
-/* An escaped backtick is punctuation, not a code delimiter, so it is parked on
-     a private codepoint before inline code is found and put back afterwards.
-     Without this, \`word\` reads as a code span and loses both of its marks.
-     Exclamation is deliberately not in the list: markdown has nothing to escape
-     with it, and latex \! is a spacing command worth keeping. */
+
+
   var ESC_TICK="";
   src=src.replace(/\\([\\`*_{}#+\-.>|~])/g,function(_,c){
     return c==="`"?ESC_TICK:c;
   });
-  /* and inline code, so its contents are safe from every other rule */
+
   var codes=[];
   src=src.replace(/`([^`\n]+)`/g,function(_,c){
     codes.push(c);
     return "@@IC"+(codes.length-1)+"@@";
   });
-  /* and maths, which the model writes in latex */
+
   var maths=[];
   src=pullMath(src,maths);
-  /* a model that wants a line break sometimes writes <br> rather than a blank
-     line. it is the one tag allowed through, and it becomes a real break rather
-     than being shown to the reader as the words br. */
+
   src=src.replace(/<\s*br\s*\/?\s*>/gi,"\n");
 
   var lines=esc(src).split("\n");
@@ -1272,7 +1317,7 @@ function mdToHtml(t){
     var t2=ln.trim();
     if(t2===""){closeList();continue}
 
-    /* a table needs a line of dashes under it */
+
     if(/^[\s|:-]+$/.test(t2)&&t2.indexOf("|")>-1&&t2.indexOf("-")>-1&&
        i>0&&lines[i-1].indexOf("|")>-1){
       var head=out.pop();
@@ -1316,15 +1361,14 @@ function mdToHtml(t){
     if(ul){
       if(list!=="ul"){closeList();out.push("<ul>");list="ul"}
       endItem();
-      /* - [ ] and - [x] become a box you can see, ticked or not */
+
       var box=ul[1].match(/^\[([ xX])\]\s+(.*)$/);
       out.push(box?"<li class=\"task\"><span class=\"tick"+(box[1]===" "?"":" on")+
         "\">"+(box[1]===" "?"":"&#10003;")+"</span>"+box[2]:"<li>"+ul[1]);
       continuing=true;
       continue;
     }
-    /* a line that is just more of the item above - keep it in the same bullet, or
-       the numbering restarts at one for every line the model wrapped */
+
     if(continuing&&list&&/^\s{2,}\S/.test(ln)){
       out[out.length-1]+="<br>"+ln.trim();
       endItem();
@@ -1337,28 +1381,27 @@ function mdToHtml(t){
   closeList();
 
   var html=out.join("");
-  /* pictures, before links, so the ! is not left hanging on the front of one */
+
   html=html.replace(/!\[([^\]]{0,120})\]\((https?:\/\/[^\s)"']{1,400})\)/g,
     '<a class="pic" href="$2" target="_blank" rel="noopener">'+
     '<img src="$2" alt="$1" loading="lazy" referrerpolicy="no-referrer"></a>');
-  /* links, but only the plain ones - nothing that could run */
+
   html=html.replace(/\[([^\]]{1,120})\]\((https?:\/\/[^\s)"']{1,400})\)/g,
     '<a href="$2" target="_blank" rel="noopener">$1</a>');
   html=html.replace(/(^|[\s(])(https?:\/\/[^\s<>"']{6,300})/g,
     function(m,a,u){return m.indexOf('href="')>-1?m:a+'<a href="'+u+'" target="_blank" rel="noopener">'+u+"</a>"});
-  /* bold, italic and strikethrough, last so they do not fight with the rest */
+
   html=html.replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
   html=html.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>");
   html=html.replace(/(^|[^_\w])_([^_\n]+)_(?!_)/g,"$1<i>$2</i>");
   html=html.replace(/~~([^~]+)~~/g,"<del>$1</del>");
-  /* shortcodes last, and only the ones actually in the list */
+
   html=html.replace(/:([a-z0-9_+-]{1,24}):/g,function(m,w){
     var hit=EMOJI[w]||EMOJI[w.toLowerCase()];
     return hit||m;
   });
 
-  /* put the code back, with a copy button that takes the text straight off the
-     page, so whatever is copied is exactly what is on screen */
+
   html=html.replace(/@@CODE(\d+)@@/g,function(_,n){
     var b=blocks[+n];
     return '<div class="code'+(b.code.split("\n").length>2?" big":"")+'">'+
@@ -1380,9 +1423,7 @@ async function fetchWithTimeout(url,opts,ms,signal){
   }finally{if(timer)clearTimeout(timer)}
 }
 
-/* ============================================================
-   5. CHATS
-   ============================================================ */
+
 var chats=JSON.parse(lsGet(LS.chats,"[]")||"[]");
 var activeChat=lsGet(LS.active,"");
 var messages=[];
@@ -1399,7 +1440,7 @@ function newChat(seed){
 }
 function saveChats(){
   try{
-    /* screen grabs are deliberately left out of the saved copy */
+
     var clean=chats.map(function(c){
       return {id:c.id,title:c.title,when:c.when,
               messages:(c.messages||[]).map(function(m){
@@ -1454,7 +1495,7 @@ function paintMessage(m,box){
   var body=document.createElement("div");
   body.className="body";
   body.innerHTML=m.role==="user"?esc(m.content):mdToHtml(m.content);
-  /* the copy button on a code block, and a copy button on the whole answer */
+
   if(m.role!=="user"){
     body.addEventListener("click",function(e){
       var b=e.target.closest&&e.target.closest(".copy");
@@ -1478,13 +1519,11 @@ function paintMessage(m,box){
   el.appendChild(body);
   box.appendChild(el);
 }
-/* what is on the screen and nothing else - the copy buttons, the little language
-   tag and the maths markup are all taken out first, so what lands on the clipboard
-   is the answer itself */
+
 function cleanText(node){
   var c=node.cloneNode(true);
   c.querySelectorAll("button,.clang,.copyall,.typing").forEach(function(n){n.remove()});
-  /* maths is kept as the symbols a person would read */
+
   c.querySelectorAll(".math").forEach(function(m){
     m.querySelectorAll(".frac").forEach(function(f){
       var top=f.querySelector("i"),bot=f.querySelectorAll("i")[1];
@@ -1528,7 +1567,7 @@ function push(m){
   saveChats();
 }
 
-/* ---------- the big picture overlay ---------- */
+
 var imgView=null;
 function openImage(src){
   closeImage();
@@ -1550,16 +1589,11 @@ document.addEventListener("keydown",function(e){
   }
 });
 
-/* ============================================================
-   6. PICTURES
-   ============================================================ */
-var clips=[];
-var MAX_CLIP=4*1024*1024;   /* nothing is resized, so this is only the api ceiling */
 
-/* A canvas hands back "data:image/jpeg;base64,....". Putting that text straight
-   into a File would make the file contain the address rather than the picture,
-   and reading it back would encode it a second time - which is exactly what the
-   model was refusing. The bytes are unpacked first. */
+var clips=[];
+var MAX_CLIP=4*1024*1024;
+
+
 function dataUrlToBlob(url){
   var s=String(url||"");
   var i=s.indexOf(",");
@@ -1648,31 +1682,21 @@ document.addEventListener("paste",function(e){
   if(got)e.preventDefault();
 });
 
-/* ---------- one frame of the screen, kept in memory ---------- */
-/* ---------- taking a picture of a tab ----------
-   It behaves like a screenshot, not a live share: you pick a tab, one picture is
-   taken, the screen is let go of straight away, and nothing is recorded anywhere.
-   Two things used to go wrong. Browsers that do not know the newer options reject
-   the whole request, so there is a plain fallback. And a full screen picture is
-   megabytes of base64, far more than a model can use, so it is shrunk and turned
-   into a jpeg before it goes anywhere. */
+
 function screenOptions(){
-  /* Nothing beyond the plain request. preferCurrentTab was the problem: it tells
-     Chrome to open the picker with THIS tab already chosen, which is exactly what
-     stops anyone picking another one. Leaving it off leaves the picker free, and
-     any option a browser does not recognise makes it refuse the whole request. */
+
     var base="<base href=\""+new URL(".",url).href+"\">";
   return {rich:base,base:base};
 }
 function askForScreen(){
   var o=screenOptions();
   return navigator.mediaDevices.getDisplayMedia(o.rich).catch(function(e){
-    /* a refusal is an answer, not a problem to go round again */
+
     if(e&&(e.name==="NotAllowedError"||e.name==="AbortError"))throw e;
     return navigator.mediaDevices.getDisplayMedia(o.base);
   });
 }
-/* one frame, shrunk to something a model can read and a person can send */
+
 function shotFromVideo(v){
   var w=v.videoWidth||1280,h=v.videoHeight||720;
   var scale=Math.min(1,1400/w);
@@ -1696,7 +1720,7 @@ function shotClip(dataUrl){
   return {name:"screen.jpg",dataUrl:dataUrl,mime:shotMime(dataUrl),
           bytes:Math.round(String(dataUrl).length*0.75),w:0,h:0,ephemeral:true};
 }
-/* plays the stream into a video element, takes one frame, then lets go of it */
+
 function takeShot(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia)
     return Promise.reject(new Error("this browser cannot take a picture of the screen"));
@@ -1729,9 +1753,7 @@ function grabScreen(){
 }
 $("shotBtn").onclick=grabScreen;
 
-/* ============================================================
-   7. ASKING
-   ============================================================ */
+
 var SYS="You are a sharp and genuinely useful assistant who happens to live "+
   "next to a library of playable games."+
   "\n\nOn maths and anything with a right answer: work it out one step at a time, then "+
@@ -1759,10 +1781,7 @@ function typing(on){
   box.scrollTop=box.scrollHeight;
 }
 
-/* if one model is busy or rate limited, the next one on the account is tried, so a
-   question is not lost to somebody else's traffic */
-/* One place to say what a dead key means, so the reader is told which key it was
-   and what to do about it rather than just seeing a number. */
+
 function keyRefused(who,status){
   var builtIn=(who==="chat")?apiKey===DEFAULT_KEY:gemKey===DEFAULT_GEM;
   return "That did not work: the "+who+" key was refused ("+status+"). "+
@@ -1802,16 +1821,14 @@ async function groqAsk(history){
       var j=await res.json();
       var c=j.choices&&j.choices[0];
       var m=c&&c.message;
-      /* some models put the answer in a different field, or think first and answer
-         in a second one */
+
       var t=(m&&(m.content||m.reasoning_content||m.reasoning))||"";
       if(typeof t!=="string")t="";
       if(Array.isArray(m&&m.content)){
         t=m.content.map(function(p){return p.text||p.content||""}).join("");
       }
       if(t.trim()){
-        /* which model actually answered is kept for the label under the answer, not
-           written into the answer itself */
+
         lastAnswerModel=model;
         return t.trim();
       }
@@ -1828,8 +1845,7 @@ async function groqAsk(history){
       throw new Error("groq blocked the request rather than refusing the key "+
         "(403). that is a network or filter problem, not a bad key.");
     tried.push(model+" ("+res.status+")");
-    /* a model that needs its terms accepted, or is simply gone, is skipped rather
-       than treated as the end of the road */
+
     if(res.status!==429&&res.status<500&&res.status!==404)continue;
     if(i>=Math.min(order.length,5)-1)throw new Error(why+" ["+tried.join(", ")+"]");
   }
@@ -1843,9 +1859,7 @@ function imagePart(c){
   var mime=(/^data:([^;,]+)/i.exec(s)||[])[1]||c.mime||"image/png";
   return {inline_data:{mime_type:mime,data:s.split(",")[1]||""}};
 }
-/* A picture that has been base64'd twice on its way here is refused by the model
-   with a plain 400, which says nothing useful. If the payload does not start like
-   an image, one layer is peeled off and it is tried again. */
+
 function saneClip(c){
   if(!c||!c.dataUrl)return c;
   var s=String(c.dataUrl);
@@ -1860,7 +1874,7 @@ function saneClip(c){
   return c;
 }
 
-/* ---------- which model is asked to look ---------- */
+
 function picProvider(){return lsGet("appPicProvider","gemini")==="groq"?"groq":"gemini"}
 function picModel(){
   var m=lsGet("appPicModel","");
@@ -1925,9 +1939,7 @@ async function groqVisionAsk(prompt,shots,history){
   }
   throw new Error("no groq model would read it"+(tried.length?" ["+tried.join(", ")+"]":""));
 }
-/* One way in for anything with a picture on it. The provider in settings is tried
-   first, and if its key is the problem the other one is tried before giving up,
-   so a dead picture key does not take screen reading with it. */
+
 async function askPicture(prompt,shots,history){
   var first=picProvider(), second=first==="gemini"?"groq":"gemini";
   var run=function(which){
@@ -1985,11 +1997,10 @@ async function geminiAsk(prompt,shots,history){
   throw new Error("every picture model refused or was busy"+(tried.length?" ["+tried.join(", ")+"]":""));
 }
 
-/* ---------- finding a zone ---------- */
+
 var ZONE_WORDS=/\b(find|show|list|give me|recommend|suggest|play|zone|game|games)\b/i;
 function cleanName(n){
-  /* the feed occasionally carries stray control characters, which then show up in
-     the answer as boxes */
+
   return String(n||"").replace(/[\u0000-\u001f\u007f-\u009f]/g," ")
                   .replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/g,"")
                   .replace(/[\u2028\u2029]/g," ")
@@ -2044,8 +2055,7 @@ async function send(){
       var answer=await askPicture(text,shot,hist);
       push({role:"assistant",content:answer,via:"Gemini"});
     }else{
-      /* the question just asked is already the last entry, so the whole tail goes
-         across and it is never left out */
+
       var history=messages.slice(-10).map(function(m){return {role:m.role,content:m.content}});
       var note=(gameMode||ZONE_WORDS.test(text))
         ? "\n\nIf the question is about what to play, these zones exist: "+zoneNames().join(", ")+"."
@@ -2092,14 +2102,7 @@ $("gameMode").onclick=function(){
   $("input").focus();
 };
 
-/* ---------- zones that were built for a small window ----------
-   The frame fills the window, which is right for most of them, but plenty of these
-   were drawn for a 640 or 800 pixel screen and would sit hard in the corner
-   looking broken. The frame is same-origin - alice.js writes the document in from
-   here - so the game can be nudged into the middle.
-   The body's own box is always as wide as the frame, so it is the content inside
-   it that has to be measured. Anything already using the whole width is left
-   exactly as it was. */
+
 function centreSmallZone(f){
   if(!f||f._centreHooked)return;
   f._centreHooked=true;
@@ -2117,12 +2120,11 @@ function centreSmallZone(f){
         var r=kids[i].getBoundingClientRect();
         if(r.width>widest)widest=r.width;
       }
-      /* nothing to do for a game that already fills the frame */
+
       if(widest<1||widest>=room-40)return;
       if(b._centred)return;
       b._centred=true;
-      /* a column keeps the children in the order they were written, and centres
-         them without touching any of their own sizes */
+
       b.style.display="flex";
       b.style.flexDirection="column";
       b.style.alignItems="center";
@@ -2144,20 +2146,16 @@ function recentreZone(){
   var f=$("zoneFrame");
   if(!f)return;
   centreSmallZone(f);
-  /* alice.js replaces the frame when the previous one was closed, so watch for a
-     new one appearing */
+
   new MutationObserver(function(){
     var now=$("zoneFrame");
     if(now&&now!==f)centreSmallZone(now);
   }).observe($("zoneViewer"),{childList:true,subtree:true});
-  /* a game drawn for a fixed screen has to be put back in the middle when the
-     window changes size */
+
   window.addEventListener("resize",function(){setTimeout(recentreZone,180)});
 })();
 
-/* ============================================================
-   8. GOOGLE TAB
-   ============================================================ */
+
 var pxTabs=[];
 var pxActive=0;
 var PX_HOME="https://www.google.com?igu=1";
@@ -2267,7 +2265,7 @@ if($("pageOpen"))$("pageOpen").onclick=function(){
   setTab("google");
 };
 
-/* ---------- reading a page into the composer ---------- */
+
 function htmlToText(html){
   var doc=document.implementation.createHTMLDocument("");
   doc.body.innerHTML=String(html)
@@ -2297,8 +2295,7 @@ async function askAboutPage(url){
 }
 $("pxAsk").onclick=function(){askAboutPage($("pxUrl").value)};
 $("pxAway").onclick=function(){
-  /* a frame that shows nothing is usually a site refusing to be framed, so the
-     way out is a real tab rather than an empty box */
+
   window.open($("pxUrl").value,"_blank","noopener");
   toast("opened in a new tab");
 };
@@ -2308,18 +2305,9 @@ if($("pageGo"))$("pageGo").onclick=function(){
   if(!v){toast("type a link or a search first");return}
   askAboutPage(v);
 };
-/* ============================================================
-   8b. YOUR GAMES
-   A list of games the user added. Only three things are really needed - a name, the
-   raw address of the game's html file, and an image - but a kind and a few tags let
-   them show up in the same filters everyone else's games use.
-   ============================================================ */
+
 var LS_MINE="appGames";
-/* ============================================================
-   GAMES TO HIDE
-   Put a zone name in here, exactly as it is written in the list, and it will not
-   show up anywhere in the app. To change it, edit this table in the code.
-   ============================================================ */
+
 var HIDE_GAMES=[
   "[!] COMMENTS",
   "[!] SUGGEST YOUR GAMES HERE AT .gg/ZF4YZZCBZ6"
@@ -2421,11 +2409,11 @@ var MINE_SEED=[
  icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTR14hbul-gc86dcsH44jnyRA0vaAAI91MjIwIWKsp3oA&s",
  kind:"game",tags:"snow, ski, snowboard",author:"isovarts",
  note:"a 3D mountain snowboarding game"},
-{id:"m-gnmath",name:"GNMATH",builtIn:true,
- link:"https://raw.githubusercontent.com/isovarst/site/refs/heads/main/gn-math",
- icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTT_hAMydPs_cKsCFCty_h2yekps2afNU-ei0JTeT_WPQ&s=10",
- kind:"game",tags:"gaming",
- note:"a gaming site for more games"},
+ {id:"m-geometrydash",name:"Geometry Dash Full",builtIn:true,
+ link:"https://raw.githubusercontent.com/Ale7208/Geometry-Dash-webport/refs/heads/main/index.html",
+ icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTe5oxtjqUY_tVoJikZnGYZzPHY4JdIXjX3lBERBKFvzg&s",
+ kind:"game",tags:"rhythm, platformer, arcade",author:"Ale7208",
+ note:"the full geometry dash, right in your browser"},
 {id:"m-globalchat",name:"Global Chat",builtIn:true,
  link:"https://raw.githubusercontent.com/isovarst/site/refs/heads/main/globalchat",
  icon:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQUZn0Ls0vyGwgDk-efogVwdcwPr6rC8dsrGUKyax7EUg&s=10",
@@ -2448,8 +2436,7 @@ var MINE_SEED=[
  note:"for robby"},
 ];
 
-/* nothing to show for a game with no picture, so it gets a plain one of its own.
-   mid grey, so it reads on a dark page and a light one alike */
+
 var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'+
   '<rect width="64" height="64" fill="#6e6e6e"/>'+
@@ -2457,26 +2444,30 @@ var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
   'stroke-width="2"/></svg>');
 
 function mineAll(){
+  var saved=[];
   var raw=lsGet(LS_MINE,"");
-  var list=null;
   if(raw){
     try{
       var parsed=JSON.parse(raw);
-      if(Array.isArray(parsed))list=parsed;
+      if(Array.isArray(parsed))saved=parsed;
     }catch(e){}
   }
-  if(!list)list=JSON.parse(JSON.stringify(MINE_SEED));
-  /* the two that came with the file are always in the list, whatever happened to
-     the saved copy */
-  MINE_SEED.forEach(function(seed){
-    var found=list.filter(function(m){return m.id===seed.id})[0];
-    if(found)found.builtIn=true;
-    else{seed.builtIn=true;list.unshift(seed)}
+  var keep=saved.filter(function(m){return m&&!m.builtIn});
+  if(keep.length!==saved.length)lsSet(LS_MINE,JSON.stringify(keep));
+  var list=MINE_SEED.map(function(seed){
+    var rec={};
+    for(var k in seed)if(Object.prototype.hasOwnProperty.call(seed,k))rec[k]=seed[k];
+    rec.builtIn=true;
+    return rec;
   });
-  lsSet(LS_MINE,JSON.stringify(list));
+  keep.forEach(function(m){
+    if(!list.some(function(x){return x.id===m.id}))list.push(m);
+  });
   return list;
 }
-function mineSave(list){lsSet(LS_MINE,JSON.stringify(list))}
+function mineSave(list){
+  lsSet(LS_MINE,JSON.stringify((list||[]).filter(function(m){return m&&!m.builtIn})));
+}
 function cleanTag(t){
   return String(t||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,24);
 }
@@ -2497,11 +2488,10 @@ function mineZone(m,i){
 }
 var mineEdits=[];
 
-/* ---------- putting them in the list ---------- */
+
 function syncMineZones(){
   if(typeof zones==="undefined"||!zones.length)return false;
-  /* anything in the hide table is taken out before anything else happens, so it
-     never appears in the grid, the search, the filters or the random picker */
+
   for(var h=zones.length-1;h>=0;h--){
     if(isHiddenZone(zones[h].name))zones.splice(h,1);
   }
@@ -2510,10 +2500,10 @@ function syncMineZones(){
     if(zones[i]&&zones[i].special&&zones[i].special.indexOf("user")>-1)zones.splice(i,1);
   }
   mine.forEach(function(z){
-    /* they go at the front, so they are the first thing you see */
+
     zones.unshift(z);
   });
-  /* the tag list is built from the zones, so it has to be rebuilt too */
+
   var sel=$("filterOptions");
   if(sel){
     var seen={},keep=[];
@@ -2537,8 +2527,7 @@ function syncMineZones(){
     sel.value=keep.indexOf(was)>-1?was:"none";
   }
   if(typeof sortZones==="function")sortZones();
-  /* the featured row is drawn separately, so it has to be redrawn too or the
-     hidden ones keep showing up at the top */
+
   try{
     if(typeof displayFeaturedZones==="function"){
       var featured=zones.filter(function(z){return z.featured});
@@ -2558,25 +2547,17 @@ function syncMineZones(){
   tick();
 })();
 
-/* ---------- playing them ---------- */
-/* alice.js opens anything that starts with http in a new browser tab. These are
-   plain html files on github, so they are pulled in and written into the same
-   frame the other zones use, exactly the way alice.js does it.
 
-   alice.js is loaded after this script, so it replaces these names with its own as
-   soon as it runs. Everything here is therefore installed by installZoneHooks(),
-   which the page calls the moment alice.js has finished. */
 var RAW_OPEN=null;
 function installZoneHooks(){
   RAW_OPEN=window.openZone;
   var RAW_CLOSE=window.closeZone;
   window.openZone=function(z){
     if(!z)return;
+    recordPlay(z);
     playAnyZone(z);
   };
-  /* alice.js takes the frame out of the page when a zone closes, and then forgets
-     where it put it. Keeping it there means fullscreen, download and open in a new
-     tab keep working for games that were added here. */
+
   window.closeZone=function(){
     var v=$("zoneViewer");
     if(!v)return;
@@ -2585,8 +2566,7 @@ function installZoneHooks(){
     v.style.display="none";
     var f=$("zoneFrame");
     if(f){
-      /* blanking it is what stops the music, the timers and the loop of whatever
-         was playing */
+
       try{f.src="about:blank"}catch(e){}
     }
   };
@@ -2601,13 +2581,10 @@ function installZoneHooks(){
 var _installZoneHooks=installZoneHooks;
 installZoneHooks=function(){
   _installZoneHooks();
-  /* the tab cloak lives in the markup as oninput, and alice.js has its own version
-     that quietly does nothing when the page has no icon link */
+
   window.cloakIcon=myCloakIcon;
 
-  /* ---- the featured row gets out of the way when a filter is on ----
-     Sorting by id or picking a tag means you want that list, not the four things
-     somebody featured. It folds away, and the arrow is still there to open it. */
+
   ["filterZones","filterZones2","sortZones"].forEach(function(name){
     var raw=window[name];
     if(typeof raw!=="function")return;
@@ -2626,10 +2603,7 @@ installZoneHooks=function(){
   if(s)s.addEventListener("input",function(){
     if(s.value.trim())foldFeatured();
   });
-  /* the little settings box on the zones tab used to offer a tab cloak of its
-     own, which only renamed this tab and so was not worth having next to the
-     real one. alice draws that box first, so this runs after it and takes the
-     button back out again */
+
   var sb=$("settings");
   if(sb)sb.addEventListener("click",function(){
     var body=$("popupBody");
@@ -2660,15 +2634,8 @@ function zoneFrameNow(){
   }
   return f;
 }
-/* A game that is still running keeps its music going even after the next one is on
-   screen - the timers, the web audio and the media elements all live on. So before
-   anything else is written, the frame is navigated away to a blank page and the
-   browser is given a moment to actually throw the old game out. One frame is kept
-   and reused, so nothing is ever left behind in the background. */
-/* A game that is still running keeps its music going even after the next one is on
-   screen - the timers, the web audio and the media elements all live on. So the
-   frame is sent to a blank page and taken out of the page before the next game gets
-   one, and nothing from the last game is left running behind. */
+
+
 function freshFrame(){
   var old=$("zoneFrame");
   if(old){
@@ -2689,8 +2656,7 @@ function freshFrame(){
   $("zoneViewer").appendChild(f);
   return f;
 }
-/* a brand new frame has its blank page ready at once, but this waits for it anyway
-   rather than assuming */
+
 function frameDoc(f){
   return new Promise(function(res){
     var n=0;
@@ -2716,8 +2682,7 @@ function zoneUrl(z){
   if(z.mine)return z.mine.link;
   return String(z.url||"").replace("{COVER_URL}",coverURL).replace("{HTML_URL}",htmlURL);
 }
-/* the blank page and the error page are written straight into the frame, so they
-   bring the current colours with them rather than being their own stylesheet */
+
 function zonePageCss(){
   var light=(mode()==="light");
   return "html,body{background:"+(light?"#fff":"#111")+";color:"+(light?"#000":"#e9e9e9")+
@@ -2746,21 +2711,18 @@ function showZoneHead(z){
   v.style.display="block";
   v.hidden=true;
 }
-/* every game - the ones from the zone list and the ones added here - goes through
-   this, so they all get a clean frame and the old one is always shut down */
+
 function playAnyZone(z){
   if(!z)return;
   var raw=String(z.url||"");
-  /* a zone whose url is a website rather than a file still opens in a tab, the way
-     it always did */
+
   if(!z.mine&&/^https?:\/\//i.test(raw)){
     RAW_OPEN(z);
     return;
   }
   var url=zoneUrl(z);
   if(!/^https?:/i.test(url)){RAW_OPEN(z);return}
-  /* if another game is asked for while this one is still on its way, this one is
-     dropped rather than landing on top of it */
+
   var token=++zoneToken;
   showZoneHead(z);
   var f=freshFrame();
@@ -2783,9 +2745,7 @@ function playAnyZone(z){
 }
 var zoneToken=0;
 function playMineZone(z){playAnyZone(z)}
-/* alice.js takes the frame out of the page when a zone closes, and then forgets
-   where it put it. Keeping it there means fullscreen, download and open in a new
-   tab keep working for games that were added here - see installZoneHooks. */
+
 function mineUrl(z){
   return z.mine?z.mine.link:String(z.url||"").replace("{COVER_URL}",coverURL).replace("{HTML_URL}",htmlURL);
 }
@@ -2798,8 +2758,7 @@ function myAboutBlank(){
   if(!z)return;
   var url=mineUrl(z);
   if(!/^https?:/i.test(url)){toast("that one needs a real link","bad");return}
-  /* this is the cloak, run from the zone on screen: the game goes in a new tab
-     and the tab is then given the name and icon asked for */
+
   cloakPick={name:z.name||"",url:url};
   var title="Loading";
   var dom=(lsGet("cloakDomain","")||cloakDomainOf(url)||"").trim();
@@ -2820,7 +2779,7 @@ function myDownloadZone(){
   }).catch(function(e){toast("could not download it - "+e.message,"bad")});
 };
 
-/* ---------- the table ---------- */
+
 var mineEditing=-1;
 function paintMineTable(){
   var body=$("mineRows");
@@ -2889,8 +2848,7 @@ function paintMineTable(){
     play.textContent="▶";
     play.onclick=function(){playMineZone(mineZone(m,i))};
     box.appendChild(play);
-    /* the ones that came with the file are not optional, so there is no edit or
-       remove button on them */
+
     if(!m.builtIn){
       var ed=document.createElement("button");
       ed.className="mini";
@@ -2941,9 +2899,7 @@ function fillKindList(){
     dl.appendChild(o);
   });
 }
-/* the table used to live in settings. the games themselves are still in the list
-   and still work - they are added by putting them in MINE_SEED above, or by
-   calling APP.addMine({name,link,icon,kind,tags,author}) from the console */
+
 function openMineForm(i){
   var form=$("mineForm");
   if(!form){toast("games are added in the code now");return}
@@ -3030,8 +2986,7 @@ function saveMineForm(){
   fillKindList();
   toast((mineEditing>=0?"changed ":"added ")+rec.name);
 }
-/* the table that used to be in settings is gone, so these are only wired up when
-   the fields are actually on the page */
+
 ["mineAdd","mfSave","mfCancel"].forEach(function(id){
   var el=$(id);
   if(!el)return;
@@ -3050,13 +3005,7 @@ if($("mfIcon"))$("mfIcon").addEventListener("input",paintMinePreview);
 paintMineTable();
 fillKindList();
 
-/* ============================================================
-   8c. YOUTUBE
-   Real results. It talks to a Piped mirror of YouTube, which answers with plain
-   json and lets any page read it, so nothing here needs a key of its own. If one
-   mirror is down the next one is tried, and the working one is remembered. Video
-   pages play through youtube-nocookie, the same way the standalone viewer does.
-   ============================================================ */
+
 var YT_API=[
   "https://api.piped.private.coffee",
   "https://pipedapi.kavin.rocks",
@@ -3065,7 +3014,7 @@ var YT_API=[
   "https://pipedapi.leptons.xyz",
   "https://pipedapi.privacy.com.de"
 ];
-/* the exact player the standalone viewer uses */
+
 var YT_EMBED="https://www.youtube-nocookie.com/embed/";
 var YT_EMBED_Q="wmode=transparent&iv_load_policy=3&autoplay=1&html5=1&showinfo=0&rel=0"+
   "&modestbranding=1&playsinline=1&theme=light";
@@ -3137,8 +3086,7 @@ function ytFetch(path){
 function ytSearch(q,mode,sort){
   mode=mode||ytMode;
   var filter=mode==="channels"?"channels":"videos";
-  /* one search gives about twenty. a couple of close variants on top give a
-     noticeably fuller list without going anywhere near a rate limit */
+
   var words=String(q).split(/\s+/).filter(Boolean);
   var variants=[q];
   if(mode==="videos"&&words.length>1){
@@ -3200,8 +3148,7 @@ function ytChannelInfo(cid){
             thumb:c.avatarUrl||"",desc:c.description||""};
   });
 }
-/* a channel's own videos. these mirrors have no channel-videos call, so the
-   channel's name is searched and only the results that really are theirs are kept */
+
 function ytSearchChannel(info,sort){
   var q=(info.name||"").replace(/\s*-\s*topic$/i,"").trim();
   return ytSearch(q,"videos",sort).then(function(items){
@@ -3212,7 +3159,7 @@ function ytSearchChannel(info,sort){
 function ytChannelVideos(info,sort){
   return ytSearchChannel(info,sort);
 }
-/* open a channel straight into the player screen, the way youtube does */
+
 function ytSearchChannelAndOpen(info){
   var q=(info.name||"").replace(/\s*-\s*topic$/i,"").trim();
   ytPage={url:"",title:info.name,mode:"videos",channel:info,page:"home"};
@@ -3300,7 +3247,7 @@ function ytTrending(){
 }
 function ytRegionRegion(){return "US"}
 
-/* ---------- drawing ---------- */
+
 var YT_PLAY='';
 function ytCard(v){
   var c=document.createElement("button");
@@ -3357,21 +3304,18 @@ function ytCard(v){
   }
   return c;
 }
-/* a search that was already on its way must not paint over the page the
-   reader has since moved to, which is what happens if you turn to subscriptions
-   while the front page is still loading */
+
 function ytFeedIsMain(){
   return ytPage.page==="home"||ytPage.page==="search"||ytPage.page==="channel";
 }
-/* every page gets a number. a result that comes back for an older one is dropped
-   rather than pasted over whatever you are looking at now */
+
 var ytGen=0;
 function ytNewGen(){ytGen++;return ytGen}
 function ytGenIs(g){return g===ytGen}
 function ytPaint(items,note,g){
   var box=$("ytFeed");
   if(!box)return;
-  /* a result for a page you have already left is dropped, not pasted over it */
+
   if(g!==undefined&&!ytGenIs(g))return;
   if(!ytFeedIsMain())return;
   box.innerHTML="";
@@ -3402,7 +3346,7 @@ function ytMoreReady(on){
   var n=$("ytMoreN");
   if(on&&n)n.textContent=ytFeedItems.length+" loaded";
 }
-/* placeholders while it is on its way, so the page never just sits empty */
+
 function ytSkeleton(rows,g){
   var box=$("ytFeed");
   if(!box)return;
@@ -3423,7 +3367,7 @@ function ytBusy(on){
     "Real results, straight from the source. Pick a video and it plays right here; pick a channel and you get their uploads.";
 }
 
-/* ---------- what has been watched, so the front page can react to it ---------- */
+
 var LS_SEEN="appYtSeen";
 var LS_SUBS="appYtSubs";
 var LS_CACHE="appYtCache";
@@ -3435,7 +3379,7 @@ function ytSubOf(cid){return ytSubsList.filter(function(s){return s.cid===cid})[
 function ytSaveSubs(){
   lsSet(LS_SUBS,JSON.stringify(ytSubsList));
   ytPaintCounts();
-  /* if the list is on screen, redraw it so the change is visible at once */
+
   if(ytPage.page==="subs"&&$("ytFeed"))ytSubsPage();
 }
 function ytToggleSub(info){
@@ -3484,8 +3428,7 @@ function ytRemember(v){
 function ytSeenOf(id){
   return ytSeen.filter(function(x){return x.id===id})[0]||null;
 }
-/* the words that come up most in what has been watched - this is what the front
-   page searches for, so it starts with something you actually like */
+
 function ytTaste(){
   var words={};
   ytSeen.forEach(function(s){
@@ -3498,8 +3441,7 @@ function ytTaste(){
   if(top.length)return top;
   return ["lofi beats"];
 }
-/* the last answer is kept, so opening the tab shows something straight away instead
-   of an empty box while the network catches up */
+
 function ytCachePut(key,items){
   try{
     var all=JSON.parse(lsGet(LS_CACHE,"{}"))||{};
@@ -3516,7 +3458,7 @@ function ytCacheGet(key,age){
   return null;
 }
 
-/* ---------- playing ---------- */
+
 var ytNowChan={};
 function ytPlay(v){
   var id=v&&v.id?v.id:ytId(v);
@@ -3534,7 +3476,7 @@ function ytPlay(v){
   paintNowChannel();
   ytUpNext(v);
 }
-/* the channel under the video, with the real name and subscriber count */
+
 function paintNowChannel(){
   var box=$("ytNowChan");
   if(!box)return;
@@ -3548,7 +3490,7 @@ function paintNowChannel(){
   av.src=c.thumb||MINE_BLANK;
   av.alt=c.name;
   av.onerror=function(){this.style.visibility="hidden"};
-  /* one quiet ask for the details, so it can say how big they are */
+
   ytChannelInfo(c.cid).then(function(info){
     if(!ytNowChan.cid||ytNowChan.cid!==c.cid)return;
     $("ytNowChanName").textContent=info.name||c.name;
@@ -3627,9 +3569,7 @@ function ytPaintSide(items){
   });
   if(!list.childElementCount)list.innerHTML='<div class="yt-note">nothing to suggest</div>';
 }
-/* Closing has to take the sound with it. Hiding the frame on its own leaves the
-   video playing where nothing can see it, which is how a tab ends up talking to
-   you after you thought you had shut it. */
+
 function ytStop(){
   var f=$("ytFrame");
   if(f)f.setAttribute("src","about:blank");
@@ -3688,7 +3628,7 @@ $("ytAsk").onclick=function(){
   setTab("chat");
 };
 
-/* leaving the tab has to take any sound with it, same as closing the player */
+
 function ytLeaving(){
   if(ytPage.page==="shorts")ytShortsPlaying(false);
   if($("ytPlayer")&&!$("ytPlayer").hidden){
@@ -3704,7 +3644,7 @@ setTab=function(id){
   if(was==="youtube"&&id!=="youtube")ytLeaving();
 };
 
-/* ---------- the pages on the left ---------- */
+
 var ytMoreRound=0;
 var ytMoreBusy=false;
 var ytFeedItems=[];
@@ -3718,8 +3658,7 @@ function ytRailSync(){
   $("ytFeed").hidden=ytPage.page==="shorts";
 }
 function ytGoRail(page){
-  /* every rail press starts a fresh page straight away. nothing has to be
-     visited first, and nothing that is still on its way can take it back */
+
   ytNewGen();
   ytPage.page=page;
   ytRailSync();
@@ -3734,15 +3673,14 @@ document.addEventListener("click",function(e){
   if(b)ytGoRail(b.dataset.go);
 });
 
-/* ---------- load more ---------- */
+
 function ytExtraQuery(){
   if(ytPage.channel){
     var words=(ytPage.channel.name||"").replace(/\s*-\s*topic$/i,"").trim().split(/\s+/);
     return ytPage.channel.name+" "+YT_SHORTCUTS[ytMoreRound%YT_SHORTCUTS.length];
   }
   if(ytPage.url)return ytPage.url+" "+YT_SHORTCUTS[ytMoreRound%YT_SHORTCUTS.length];
-  /* the front page already used every taste word, so reaching for more means
-     asking for a different kind of thing rather than the same thing twice */
+
   return YT_SHORTCUTS[ytMoreRound%YT_SHORTCUTS.length];
 }
 function ytLoadMore(){
@@ -3754,7 +3692,7 @@ function ytLoadMore(){
   ytExtraQuery();
   ytMoreRound++;
   var jobs=[ytExtraQuery()];
-  /* a couple of near neighbours, so the next page is not just more of the same */
+
   var words=ytExtraQuery().split(/\s+/);
   if(words.length>1)jobs.push(words.slice(0,-1).join(" "));
   if(!ytPage.url&&!ytPage.channel)jobs.push(ytTrending());
@@ -3794,7 +3732,7 @@ function ytLoadMore(){
 }
 $("ytMore").onclick=ytLoadMore;
 
-/* ---------- shorts ---------- */
+
 function ytShorts(){
   var col=$("ytShortsCol");
   if(!col)return;
@@ -3802,8 +3740,7 @@ function ytShorts(){
   var g=ytNewGen();
   ytBusy(true);
   col.innerHTML='<div class="yt-loading">finding shorts...</div>';
-  /* one search gives about twenty and only some are marked as shorts, so a few
-     are asked for at once and the genuinely short ones are kept */
+
   var qs=YT_SHORTCUTS.slice(0,4).map(function(q){return q+" shorts"});
   var jobs=qs.map(function(q){return ytSearch(q,"videos","relevance")});
   Promise.all(jobs.map(function(p){return p.catch(function(){return []})}))
@@ -3822,7 +3759,7 @@ function ytShorts(){
         });
       });
       if(out.length>=6)return out;
-      /* nothing was flagged, or barely anything was, so the word alone stands in */
+
       return ytSearch("shorts","videos","relevance").then(function(items){
         items.forEach(function(v){if(!seen[v.id]){seen[v.id]=1;out.push(v)}});
         return out;
@@ -3892,10 +3829,7 @@ function paintShorts(list){
 var ytShortList=[];
 var ytShortLive=[];
 var ytShortCentre=-1;
-/* A frame is only built for the short you are on and the ones either side of it.
-   Doing it by measuring on scroll rather than by watching for intersections is
-   what makes it keep working: forty players never exist at once, and the one in
-   the middle is always the one that is loaded. */
+
 function ytShortAtCentre(){
   var col=$("ytShortsCol");
   if(!col)return -1;
@@ -3934,7 +3868,7 @@ function mountShort(rec){
   var po=rec.el.querySelector(".poster");
   if(po)po.style.display="none";
 }
-/* when the player is shut, or the tab is left, nothing keeps playing behind it */
+
 function ytShortsPlaying(on){
   if(on)return;
   ytShortLive.forEach(dropShort);
@@ -3966,8 +3900,7 @@ function ytShortMove(dir){
   var box=col;
   var items=col.querySelectorAll(".yt-short");
   if(!items.length)return;
-  /* whichever short is nearest the middle of the window is the one you are on,
-     so the next arrow press moves to the one above or below it */
+
   var mid=box.getBoundingClientRect().top+box.getBoundingClientRect().height/2;
   var at=0,nearest=1e9;
   for(var i=0;i<items.length;i++){
@@ -3976,8 +3909,7 @@ function ytShortMove(dir){
     if(d<nearest){nearest=d;at=i}
   }
   var next=Math.max(0,Math.min(items.length-1,at+dir));
-  /* a straight jump rather than a glide: it matches how shorts behave, and a
-     glide can be left half finished if the tab is closed or hidden mid-move */
+
   items[next].scrollIntoView({block:"center",behavior:"auto"});
   setTimeout(syncShortFrames,60);
 }
@@ -3991,7 +3923,7 @@ document.addEventListener("keydown",function(e){
   else if(e.key==="End"){e.preventDefault();ytShortMove(99)}
 });
 
-/* ---------- subscriptions ---------- */
+
 function ytSubsPage(){
   var feed=$("ytFeed");
   feed.innerHTML="";
@@ -4059,7 +3991,7 @@ function ytSubsPage(){
   });
 }
 
-/* ---------- history ---------- */
+
 function ytHistoryPage(){
   var feed=$("ytFeed");
   feed.innerHTML="";
@@ -4089,7 +4021,7 @@ function ytHistoryPage(){
     feed.appendChild(ytCard(v));
   });
 }
-  /* ---------- the front page ---------- */
+
 function ytHome(){
   var g=ytNewGen();
   ytPage.page="home";
@@ -4104,7 +4036,7 @@ function ytHome(){
   var label=ytSeen.length
     ?"Because you watched "+ytSeen[0].who+" and "+(ytSeen[1]?ytSeen[1].who:"a few others")
     :"Start here - swap these out for anything you like";
-  /* whatever was here last time goes up straight away, so the tab is never empty */
+
   var cached=ytCacheGet("home",1000*60*60*24);
   ytPaint(cached&&cached.length?cached:[],label,g);
   ytBusy(true);
@@ -4137,9 +4069,7 @@ function ytHome(){
 function openChannel(v){
   ytSearchChannelAndOpen(v);
 }
-/* Searching a plain word used to give one or the other. Typing "flight" should
-   hand back the channels called flight AND what they have actually uploaded,
-   which is nearly always what was wanted. */
+
 function ytSearchWide(q,sort){
   sort=sort||ytSort;
   return Promise.all([
@@ -4148,8 +4078,7 @@ function ytSearchWide(q,sort){
   ]).then(function(r){
     var vids=r[0]||[], chans=(r[1]||[]).slice(0,6);
     if(!chans.length)return {videos:vids,channels:[],extra:[]};
-    /* only bother with the top one, and only when its name really does sit in
-       the word that was typed */
+
     var word=String(q).toLowerCase();
     var top=chans.filter(function(c){
       return (c.name||"").toLowerCase().indexOf(word)>=0;
@@ -4168,14 +4097,11 @@ function ytSearchWide(q,sort){
 function ytGo(){
   var raw=$("ytUrl").value.trim();
   if(!raw){toast("type something to look for");return}
-  /* A bare eleven character word is almost never meant to be a video. YouTube
-     ids are exactly that long, so "flightreact" or "javascript" used to be
-     played back as an id and the search never happened at all. Only something
-     that looks like an address counts as a link. */
+
   var looksLikeLink=/^(https?:\/\/|\/\/|www\.|youtu\.?be)/i.test(raw)|/[?&#]v=/.test(raw);
   var id=looksLikeLink?ytId(raw):"";
   if(id){
-    /* a link is a video, whatever is in the box */
+
     ytPlay({id:id,title:raw,who:""});
     return;
   }
@@ -4186,7 +4112,7 @@ function ytGo(){
   $("ytBack").hidden=false;
   $("ytPlayer").hidden=true;
   ytBusy(true);
-  /* whatever came back for this search last time goes up straight away */
+
   var key="q:"+ytMode+":"+ytSort+":"+raw;
   var cached=ytCacheGet(key,1000*60*60*24*7);
   if(cached&&cached.length)ytPaint(cached,"",g);
@@ -4208,7 +4134,7 @@ function ytGo(){
     });
     return;
   }
-  /* a plain word gets both: the channels called that, and what they posted */
+
   ytSearchWide(raw,ytSort).then(function(res){
     ytBusy(false);
     if(!ytGenIs(g)||ytPage.url!==raw)return;
@@ -4238,8 +4164,7 @@ function ytPaintWide(items,note,chans,g){
 function ytPaintChannels(chans){
   var feed=$("ytFeed");
   if(!feed||!chans.length)return;
-  /* the cards go in first at the front, then the heading in front of those,
-     otherwise each insert pushes the heading further down the list */
+
   chans.slice().reverse().forEach(function(c){
     var card=ytCard(c);
     card.classList.add("chan");
@@ -4276,8 +4201,7 @@ $("ytSort").onclick=function(){
   else if(ytPage.url)ytGo();
 };
 $("ytSort").textContent="relevance";
-/* the tab opens on the front page, and the front page is built around what has been
-   watched, so it changes as you use it */
+
 var _ytSetTab=setTab;
 setTab=function(id){
   var was=activeTab;
@@ -4285,12 +4209,7 @@ setTab=function(id){
   if(id==="youtube"&&was!=="youtube")ytHome();
 };
 
-/* ============================================================
-   8d. THE TAB ICON
-   alice.js looks for one link[rel~=icon] and changes its address. If the page has
-   none it throws and the icon never changes, and some browsers ignore a new address
-   on a link they have already read - so a brand new link is put in the head instead.
-   ============================================================ */
+
 function setFavicon(url){
   var v=String(url||"").trim();
   if(!v)v=MINE_BLANK;
@@ -4305,8 +4224,7 @@ function setFavicon(url){
   link.type=/data:image\/svg/i.test(v)?"image/svg+xml":(/data:/i.test(v)?"":"image/png");
   link.href=v;
   document.head.appendChild(link);
-  /* a browser will happily show the old one if the new picture never arrives, so
-     the picture is checked first and the reader is told when it is not usable */
+
   if(/^data:/i.test(v)){
     try{localStorage.setItem("appFav",v)}catch(e){}
     return link;
@@ -4368,9 +4286,7 @@ function myCloakIcon(url){
   });
 })();
 
-/* ---------- opening something in a new tab, with the tab dressed up ----------
-   about:blank opened from here keeps this origin, so its title and icon can still
-   be changed after the page has been written into it */
+
 var cloakPick=null;
 function setTabTitle(text){
   var t=String(text||"").trim();
@@ -4426,7 +4342,7 @@ function cloakApply(win,title,icon){
     a.rel="icon";
     a.href=icon;
     d.head.appendChild(a);
-    /* some browsers only look at the older form, so it gets one too */
+
     var b=d.createElement("link");
     b.rel="shortcut icon";
     b.type="image/x-icon";
@@ -4472,7 +4388,7 @@ var title="Loading";
   });
 }
 
-/* once the reader opens it themselves, it stays open while they work */
+
 document.addEventListener("toggle",function(e){
   var w=e.target;
   if(!w||w.id!=="featuredZonesWrapper")return;
@@ -4480,24 +4396,16 @@ document.addEventListener("toggle",function(e){
 },true);
 
 
-/* ============================================================
-   7b. THE ASSISTANT, POPPED OUT
-   A small window you can leave open over a game. It shares the same keys and the
-   same markdown, and if you say something like "solve this" it grabs one frame of
-   your screen on its own and looks at it.
-   ============================================================ */
 var aiHistory=[];
 var aiBusy=false;
 var aiLog=$("aiLog");
-/* words that mean "look at what is on my screen" */
+
 var AI_LOOK=/\b(solve|fix|do|complete|finish|answer|help|what|whats|how|why|explain|debug|translate|convert|read)\b[^.?!]{0,40}\b(this|that|it|screen|here|my code|this code|error|problem|question|maths?|math|sum|homework|exercise)\b|\b(solve|fix|do)\s+(this|that|it)\b|\b(this|that)\s+(code|error|problem|equation|question)\b/i;
-/* ---------- the popout can be put anywhere and stays there ----------
-   It sits above everything else on the page, so once it is out it stays out
-   while you go from tab to tab, and it is only the cross that puts it away. */
+
 var AI_POS="appAiPos";
 function aiPlace(d,x,y,save){
   var w=d.offsetWidth||390, h=d.offsetHeight||480;
-  /* never so far that it cannot be grabbed again, and never over the header */
+
   x=Math.max(6,Math.min(x,Math.max(6,window.innerWidth-w-6)));
   y=Math.max(56,Math.min(y,Math.max(56,window.innerHeight-h-6)));
   d.style.left=Math.round(x)+"px";
@@ -4511,7 +4419,7 @@ function aiRestorePlace(d){
   var raw=null;
   try{raw=JSON.parse(lsGet(AI_POS,"null"))}catch(e){}
   if(raw&&typeof raw.x==="number"&&typeof raw.y==="number")return aiPlace(d,raw.x,raw.y,false);
-  /* first time out: bottom right, as it has always been */
+
   return aiPlace(d,window.innerWidth-(d.offsetWidth||390)-18,
                    window.innerHeight-(d.offsetHeight||480)-18,false);
 }
@@ -4526,11 +4434,11 @@ function aiRestorePlace(d){
     aiPlace(d,parseFloat(d.style.left)||0,parseFloat(d.style.top)||0,true);
   };
   bar.addEventListener("pointerdown",function(e){
-    /* the cross and any other button still do their own job */
+
     if(e.target&&e.target.closest("button"))return;
     if(e.button!==undefined&&e.button!==0)return;
     var r=d.getBoundingClientRect();
-    /* pin it to a fixed spot on the first press so it can be dragged at all */
+
     d.style.left=Math.round(r.left)+"px";
     d.style.top=Math.round(r.top)+"px";
     d.style.right="auto";
@@ -4551,10 +4459,7 @@ function aiRestorePlace(d){
     aiPlace(d,parseFloat(d.style.left)||0,parseFloat(d.style.top)||0,false);
   });
 })();
-/* ---------- the assistant can live in a window of its own ----------
-   A real browser window, so it can be dragged onto another monitor or beside
-   another app. The panel itself is moved rather than rebuilt, which keeps every
-   handler, the scrollback and the typed question exactly as they were. */
+
 var aiWin=null;
 var aiWatch=null;
 function aiCopyStyles(win){
@@ -4563,8 +4468,7 @@ function aiCopyStyles(win){
     Array.prototype.forEach.call(document.querySelectorAll("style"),function(s){
       css+=s.textContent+"\n";
     });
-    /* the panel is the only thing over there, so the page rules it needs are
-       handed over wholesale rather than trimmed down */
+
     var head=win.document.head||win.document.getElementsByTagName("head")[0];
     if(!head)return;
     var st=win.document.createElement("style");
@@ -4574,8 +4478,7 @@ function aiCopyStyles(win){
     win.document.body.className="app-window"+(mode()==="light"?" light":"");
   }catch(e){}
 }
-/* the move itself, kept apart from opening the window so it can be checked
-   without one */
+
 function aiAttach(win){
   if(!win||!win.document)return false;
   aiWin=win;
@@ -4628,12 +4531,11 @@ function aiPlaceInWindow(win){
   var bar=d.querySelector(".ai-bar");
   if(bar)bar.style.cursor="default";
 }
-/* closing the window puts it back where it was in the page */
+
 function aiBackToTab(){
   var d=$("aiDock");
   if(!d||!document.body)return;
-  /* put it back where the page can see it, whether it came from a real window
-     or has only been parked somewhere else */
+
   if(!document.body.contains(d)){
     try{document.body.appendChild(d)}catch(e){return}
   }
@@ -4706,8 +4608,8 @@ function aiSay(text,cls,shot){
   aiLog.scrollTop=aiLog.scrollHeight;
   return b;
 }
-/* one frame of the screen, as a picture, or nothing if the browser says no */
-/* the same screenshot the camera button takes, so both behave alike */
+
+
 function grabFrame(){
   return takeShot().then(function(out){return shotClip(out)});
 }
@@ -4790,12 +4692,9 @@ $("aiShot").onclick=function(){
   });
 };
 
-/* ============================================================
-   8. SETTINGS
-   ============================================================ */
+
 function paintSettings(){
-  /* A key that is being typed into is left alone. Repainting settings after a
-     check must not wipe out a key that has only just been pasted in. */
+
   var a=$("apiKey"),g=$("gemKey");
   if(a&&(!a.value.trim()||a.value.trim()===apiKey))a.value=apiKey;
   if(g&&(!g.value.trim()||g.value.trim()===gemKey))g.value=gemKey;
@@ -4806,14 +4705,13 @@ function paintSettings(){
   $("maxVal").textContent=settings.maxTokens+" tokens";
   paintModelPickers();
   paintPicPickers();
-  /* whatever the last check said about the chat key is shown without waiting to
-     be asked, so a revoked key is visible the moment settings is opened */
+
   var kn=$("keyNote");
   if(kn&&keyCheck)kn.textContent=keyCheck;
 }
-/* the same list, in the chat tab and in settings, always in step */
+
 function paintModelPickers(){
-  /* models is a plain list of names, not objects */
+
   var list=models.length?models.slice():[];
   if(list.indexOf(settings.model)<0)list.unshift(settings.model||"openai/gpt-oss-120b");
   ["modelSelect","chatModel"].forEach(function(id){
@@ -4897,8 +4795,7 @@ $("temp").addEventListener("input",function(){settings.temperature=parseFloat(th
 $("maxTok").addEventListener("input",function(){settings.maxTokens=parseInt(this.value,10);$("maxVal").textContent=this.value+" tokens"});
 $("showKey").onclick=function(){var e=$("apiKey");e.type=e.type==="password"?"text":"password"};
 $("showGem").onclick=function(){var e=$("gemKey");e.type=e.type==="password"?"text":"password"};
-/* The box is the truth. Whatever is typed is used straight away, so there is no
-   way to paste a key, forget to press save, and be told the old one is dead. */
+
 function adoptKeys(){
   var a=$("apiKey"),g=$("gemKey");
   if(a)apiKey=a.value.trim()||DEFAULT_KEY;
@@ -4924,8 +4821,7 @@ $("saveSettings").onclick=function(){
   toast("saved - checking that key now");
   testChatKey();
 };
-/* One check, used by the button, by save, and at startup. It always reads the
-   key out of the box first, so what gets tested is what is on screen. */
+
 async function testChatKey(){
   adoptKeys();
   var kn=$("keyNote");
@@ -5018,16 +4914,102 @@ $("appImport").onchange=function(e){
 
 paintSettings();
 
-/* the model list is fetched straight away, so the picker in the chat tab has
-   something in it without anyone having to press test first */
+
 testChatKey().then(function(ok){ if(ok)paintSettings(); });
 
-/* first run: an empty chat so the page never looks broken */
+
 if(!chats.length)newChat();
 else loadChat(activeChat)||newChat();
 renderChat();
 
-/* a small handle, for the console and for anything that wants to drive it */
+
+var LS_VISITS="appVisits";
+var LS_PLAYS="appPlays";
+function statPlays(){
+  var raw=lsGet(LS_PLAYS,"");
+  var obj={};
+  if(raw){
+    try{
+      var p=JSON.parse(raw);
+      if(p&&typeof p==="object"&&!Array.isArray(p))obj=p;
+    }catch(e){}
+  }
+  return obj;
+}
+function statSave(obj){lsSet(LS_PLAYS,JSON.stringify(obj||{}))}
+function countVisit(){
+  var n=parseInt(lsGet(LS_VISITS,"0"),10);
+  if(isNaN(n)||n<0)n=0;
+  n++;
+  lsSet(LS_VISITS,String(n));
+  return n;
+}
+function recordPlay(z){
+  try{
+    if(!z)return;
+    var name=String(z.name||z.id||"unknown");
+    var obj=statPlays();
+    var e=obj[name];
+    if(typeof e==="number")e={n:e,id:""};
+    if(!e||typeof e!=="object")e={n:0,id:""};
+    e.n=(e.n||0)+1;
+    if(z.id)e.id=z.id;
+    obj[name]=e;
+    statSave(obj);
+    if(activeTab==="stats")paintStats();
+  }catch(err){}
+}
+function paintStats(){
+  var v=$("statVisits");
+  if(v)v.textContent=String(parseInt(lsGet(LS_VISITS,"0"),10)||0);
+  var obj=statPlays();
+  var rows=[];
+  var total=0;
+  for(var k in obj){
+    if(!Object.prototype.hasOwnProperty.call(obj,k))continue;
+    var e=obj[k];
+    var n=typeof e==="number"?e:(e&&e.n)||0;
+    if(!n)continue;
+    total+=n;
+    rows.push({name:k,n:n});
+  }
+  rows.sort(function(a,b){return b.n-a.n});
+  var pv=$("statPlays");
+  if(pv)pv.textContent=String(total);
+  var uv=$("statUnique");
+  if(uv)uv.textContent=String(rows.length);
+  var body=$("statRows");
+  var empty=$("statEmpty");
+  var table=$("statTable");
+  if(!body)return;
+  if(!rows.length){
+    body.innerHTML="";
+    if(empty)empty.hidden=false;
+    if(table)table.hidden=true;
+    return;
+  }
+  if(empty)empty.hidden=true;
+  if(table)table.hidden=false;
+  var max=rows[0].n||1;
+  body.innerHTML=rows.slice(0,25).map(function(r,i){
+    var pct=Math.max(4,Math.round((r.n/max)*100));
+    return '<tr><td class="stat-rank">'+(i+1)+'</td>'+
+      '<td class="m-name">'+esc(r.name)+'</td>'+
+      '<td>'+r.n+'</td>'+
+      '<td><span class="stat-bar"><i style="width:'+pct+'%"></i></span></td></tr>';
+  }).join("");
+}
+if($("statReset"))$("statReset").onclick=function(){
+  if(!window.confirm("reset all stats?"))return;
+  statSave({});
+  lsSet(LS_VISITS,"0");
+  countVisit();
+  paintStats();
+  toast("stats reset");
+};
+countVisit();
+paintStats();
+
 window.APP={
   setTab:setTab, send:send, askAboutPage:askAboutPage, grabScreen:grabScreen,
   newChat:function(){newChat();renderChat()},
@@ -5075,17 +5057,35 @@ window.APP={
   addPicture:function(c){clips.push(c);renderClips();},
   clearPictures:function(){clips=[];renderClips();},
 };
-/* the tab cloak lives in the markup as a plain onclick, so it has to be
-   reachable from the outside */
+
 window.setFavicon=setFavicon;
 })();
 </script>
 
 <script src="https://cdn.jsdelivr.net/gh/daknux/egg-shell@main/alice.js"></script>
 <script>
-/* alice.js is loaded after our own script, and it puts its own openZone, closeZone,
-   downloadZone, aboutBlank and cloakIcon on the page. This puts ours back. */
+
 try { if (window.__appAfterAlice) window.__appAfterAlice(); } catch (e) { console.error(e); }
+
+
+(function(){
+  var wn=document.getElementById("whatsNew");
+  var go=document.getElementById("whatsNewGo");
+  if(go)go.addEventListener("click",function(){
+    if(wn)wn.hidden=true;
+    document.body.classList.remove("wn-open");
+  });
+})();
+
+
+setInterval(function(){
+  try{
+    var v=document.getElementById("zoneViewer");
+    if(v&&v.style.display==="block")return;
+    if(typeof window.listZones==="function")window.listZones();
+    if(window.APP&&window.APP.mineSync)setTimeout(function(){window.APP.mineSync()},900);
+  }catch(e){}
+},30000);
 </script>
 </body>
 </html>
