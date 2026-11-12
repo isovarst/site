@@ -110,7 +110,8 @@ summary:hover{background:var(--surf2)}
 
 #container,#featuredZones{border:1px solid var(--line)}
 .zone-item{display:flex;flex-direction:row;align-items:center;gap:10px;
-  padding:4px 8px;border-bottom:1px solid var(--line);cursor:pointer;background:var(--bg)}
+  padding:4px 8px;border-bottom:1px solid var(--line);cursor:pointer;background:var(--bg);
+  content-visibility:auto;contain-intrinsic-size:auto 42px}
 .zone-item:last-child{border-bottom:0}
 .zone-item:hover{background:var(--surf2)}
 .zone-item img{width:32px;height:32px;flex-shrink:0;object-fit:cover;background:var(--surf2)}
@@ -119,7 +120,7 @@ summary:hover{background:var(--surf2)}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.gv #container,body.gv #featuredZones{display:grid;gap:8px;border:0}
 body.gv .zone-item{flex-direction:column;align-items:stretch;gap:6px;padding:6px;
-  border:1px solid var(--line)}
+  border:1px solid var(--line);contain-intrinsic-size:auto 130px}
 body.gv .zone-item:last-child{border-bottom:1px solid var(--line)}
 body.gv .zone-item img{width:100%;height:var(--gcard,88px)}
 body.gv .zone-item button{white-space:normal;overflow:hidden;display:-webkit-box;
@@ -628,22 +629,57 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
 #whatsNewGo:hover{background:var(--bg);color:var(--tx)}
 body.wn-open{overflow:hidden}
 
+#confetti{position:fixed;inset:0;width:100%;height:100%;z-index:960;pointer-events:none;display:none}
+body.bday #confetti{display:block}
+#bdayBanner{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:961;
+  display:none;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;
+  background:linear-gradient(90deg,#ff2d78,#ff8a3d,#ffd23d,#3ddc84,#3da5ff,#b06bff);
+  color:#fff;font-weight:700;letter-spacing:1px;font-size:13px;
+  box-shadow:0 6px 24px rgba(255,45,120,.45);pointer-events:none;
+  animation:bdayPulse 1.8s ease-in-out infinite}
+body.bday #bdayBanner{display:flex}
+#bdayBanner span{font-size:16px;animation:bdayBob 1.4s ease-in-out infinite;will-change:transform}
+#bdayBanner span:last-child{animation-delay:.3s}
+@keyframes bdayPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
+@keyframes bdayBob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-5px) rotate(8deg)}}
+#bdayLog{text-align:center}
+.bday-hero{padding:8px 0 4px}
+.bday-cake{font-size:56px;line-height:1;animation:bdayFloat 2.4s ease-in-out infinite;will-change:transform}
+@keyframes bdayFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.bday-title{margin:10px 0 4px;font-size:26px;letter-spacing:2px;
+  background:linear-gradient(90deg,#ff2d78,#ff8a3d,#ffd23d,#3ddc84,#3da5ff,#b06bff);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.bday-sub{margin:0 0 14px;color:var(--mut);font-size:13px}
+.bday-emojis{font-size:26px;letter-spacing:6px;margin-bottom:14px}
+.bday-emojis span{display:inline-block;animation:bdayPop 1.6s ease-in-out infinite}
+.bday-emojis span:nth-child(2){animation-delay:.15s}
+.bday-emojis span:nth-child(3){animation-delay:.3s}
+.bday-emojis span:nth-child(4){animation-delay:.45s}
+.bday-emojis span:nth-child(5){animation-delay:.6s}
+@keyframes bdayPop{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.2)}}
+.bday-list{list-style:none;margin:0;padding:0;font-size:13px}
+.bday-list li{margin:6px 0}
+
 </style>
 </head>
 <body class="wn-open">
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="bdayBanner" aria-hidden="true"><span>🎂</span> happy birthday <span>🎉</span></div>
 
 <div id="whatsNew" role="dialog" aria-modal="true" aria-labelledby="wnTitle">
   <div class="wn-box">
     <div class="wn-head">
       <b id="wnTitle">what's new</b>
-      <span class="wn-ver">update log</span>
+      <span class="wn-ver" id="wnVer">update log</span>
     </div>
     <div class="wn-body">
+      <div id="wnNormal">
       <div class="wn-sec">
         <h4>added</h4>
         <ul>
           <li><b>*new games added*</b> <span>- a whole new set of games, with covers</span></li>
-          <li><b>themes</b> <span>- dark, light, and 18 colour themes</span></li>
+          <li><b>themes</b> <span>- dark, light, and 19 colour themes</span></li>
           <li><b>grid view</b> <span>- set how many games sit in a row, and how big they are</span></li>
           <li><b>madden nfl 09</b> <span>- football, with a controller</span></li>
           <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
@@ -667,6 +703,20 @@ body.wn-open{overflow:hidden}
           <li>the stats page has been removed</li>
           <li>the new tab button loads games properly again</li>
           <li>this update log</li>
+        </ul>
+      </div>
+      </div>
+      <div id="bdayLog" hidden>
+        <div class="bday-hero">
+          <div class="bday-cake">🎂</div>
+          <h2 class="bday-title">happy birthday!</h2>
+          <p class="bday-sub">the whole launcher is celebrating today</p>
+        </div>
+        <div class="bday-emojis"><span>🎉</span><span>🎈</span><span>🎁</span><span>🧁</span><span>🎊</span></div>
+        <ul class="bday-list">
+          <li>confetti is falling just for you</li>
+          <li>there's a <b>birthday</b> theme in options</li>
+          <li>cakes, balloons and good vibes all day</li>
         </ul>
       </div>
     </div>
@@ -885,6 +935,14 @@ body.wn-open{overflow:hidden}
           </div>
         </div>
       </div>
+      <div class="field">
+        <label>birthday mode</label>
+        <select id="bdayMode">
+          <option value="off">off</option>
+          <option value="on">on</option>
+        </select>
+        <div class="note">turns on confetti, the birthday theme and a little celebration in the update log.</div>
+      </div>
       <h3>keys</h3>
       <div class="field">
         <label>chat key (groq)</label>
@@ -1058,7 +1116,7 @@ if(RETIRED_KEYS.indexOf(apiKey)>=0){apiKey=DEFAULT_KEY;lsSet(LS.key,apiKey)}
 var models=[];
 
 
-var LS_THEME="appTheme",LS_GRID="appGrid",LS_GCOLS="appGridCols",LS_GCARD="appGridCard";
+var LS_THEME="appTheme",LS_GRID="appGrid",LS_GCOLS="appGridCols",LS_GCARD="appGridCard",LS_BDAY="appBirthday";
 function mkTheme(dark,bg,surf,surf2,line,line2,tx,mut,acc,accInk){
   return {dark:dark,bg:bg,surf:surf,surf2:surf2,line:line,line2:line2,
     tx:tx,mut:mut,acc:acc,accInk:accInk,dim:dark?"rgba(255,255,255,.06)":"rgba(0,0,0,.05)"};
@@ -1083,7 +1141,8 @@ var THEME_DEFS=[
 ["grape",1,"#140b1f","#1b1029","#271740","#43285f","#7048a0","#eadcff","#a98cc7","#b06bff","#120722"],
 ["ice",0,"#eef6fd","#f5faff","#dceafa","#b3d0ec","#6fa6d6","#123049","#517a9c","#2b8ae0","#ffffff"],
 ["peach",0,"#fff6ef","#fffaf5","#ffe8d6","#f2ccae","#dd9d6d","#4a2c17","#966b4f","#ff8a3d","#ffffff"],
-["mono",1,"#1a1a1a","#202020","#2a2a2a","#3d3d3d","#5c5c5c","#ededed","#a0a0a0","#d0d0d0","#1a1a1a"]
+["mono",1,"#1a1a1a","#202020","#2a2a2a","#3d3d3d","#5c5c5c","#ededed","#a0a0a0","#d0d0d0","#1a1a1a"],
+["birthday",0,"#fff0f7","#fff7fb","#ffe3f1","#f7bcd9","#e07bb0","#5a1e3c","#a06a86","#ff2d78","#ffffff"]
 ];
 var THEMES={},THEME_ORDER=[];
 THEME_DEFS.forEach(function(d){
@@ -1142,6 +1201,75 @@ function paintAppearance(){
   var wrap=$("gridOpts");
   if(wrap)wrap.style.display=gridStyle()==="grid"?"":"none";
 }
+function birthdayOn(){return lsGet(LS_BDAY,"off")==="on"}
+var bdayRaf=0,bdayParts=[],bdaySprites=null,bdayLast=0;
+function bdayMakeSprite(draw){
+  var s=document.createElement("canvas");s.width=40;s.height=40;
+  var x=s.getContext("2d");draw(x);return s;
+}
+function bdayBuildSprites(){
+  if(bdaySprites)return bdaySprites;
+  bdaySprites=[];
+  ["#ff2d78","#ff8a3d","#ffd23d","#3ddc84","#3da5ff","#b06bff","#ff5ca8","#ffffff"].forEach(function(col){
+    bdaySprites.push({img:bdayMakeSprite(function(x){x.fillStyle=col;x.fillRect(8,12,24,16)}),w:24,h:16});
+  });
+  ["🎂","🎈","🎉","🎁","🧁"].forEach(function(ch){
+    bdaySprites.push({img:bdayMakeSprite(function(x){x.font="30px serif";x.textAlign="center";x.textBaseline="middle";x.fillText(ch,20,21)}),w:30,h:30});
+  });
+  return bdaySprites;
+}
+function bdayConfettiStart(){
+  var c=$("confetti");
+  if(!c||bdayRaf)return;
+  var ctx=c.getContext("2d");
+  var spr=bdayBuildSprites();
+  function part(init){
+    return {x:Math.random()*innerWidth,y:init?Math.random()*innerHeight:-40-Math.random()*innerHeight,
+      s:0.6+Math.random()*0.8,vy:1.2+Math.random()*2.6,vx:-1.2+Math.random()*2.4,
+      rot:Math.random()*6.28,vr:-0.08+Math.random()*0.16,
+      k:Math.floor(Math.random()*spr.length),ph:Math.random()*6.28};
+  }
+  bdayParts=[];
+  for(var i=0;i<45;i++)bdayParts.push(part(true));
+  bdayLast=0;var t=0;
+  function frame(now){
+    bdayRaf=requestAnimationFrame(frame);
+    if(now-bdayLast<33)return;
+    bdayLast=now;
+    if(document.hidden)return;
+    if(c.width!==innerWidth||c.height!==innerHeight){c.width=innerWidth;c.height=innerHeight}
+    t++;
+    ctx.clearRect(0,0,c.width,c.height);
+    for(var i=0;i<bdayParts.length;i++){
+      var p=bdayParts[i];
+      p.y+=p.vy;p.x+=p.vx+Math.sin(t/26+p.ph)*1.4;p.rot+=p.vr;
+      if(p.y>c.height+50||p.x<-70||p.x>c.width+70){bdayParts[i]=part(false);continue}
+      var sp=spr[p.k],co=Math.cos(p.rot)*p.s,si=Math.sin(p.rot)*p.s;
+      ctx.setTransform(co,si,-si,co,p.x,p.y);
+      ctx.drawImage(sp.img,-sp.w/2,-sp.h/2,sp.w,sp.h);
+    }
+    ctx.setTransform(1,0,0,1,0,0);
+  }
+  bdayRaf=requestAnimationFrame(frame);
+}
+function bdayConfettiStop(){
+  if(bdayRaf){cancelAnimationFrame(bdayRaf);bdayRaf=0}
+  var c=$("confetti");
+  if(c){var ctx=c.getContext("2d");if(ctx){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height)}}
+  bdayParts=[];
+}
+function applyBirthday(){
+  var on=birthdayOn();
+  document.body.classList.toggle("bday",on);
+  var normal=$("wnNormal"),log=$("bdayLog"),title=$("wnTitle"),ver=$("wnVer");
+  if(normal)normal.hidden=on;
+  if(log)log.hidden=!on;
+  if(title)title.textContent=on?"happy birthday":"what's new";
+  if(ver)ver.textContent=on?"birthday edition":"update log";
+  if(on)bdayConfettiStart();else bdayConfettiStop();
+  var sel=$("bdayMode");
+  if(sel)sel.value=on?"on":"off";
+}
 (function(){
   var sel=$("themeSelect");
   if(sel){
@@ -1155,14 +1283,27 @@ function paintAppearance(){
   }
   var gs=$("gridStyle");
   if(gs)gs.onchange=function(){lsSet(LS_GRID,gs.value);applyGrid();paintAppearance()};
+  var gridRaf=0;
+  var queueGrid=function(){
+    if(gridRaf)return;
+    gridRaf=requestAnimationFrame(function(){gridRaf=0;applyGrid()});
+  };
   var gc=$("gridCols");
-  if(gc)gc.oninput=function(){lsSet(LS_GCOLS,gc.value);applyGrid();paintAppearance()};
+  if(gc)gc.oninput=function(){lsSet(LS_GCOLS,gc.value);queueGrid();paintAppearance()};
   var gk=$("gridCard");
-  if(gk)gk.oninput=function(){lsSet(LS_GCARD,gk.value);applyGrid();paintAppearance()};
+  if(gk)gk.oninput=function(){lsSet(LS_GCARD,gk.value);queueGrid();paintAppearance()};
+  var bd=$("bdayMode");
+  if(bd)bd.onchange=function(){
+    lsSet(LS_BDAY,bd.value);
+    if(bd.value==="on"&&themeName()!=="birthday")applyTheme("birthday");
+    else if(bd.value==="off"&&themeName()==="birthday")applyTheme("dark");
+    applyBirthday();
+  };
 })();
 applyTheme(themeName(),true);
 applyGrid();
 paintAppearance();
+applyBirthday();
 
 
 var TAB_IDS=["games","chat","google","youtube","settings"];
@@ -2579,31 +2720,36 @@ function tplZones(){
   });
 }
 function tplCoverName(file){return String(file||"").replace(/\.html?$/i,"")}
-function tplLoadCovers(){
-  if(tplCoverPromise)return tplCoverPromise;
+var tplCoverZip=null,tplCoverPaths=null,tplCoverUrls={},tplCoverReadyPromise=null;
+function tplLoadCovers(){return Promise.resolve(false)}
+function tplCoverReady(){
+  if(tplCoverReadyPromise)return tplCoverReadyPromise;
   if(typeof JSZip==="undefined")return Promise.resolve(false);
-  tplCoverPromise=fetch(TPL_CDN+"detailed-art/coversv5.zip",{redirect:"follow"})
+  tplCoverReadyPromise=fetch(TPL_CDN+"detailed-art/coversv5.zip",{redirect:"follow"})
     .then(function(r){if(!r.ok)throw new Error("covers "+r.status);return r.arrayBuffer()})
     .then(function(buf){return JSZip.loadAsync(buf)})
     .then(function(zip){
-      var entries=Object.keys(zip.files).filter(function(n){return !zip.files[n].dir});
-      var map={};
-      return Promise.all(entries.map(function(n){
-        return zip.files[n].async("blob").then(function(b){
-          try{map[n.split("/").pop().replace(/\.[^.]+$/,"")]=URL.createObjectURL(b)}catch(e){}
-        });
-      })).then(function(){
-        tplCoverMap=map;
-        tplZoneList().forEach(function(z){
-          var u=map[tplCoverName(z.tplFile)];
-          if(u)z.cover=u;
-        });
-        if(typeof sortZones==="function")sortZones();
-        return true;
+      tplCoverZip=zip;tplCoverPaths={};
+      Object.keys(zip.files).forEach(function(n){
+        if(zip.files[n].dir)return;
+        tplCoverPaths[n.split("/").pop().replace(/\.[^.]+$/,"")]=n;
       });
+      return true;
     })
-    .catch(function(){tplCoverPromise=null;return false});
-  return tplCoverPromise;
+    .catch(function(){tplCoverReadyPromise=null;return false});
+  return tplCoverReadyPromise;
+}
+function tplCoverUrl(file){
+  var key=tplCoverName(file);
+  if(tplCoverUrls[key])return Promise.resolve(tplCoverUrls[key]);
+  return tplCoverReady().then(function(ok){
+    if(!ok||!tplCoverZip)return "";
+    var path=tplCoverPaths[key];
+    if(!path)return "";
+    return tplCoverZip.files[path].async("blob").then(function(b){
+      var u=URL.createObjectURL(b);tplCoverUrls[key]=u;return u;
+    });
+  }).catch(function(){return ""});
 }
 function tplZipText(z){
   if(typeof JSZip==="undefined")return Promise.reject(new Error("the unzip helper did not load"));
@@ -2693,7 +2839,6 @@ function syncMineZones(){
   }
   var front=mine.concat(tplZones());
   zones.unshift.apply(zones,front);
-  tplLoadCovers();
 
   var sel=$("filterOptions");
   if(sel){
@@ -2703,19 +2848,24 @@ function syncMineZones(){
         if(t!=="user"&&!seen[t]){seen[t]=1;keep.push(t)}
       });
     });
-    var was=sel.value;
-    sel.innerHTML="";
-    var none=document.createElement("option");
-    none.value="none";
-    none.textContent="all tags";
-    sel.appendChild(none);
-    keep.sort().forEach(function(t){
-      var o=document.createElement("option");
-      o.value=t;
-      o.textContent=t.replace(/-/g," ");
-      sel.appendChild(o);
-    });
-    sel.value=keep.indexOf(was)>-1?was:"none";
+    keep.sort();
+    var tagSig=keep.join(",");
+    if(sel.__tagSig!==tagSig){
+      sel.__tagSig=tagSig;
+      var was=sel.value;
+      sel.innerHTML="";
+      var none=document.createElement("option");
+      none.value="none";
+      none.textContent="all tags";
+      sel.appendChild(none);
+      keep.forEach(function(t){
+        var o=document.createElement("option");
+        o.value=t;
+        o.textContent=t.replace(/-/g," ");
+        sel.appendChild(o);
+      });
+      sel.value=keep.indexOf(was)>-1?was:"none";
+    }
   }
   if(typeof sortZones==="function")sortZones();
 
@@ -2789,6 +2939,50 @@ installZoneHooks=function(){
       };
       syncedListZones.__mineSynced=true;
       window.listZones=syncedListZones;
+    }
+  }catch(e){}
+
+  try{
+    var rawDisplayZones=window.displayZones;
+    if(typeof rawDisplayZones==="function"&&!rawDisplayZones.__sigSkip){
+      var lastZoneSig="";
+      var tplObs=null;
+      var tplWatch=function(img,file){
+        if(!tplObs){
+          tplObs=new IntersectionObserver(function(entries){
+            entries.forEach(function(en){
+              if(!en.isIntersecting)return;
+              var im=en.target;tplObs.unobserve(im);
+              tplCoverUrl(im.dataset.tpl).then(function(u){
+                if(u){im.dataset.src=u;im.src=u}
+              });
+            });
+          },{rootMargin:"300px"});
+        }
+        img.dataset.tpl=file;
+        tplObs.observe(img);
+      };
+      var sigDisplayZones=function(list){
+        var sig=(list?list.length:0)+"|",box=$("container");
+        if(list)for(var i=0;i<list.length;i++)sig+=list[i].id+",";
+        if(sig===lastZoneSig&&box&&box.children.length)return;
+        lastZoneSig=sig;
+        var out=rawDisplayZones.apply(this,arguments);
+        if(box){
+          var kids=box.children;
+          if(list)for(var k=0;k<list.length&&k<kids.length;k++){
+            var z=list[k];
+            if(!z||!z.tpl)continue;
+            var im=kids[k].querySelector("img");
+            if(im)tplWatch(im,z.tplFile);
+          }
+          var imgs=box.querySelectorAll("img");
+          for(var j=0;j<imgs.length;j++)imgs[j].decoding="async";
+        }
+        return out;
+      };
+      sigDisplayZones.__sigSkip=true;
+      window.displayZones=sigDisplayZones;
     }
   }catch(e){}
 
