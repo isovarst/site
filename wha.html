@@ -308,14 +308,6 @@ body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:
   padding:0 5px}
 .mtable .mini:hover{background:var(--tx);color:var(--bg)}
 .mtable .m-lock{font-size:11px;color:var(--mut);padding-right:4px;white-space:nowrap}
-.stat-grid{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
-.stat-card{flex:1 1 140px;border:1px solid var(--line);padding:10px 12px;background:var(--surf2)}
-.stat-card .stat-n{font-size:26px;font-weight:700;line-height:1.1}
-.stat-card .stat-l{font-size:11px;color:var(--mut);text-transform:lowercase;letter-spacing:1px;margin-top:2px}
-.stat-empty{font-size:12px;color:var(--mut);padding:8px 0}
-.stat-rank{font-size:11px;color:var(--mut);padding-right:8px;white-space:nowrap}
-.stat-bar{height:8px;background:var(--dim);border:1px solid var(--line);min-width:40px}
-.stat-bar i{display:block;height:100%;background:var(--tx)}
 .mine-form{margin-top:4px}
 .mf-row{display:flex;align-items:center;gap:8px;padding:5px 0}
 .mf-lab{width:70px;flex-shrink:0;font-size:11px;color:var(--mut);text-transform:lowercase}
@@ -612,10 +604,10 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
   border-bottom:1px solid var(--tx);flex-shrink:0}
 .wn-head b{font-size:13px;letter-spacing:1px;font-weight:700}
 .wn-ver{margin-left:auto;font-size:11px;color:var(--mut)}
-.wn-body{padding:12px;overflow:auto;font-size:12.5px;line-height:1.6}
+.wn-body{padding:12px;overflow:auto;font-size:13px;line-height:1.6}
 .wn-sec{margin-bottom:14px}
 .wn-sec:last-child{margin-bottom:0}
-.wn-sec h4{margin:0 0 6px;font-size:11px;color:var(--mut);
+.wn-sec h4{margin:0 0 6px;font-size:12px;color:var(--mut);
   text-transform:lowercase;letter-spacing:1px;font-weight:700}
 .wn-sec ul{margin:0;padding-left:18px;list-style:square}
 .wn-sec li{margin:2px 0}
@@ -642,6 +634,7 @@ body.wn-open{overflow:hidden}
       <div class="wn-sec">
         <h4>added</h4>
         <ul>
+          <li><b>*new games added*</b> <span>- a whole new set of games, with covers</span></li>
           <li><b>madden nfl 09</b> <span>- football, with a controller</span></li>
           <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
           <li><b>embedder</b> <span>- open other sites inside</span></li>
@@ -659,7 +652,8 @@ body.wn-open{overflow:hidden}
         <ul>
           <li>the games list refreshes itself every 30 seconds</li>
           <li>a game you remove now stays removed</li>
-          <li>new stats tab tracks visits and your most played games</li>
+          <li>duplicate games are hidden now, and your own copy is the one that stays</li>
+          <li>the stats page has been removed</li>
           <li>this update log</li>
         </ul>
       </div>
@@ -677,7 +671,6 @@ body.wn-open{overflow:hidden}
       <button class="tab hidden-tab" data-tab="chat">ask</button>
       <button class="tab" data-tab="google">web</button>
       <button class="tab" data-tab="youtube">videos</button>
-      <button class="tab" data-tab="stats">stats</button>
       <button class="tab" data-tab="settings">options</button>
     </nav>
 
@@ -923,36 +916,6 @@ body.wn-open{overflow:hidden}
     </div>
   </section>
 
-  <section class="view" id="viewStats">
-    <div class="panel">
-      <h1 class="pagehead">stats</h1>
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-n" id="statVisits">0</div>
-          <div class="stat-l">visits</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-n" id="statPlays">0</div>
-          <div class="stat-l">games played</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-n" id="statUnique">0</div>
-          <div class="stat-l">games tried</div>
-        </div>
-      </div>
-      <h3>most used games</h3>
-      <table class="mtable" id="statTable">
-        <thead>
-          <tr><th>#</th><th>game</th><th>plays</th><th></th></tr>
-        </thead>
-        <tbody id="statRows"></tbody>
-      </table>
-      <div class="stat-empty" id="statEmpty">no games played yet.</div>
-      <div class="actions">
-        <button class="act" id="statReset">reset stats</button>
-      </div>
-    </div>
-  </section>
 </main>
 
 
@@ -1071,7 +1034,7 @@ if($("modeBtn"))$("modeBtn").onclick=function(){
 applyMode(lsGet(LS_MODE,"dark"),true);
 
 
-var TAB_IDS=["games","chat","google","youtube","stats","settings"];
+var TAB_IDS=["games","chat","google","youtube","settings"];
 var activeTab="games";
 
 var WIDE_TABS=["chat","google","youtube"];
@@ -1092,7 +1055,6 @@ function setTab(id){
   document.body.classList.toggle("wide",WIDE_TABS.indexOf(id)>-1);
 
   if(id==="chat")$("input").focus();
-  if(id==="stats")paintStats();
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest&&e.target.closest("#tabs .tab");
@@ -2436,12 +2398,111 @@ var MINE_SEED=[
  note:"for robby"},
 ];
 
+var TPL_GAMES=[["1-on-1-soccer.html","1 on 1 soccer","baseball-garden2/bmr8.png"],["1-on-1-tennis.html","1 on 1 tennis","baseball-garden2/a0wu.png"],["1.12.html","1.12","light-bulb-socks/j61r.png"],["1.12_WASM.html","1.12_WASM","recycle-snow/x61r.png"],["1.5.html","1.5","camping-sunset/U0R1.png"],["1.8.html","1.8","moon-skies-stars/sDc9.png"],["1.8_WASM.html","1.8_WASM","tomato-for-rain/x62r.png"],["10-minutes-till-dawn.html","10 minutes till dawn","bananagenius/RusJ.png"],["12-mini-battles.html","12 mini battles","pepper-green4/KHnO.png"],["1v1.lol.html","1v1.LOL","backpack-blue-sky/HK7g.png"],["2048-cupcakes.html","2048 cupcakes","crown-snakes/KzM3.png"],["2048.html","2048","crown-snakes/0yoz.png"],["3D-flight-simulator.html","3D flight simulator","sea-creature-sponge2/KpuY.png"],["3d-free-kick.html","3d free kick","sunny-apples/jRd1.png"],["8-ball-classic.html","8 ball classic","sunny-apples/5S81.png"],["9007199254740992.html","9007199254740992","crown-snakes/NYkE.png"],["agar-io-lite.html","agar io lite","crown-snakes/zOb8.png"],["age-of-war-2.html","age of war 2","light-bulb-socks2/kfPv.png"],["age-of-war.html","age of war","camping-sunset/cxdU.png"],["ages-of-conflict.html","ages of conflict","tomato-for-potato/Q4Xb.png"],["Alpha_1.2.6.html","Alpha 1.2.6","baseball-garden2/nqxN.png"],["among-us.html","among us","baseball-garden2/a5Zs.png"],["angry-birds-showdown.html","angry birds showdown","rock-stone-glass/yZnR.png"],["angry-birds-space.html","angry birds space","mountain-skateboard/ndEN.png"],["angry-birds.html","angry birds","saturn-solar-nice/22kc.png"],["awesome-tanks-2.html","awesome tanks 2","birds-ok9/PsD1.png"],["awesome-tanks.html","awesome tanks","sunny-apples/YKNZ.png"],["backrooms.html","Backrooms","lemon-building/5ngi.png"],["bacon-may-die.html","bacon may die","earth-spaceship/4BcA.png"],["bad-ice-cream-2.html","bad ice cream 2","alien-planets/rjGr.png"],["bad-ice-cream-3.html","bad ice cream 3","earth-spaceship/0W4T.png"],["bad-ice-cream.html","bad ice cream","sunny-apples/JFba.png"],["bad-parenting.html","bad parenting","lemonstudywork2/OAuu.png"],["bad-piggies.html","bad piggies","pepperpurple/Zsca.png"],["bad-time-simulator.html","bad time simulator","alien-planets/iXW4.png"],["baldis-basics.html","baldis basics","sea-creature-sponge2/KyD8.png"],["bank-robbery-2.html","bank robbery 2","cookies-donuts-ok2/eWHJ.png"],["bank-robbery-3.html","bank robbery 3","cookies-donuts-ok/IAJH.png"],["baseball-bros.html","baseball bros","moon-skies-stars/I591.png"],["basket-bros.html","basket bros","baseball-garden2/MMm7.png"],["basket-random.html","basket random","alien-planets/fCun.png"],["basketball-legends.html","basketball legends","baseball-garden/vfdD.png"],["basketball-stars.html","basketball stars","birds-ok9/dgFU.png"],["Beta_1.3.html","Beta 1.3","alien-planets/HqaM.png"],["big-ice-tower-tiny-square.html","big ice tower tiny square","alien-planets/J09H.png"],["big-neon-tower-tiny-square.html","big neon tower tiny square","earth-spaceship/ct1u.png"],["big-tower-tiny-square-2.html","big tower tiny square 2","earth-spaceship/mIoU.png"],["big-tower-tiny-square.html","big tower tiny square","alien-planets/fhp8.png"],["bit-planes.htm","bit planes","crown-snakes/FP95.png"],["bitlife.html","BitLife","rock-stone-glass2/xu7W.png"],["blocky-snakes.html","blocky snakes","tomato-for-rain/VY62.png"],["bloons-TD-2.html","bloons TD 2","baseball-garden2/e5QZ.png"],["bloons-TD-3.html","bloons TD 3","baseball-garden/cupJ.png"],["bloons-TD-4.html","bloons TD 4","camping-sunset/ID5n.png"],["bloons-TD-5.html","bloons TD 5","mountain-skateboard/NUJA.png"],["bloons-TD.html","bloons TD","baseball-garden2/TKBp.png"],["bloxorz.html","Bloxorz","pepperpurple/iNwU.png"],["blumgi-racers.html","blumgi racers","alien-planets/GLz8.png"],["blumgi-rocket.html","blumgi rocket","alien-planets/BahU.png"],["bob-the-robber-2.html","bob the robber 2","birds-ok9/X7ZU.png"],["bob-the-robber-5.html","bob the robber 5","birds-ok9/75WY.png"],["bob-the-robber.html","bob the robber","moon-skies-stars/hHmv.png"],["bouncy-motors.html","bouncy motors","bananagenius/4XZG.png"],["bow-masters.html","bow masters","telephone-water/hx6D.png"],["boxel-rebound.html","boxel rebound","crown-snakes/11ur.png"],["boxing-random.htm","boxing random","crown-snakes/bFj4.png"],["breaking-the-bank.html","breaking the bank","camping-sunset/BXvJ.png"],["bubble-shooter.html","bubble shooter","earth-spaceship/LOYS.png"],["burrito-bison-launcha-libre.html","burrito bison launcha libre","backpack-blue-sky/ceI5.png"],["candy-crush.html","candy crush","alien-planets/9tgY.png"],["capybara-clicker.html","capybara clicker","birds-nice3/3XU2.png"],["car-drawing.html","car drawing","keyboard-mouse-screen/Z9o1.png"],["car-king-arena.html","car king arena","moon-skies-galaxy/Iy5n.png"],["chaos-faction-2.html","chaos faction 2","grass-and-football/RpcR.png"],["chess.html","Chess","earth-spaceship/1uFp.png"],["choppy-orc.html","choppy orc","alien-planets/jZap.png"],["circloO-2.html","circloO 2","alien-planets/JHtQ.png"],["circloO.html","circloO","alien-planets/koMa.png"],["clash-of-vikings.html","clash of vikings","alien-planets/ougE.png"],["cleanup-io.html","cleanup io","moon-skies-stars/dMH2.png"],["cluster-rush.html","cluster rush","tomato-for-potato/onEJ.png"],["cookie-clicker.htm","cookie clicker","earth-spaceship/HhCS.png"],["coreball.html","coreball","crown-snakes/6tww.png"],["crazy-cars.html","crazy cars","birds-nice3/PxTR.png"],["crazy-cattle-3D.html","crazy cattle 3D","runninghiking2/k1Hf.png"],["crazy-crash-landing.html","crazy crash landing","bananagenius/GREP.png"],["crazy-motorcycle.html","crazy motorcycle","moon-skies-galaxy/LAeE.png"],["crossy-road.htm","crossy road","alien-planets/B2bG.png"],["cut-the-rope-2.html","cut the rope 2","telephone-water/MKxb.png"],["cut-the-rope-holiday-gift.html","cut the rope holiday gift","birds-ok9/ngvJ.png"],["cut-the-rope-time-travel.html","cut the rope time travel","umbrella-rain-snow/L6tk.png"],["cut-the-rope.html","cut the rope","build-create-energy/2jqW.png"],["dadish-2.html","dadish 2","earth-spaceship/Tj36.png"],["dadish-3.html","dadish 3","earth-spaceship/8d9a.png"],["dadish.html","Dadish","earth-spaceship/IzTk.png"],["deadly-descent.html","deadly descent","build-create-energy/1Kbp.png"],["death-chase.html","death chase","bananagenius/v7iI.png"],["death-run-3D.html","death run 3D","baseball-garden/F4m4.png"],["demolition-derby-crash-racing.html","demolition derby crash racing","rainwind-snow/QuoI.png"],["doodle-jump.html","doodle jump","crown-snakes/bIqu.png"],["draw-climber.html","draw climber","crown-snakes/X1y7.png"],["dreadhead-parkour.htm","dreadhead parkour","earth-spaceship/9il5.png"],["drift-boss.htm","drift boss","alien-planets/oHNu.png"],["drift-hunters-pro.html","drift hunters pro","runninghiking2/0fnt.png"],["drive-mad.htm","drive mad","alien-planets/6lcK.png"],["duck-life-2.html","duck life 2","pepperpurple/zHf2.png"],["duck-life-3.html","duck life 3","kingsolarsystem/tH8F.png"],["duck-life-4.html","duck life 4","moon-skies-galaxy/F1WB.png"],["duck-life-5.html","duck life 5","saturn-solar-nice/WAqd.png"],["duck-life.html","duck life","baseball-garden/DJaX.png"],["ducklings-io.html","ducklings io","pepper-green4/PivU.png"],["eagle-ride.html","eagle ride","saturn-solar-nice/5Gwx.png"],["earn-to-die-2.html","earn to die 2","tomato-for-potato/e6rZ.png"],["earn-to-die.html","earn to die","birds-ok9/S6bV.png"],["eggy-car.html","eggy car","earth-spaceship/ppgO.png"],["elastic-face.htm","elastic face","crown-snakes/cGyK.png"],["escape-road-2.html","escape road 2","umbrella-rain-snow/YHgb.png"],["escape-road-3.html","escape road 3","cookies-donuts-ok/Tpuj.png"],["escape-road.html","escape road","superoceanwater/M4lp.png"],["escaping-the-prison.html","escaping the prison","keyboard-mouse-screen/5iHm.png"],["eugenes-life.html","eugenes life","superoceanlava/uPUo.png"],["evil-glitch.html","evil glitch","crown-snakes/O2fu.png"],["fancy-pants-adventure-2.html","fancy pants adventure 2","moon-skies-stars/Rixm.png"],["fancy-pants-adventure.html","fancy pants adventure","sunny-apples/m2Tw.png"],["fireblob.html","fireblob","crown-snakes/OkUr.png"],["fireboy-and-watergirl-2.html","fireboy and watergirl 2","pepperpurple/c1Q4.png"],["fireboy-and-watergirl-3.html","fireboy and watergirl 3","pepperpurple/epzN.png"],["fireboy-and-watergirl-4.html","fireboy and watergirl 4","pepperpurple/L73i.png"],["fireboy-and-watergirl.html","fireboy and watergirl","sunny-apples/ftkz.png"],["flappy-bird.html","flappy bird","crown-snakes/RnbM.png"],["fleeing-the-complex.html","fleeing the complex","sea-creature-sponge/AJLo.png"],["flood-runner-2.html","flood runner 2","sunny-apples/a3rN.png"],["flood-runner-3.html","flood runner 3","camping-sunset/dy45.png"],["flood-runner-4.html","flood runner 4","birds-nice3/EUnG.png"],["fnaf-2.html","fnaf 2","build-create-energy/LNT8.png"],["fnaf-3.html","fnaf 3","rock-stone-glass/Oi5c.png"],["fnaf-4.html","fnaf 4","phone-mice-tv/uNjI.png"],["fnaf-sister-location.html","fnaf sister location","runninghiking/15LV.png"],["fnaf.html","FNAF","mountain-skateboard/mJtw.png"],["football-bros.html","football bros","saturn-solar-nice/4zrA.png"],["football-legends.html","football legends","alien-planets/Gf9p.png"],["free-rider-3.html","free rider 3","baseball-garden2/rlC7.png"],["friday-night-funkin.html","friday night funkin","smart-tomato-tree/Mb9m.png"],["fruit-ninja.html","fruit ninja","baseball-garden/385R.png"],["funny-battle-2.html","funny battle 2","tomato-for-rain/xwrc.png"],["funny-battle.html","funny battle","pepper-green4/Xfwc.png"],["funny-mad-racing.html","funny mad racing","nights-many-dark/wNrY.png"],["funny-shooter-2.html","funny shooter 2","sea-creature-sponge2/cORR.png"],["geometry-dash-lite.html","geometry dash lite","trumpet-and-lights/SqjF.png"],["geometry-dash.html","geometry dash","pepper-green4/Mlqz.png"],["geometry-vibes.html","geometry vibes","rock-stone-glass/JZZE.png"],["get-on-top.html","get on top","crown-snakes/JhsO.png"],["getaway-shootout.html","getaway shootout","sunny-apples/jQ44.png"],["gladi-hoppers.html","gladi hoppers","cookies-donuts-ok2/9fhl.png"],["google-baseball.html","google baseball","alien-planets/v9dP.png"],["google-dino.html","google dino","crown-snakes/j3Ui.png"],["granny-2.html","granny 2","lemonstudywork2/c5Ey.png"],["granny.html","Granny","nights-many-dark/ufj7.png"],["guess-their-answer.html","guess their answer","saturn-solar-nice/tu9y.png"],["hanger-2.html","hanger 2","crown-snakes/l1u1.png"],["happy-wheels.html","happy wheels","birds-ok9/PGIb.png"],["helix-jump.html","helix jump","camping-sunset/oYHT.png"],["highway-traffic.html","highway traffic","backpack-blue-sky/XV5S.png"],["hill-climb-racing-lite.html","hill climb racing lite","sunny-apples/5xhR.png"],["hole-io.html","hole io","light-bulb-socks/Iz5d.png"],["house-of-hazards.html","house of hazards","potato-spaceship/d9VH.png"],["hover-racer-drive.html","hover racer drive","grass-and-football/IM7E.png"],["ice-dodo.html","ice dodo","birds-nice3/6PXU.png"],["idle-breakout.html","idle breakout","crown-snakes/pltq.png"],["idle-dice.html","idle dice","pepperpurple/fC8o.png"],["Indev.html","Indev","crown-snakes/EiWP.png"],["infiltrating-the-airship.html","infiltrating the airship","cookies-donuts-ok/vgqZ.png"],["iron-snout.html","iron snout","earth-spaceship/1u3m.png"],["jacksmith.html","jacksmith","tomato-for-rain/8hvC.png"],["jetpack-joyride.html","jetpack joyride","phone-mice-tv/iFPU.png"],["johnny-trigger.html","johnny trigger","crown-snakes/CdFg.png"],["jumping-shell.html","jumping shell","alien-planets/lzP5.png"],["karate-bros.html","karate bros","sunny-apples/o6w9.png"],["kart-bros.html","kart bros","umbrella-rain-snow/5CZn.png"],["kittytoy.html","kittytoy","pepperpurple/SY3Q.png"],["learn-to-fly-2.html","learn to fly 2","saturn-solar-nice/lTQ4.png"],["learn-to-fly-3.html","learn to fly 3","rainwind-snow/WkMf.png"],["learn-to-fly-idle.html","learn to fly idle","camping-sunset/EgPo.png"],["learn-to-fly.html","learn to fly","baseball-garden2/buMS.png"],["level-devil.html","level devil","alien-planets/omPC.png"],["little-alchemy-2.html","little alchemy 2","telephone-water/TwvM.png"],["madalin-stunt-cars-2.html","madalin stunt cars 2","runninghiking/htsa.png"],["madness-project-nexus.html","madness project nexus","rock-stone-glass2/3AkQ.png"],["melon-playground.html","melon playground","mountain-skateboard/9noD.png"],["merge-round-racers.html","merge round racers","alien-planets/8M1U.png"],["minesweeper.html","Minesweeper","crown-snakes/OLUa.png"],["monkey-mart.htm","monkey mart","birds-ok9/uCGK.png"],["monster-tracks.html","monster tracks","alien-planets/ecl2.png"],["motherload.html","motherload","birds-ok9/5Phy.png"],["moto-x3m-2.html","moto x3m 2","earth-spaceship/xPGM.png"],["moto-x3m-3.html","moto x3m 3","baseball-garden2/p2WB.png"],["moto-x3m-pool-party.html","moto x3m pool party","earth-spaceship/XjCw.png"],["moto-x3m-spooky-land.html","moto x3m spooky land","earth-spaceship/dxVg.png"],["moto-x3m-winter.html","moto x3m winter","baseball-garden/rFqJ.png"],["moto-x3m.htm","moto x3m","baseball-garden/LXoU.png"],["murder.html","murder","moon-skies-galaxy/TbOj.png"],["noob-miner.html","noob miner","alien-planets/FphU.png"],["openTTD.html","openTTD","recycle-snow/ljJP.png"],["opposite-day.html","opposite day","crown-snakes/XPfz.png"],["ovo-2.html","ovo 2","crown-snakes/d3Z6.png"],["ovo-3-dimensions.html","ovo 3 dimensions","superoceanwater/R6TH.png"],["ovo.html","OvO","alien-planets/G65R.png"],["pac-man.html","pac man","crown-snakes/bjrZ.png"],["papas-bakeria.html","papas bakeria","lemon-building/IEXA.png"],["papas-burgeria.html","papas burgeria","camping-sunset/u5Re.png"],["papas-cheeseria.html","papas cheeseria","light-bulb-socks/CFgC.png"],["papas-cupcakeria.html","papas cupcakeria","moon-skies-stars/ec2v.png"],["papas-donuteria.html","papas donuteria","light-bulb-socks2/Gsqp.png"],["papas-freezeria.html","papas freezeria","kingsolarsystem/tFdO.png"],["papas-hot-doggeria.html","papas hot doggeria","moon-skies-galaxy/3h1f.png"],["papas-pancakeria.html","papas pancakeria","kingsolarsystem/K7SA.png"],["papas-pastaria.html","papas pastaria","mountain-skateboard/uNWq.png"],["papas-pizzeria.html","papas pizzeria","pepper-green4/4IG7.png"],["papas-scooperia.html","papas scooperia","umbrella-rain-wind/uZ8o.png"],["papas-sushiria.html","papas sushiria","rock-stone-glass2/w0kT.png"],["papas-taco-mia.html","papas taco mia","birds-nice3/2wz6.png"],["papas-wingeria.html","papas wingeria","potato-spaceship/owPG.png"],["paper-io-2.htm","paper io 2","crown-snakes/Bfro.png"],["parking-fury-2.html","parking fury 2","baseball-garden2/GZQZ.png"],["parking-fury-3.html","parking fury 3","baseball-garden/fTzE.png"],["parking-fury.html","parking fury","earth-spaceship/M1hH.png"],["picos-school.html","picos school","sunny-apples/HWnQ.png"],["ping-pong-chaos.html","ping pong chaos","camping-sunset/DS4E.png"],["pixel-speedrun.html","pixel speedrun","crown-snakes/SHn3.png"],["plants-vs-zombies.html","plants vs zombies","phone-mice-tv/NbA9.png"],["plonky.html","Plonky","earth-spaceship/b61k.png"],["polytrack.html","Polytrack","pepper-green4/DE9F.png"],["poor-bunny.html","poor bunny","earth-spaceship/xaID.png"],["pou.html","Pou","camping-sunset/X8R2.png"],["ragdoll-archers.htm","ragdoll archers","pepper-green4/kWNk.png"],["ragdoll-hit.html","ragdoll hit","keyboard-mouse-screen/EWWn.png"],["ragdoll-soccer.html","ragdoll soccer","light-bulb-socks2/gWkN.png"],["red-ball-4-vol-1.html","red ball 4 vol 1","moon-skies-stars/GRUz.png"],["red-ball-4-vol-2.html","red ball 4 vol 2","tomato-for-rain/hBn6.png"],["red-ball-4-vol-3.html","red ball 4 vol 3","saturn-solar-nice/bch3.png"],["retro-bowl-college.html","retro bowl college","baseball-garden/aInO.png"],["retro-bowl.html","retro bowl","baseball-garden2/Yy0M.png"],["retro-highway.html","retro highway","alien-planets/qFsj.png"],["retro-ping-pong.html","retro ping pong","crown-snakes/D164.png"],["riddle-school-2.html","riddle school 2","baseball-garden/yJdQ.png"],["riddle-school-3.html","riddle school 3","tomato-for-potato/43bI.png"],["riddle-school-4.html","riddle school 4","kingsolarsystem/vRLt.png"],["riddle-school-5.html","riddle school 5","lemon-building/Z6Xd.png"],["riddle-school.html","riddle school","baseball-garden2/naCJ.png"],["riddle-transfer-2.html","riddle transfer 2","rainwind-snow/q1re.png"],["riddle-transfer.html","riddle transfer","rock-stone-glass2/ddCf.png"],["rocket-soccer-derby.html","rocket soccer derby","superoceanlava/A6JU.png"],["rooftop-run.html","rooftop run","rainwind-snow/3zaw.png"],["rooftop-snipers-2.html","rooftop snipers 2","birds-nice3/i5c6.png"],["rooftop-snipers.htm","rooftop snipers","kingsolarsystem/ZZNJ.png"],["run-2.html","run 2","baseball-garden2/LnUI.png"],["run-3.html","run 3","potato-spaceship/JvYe.png"],["run.html","Run","sunny-apples/kIKt.png"],["sand-game.html","sand game","crown-snakes/xe3U.png"],["sandbox-city.html","sandbox city","lemonstudywork/sUCT.png"],["short-life.html","short life","grass-and-football/9fjo.png"],["six-cats-under.html","six cats under","mountain-skateboard/c4IT.png"],["slope-2-player.html","slope 2 player","pepper-green4/8DH4.png"],["slope-3.html","slope 3","superoceanwater/Jsgx.png"],["slope.html","Slope","tomato-for-rain/MJ7v.png"],["slow-roads.html","slow roads","potato-spaceship/PucL.png"],["sm-63.html","sm 63","rock-stone-glass2/F7Y0.png"],["sm-64.html","sm 64","baseball-garden/kFMn.png"],["snail-bob-2.html","snail bob 2","kingsolarsystem/EEYC.png"],["snail-bob-3.html","snail bob 3","potato-spaceship/QJV4.png"],["snail-bob-4.html","snail bob 4","tomato-for-rain/XZWI.png"],["snail-bob-5.html","snail bob 5","phone-mice-tv/LLe5.png"],["snail-bob-6.html","snail bob 6","keyboard-mouse-screen/cHnx.png"],["snail-bob-7.html","snail bob 7","moon-skies-galaxy/n7wj.png"],["snail-bob-8.html","snail bob 8","light-bulb-socks2/6XL8.png"],["snail-bob.html","snail bob","birds-ok9/1Pu7.png"],["snow-rider.htm","snow rider","keyboard-mouse-screen/uo2o.png"],["snow-road.htm","snow road","light-bulb-socks/3G4F.png"],["snowball-io.html","snowball io","light-bulb-socks2/mvEO.png"],["soccer-bros.html","soccer bros","pepperpurple/iRLB.png"],["soccer-random.htm","soccer random","crown-snakes/1hPx.png"],["space-is-key-2.html","space is key 2","pepperpurple/sJpn.png"],["space-is-key.html","space is key","baseball-garden/1IGu.png"],["space-waves.html","space waves","kingsolarsystem/vgty.png"],["spacebar-clicker.html","spacebar clicker","crown-snakes/EXCK.png"],["speed-stars.html","speed stars","phone-mice-tv/0UdT.png"],["sprunki.html","Sprunki","potato-spaceship/MGdi.png"],["stack.html","Stack","crown-snakes/ro1p.png"],["stacktris.html","Stacktris","crown-snakes/CpvQ.png"],["state-io.html","state io","alien-planets/j69j.png"],["stealing-the-diamond.html","stealing the diamond","lemon-building/z91V.png"],["stick-archers-battle.html","stick archers battle","alien-planets/PBM3.png"],["stick-fighter.html","stick fighter","earth-spaceship/ZLkf.png"],["stick-merge.html","stick merge","baseball-garden/ufku.png"],["stickman-hook.html","stickman hook","alien-planets/sqGn.png"],["subway-surfers-beijing.html","subway surfers beijing","superoceanwater/YehW.png"],["subway-surfers-havana.html","subway surfers havana","umbrella-rain-wind/T3Sz.png"],["subway-surfers-san-francisco.html","subway surfers san francisco","umbrella-rain-wind/0Dh4.png"],["super-bike-the-champion.html","super bike the champion","sea-creature-sponge/IF7X.png"],["super-liquid-soccer.html","super liquid soccer","saturn-solar-nice/TmeW.png"],["super-star-car.html","super star car","trumpet-and-lights/T6Jy.png"],["superhot.html","Superhot","build-create-energy/jsBq.png"],["table-tennis-world-tour.html","table tennis world tour","alien-planets/Rm8s.png"],["tag.html","Tag","alien-planets/iJZV.png"],["tanuki-sunset.html","tanuki sunset","superoceanlava/g9Ni.png"],["tap-road.html","tap road","cookies-donuts-ok2/LTkJ.png"],["temple-of-boom.html","temple of boom","alien-planets/kYQO.png"],["temple-run-2.htm","temple run 2","kingsolarsystem/RUSQ.png"],["territorial-io.html","territorial io","crown-snakes/mCQ1.png"],["tetrominoes.html","tetrominoes","crown-snakes/6oY4.png"],["the-impossible-quiz-2.html","the impossible quiz 2","keyboard-mouse-screen/3VlV.png"],["the-impossible-quiz.html","the impossible quiz","potato-spaceship/kpcJ.png"],["there-is-no-g.html","there is no g","earth-spaceship/hEbO.png"],["they-are-coming.html","they are coming","telephone-water/zyAj.png"],["this-is-the-only-level-too.html","this is the only level too","sunny-apples/x8RZ.png"],["this-is-the-only-level.html","this is the only level","baseball-garden/nLnP.png"],["time-shooter-2.html","time shooter 2","birds-nice3/8r2o.png"],["time-shooter-3.htm","time shooter 3","camping-sunset/tOKn.png"],["tiny-fishing.html","tiny fishing","crown-snakes/vE0B.png"],["tomb-of-the-mask.htm","tomb of the mask","lemon-building/DAVX.png"],["trap-the-cat.html","trap the cat","crown-snakes/KBu9.png"],["trivia-crack.html","trivia crack","alien-planets/meF4.png"],["tube-jumpers.html","tube jumpers","pepper-green4/RX1C.png"],["tunnel-rush.html","tunnel rush","tomato-for-potato/xeby.png"],["unicycle-hero.html","unicycle hero","alien-planets/oJRu.png"],["vex-4.html","vex 4","saturn-solar-nice/3yQR.png"],["vex-5.html","vex 5","tomato-for-rain/QRAJ.png"],["vex-6.htm","vex 6","pepper-green4/TE1w.png"],["vex-7.htm","vex 7","tomato-for-rain/T6bg.png"],["vex-8.htm","vex 8","tomato-for-potato/eLAP.png"],["vex-x3m-2.html","vex x3m 2","birds-nice3/RpKl.png"],["vex-x3m.html","vex x3m","pepper-green4/9BvI.png"],["volley-random.html","volley random","crown-snakes/5m19.png"],["war-the-knights.html","war the knights","umbrella-rain-snow/cP37.png"],["we-become-what-we-behold.html","we become what we behold","baseball-garden2/Ic2c.png"],["wheelie-bike.html","wheelie bike","crown-snakes/V9qq.png"],["wheely-2.html","wheely 2","moon-skies-galaxy/vfDJ.png"],["wheely-3.html","wheely 3","keyboard-mouse-screen/6dz3.png"],["wheely-4.html","wheely 4","grass-and-football/KkRj.png"],["wheely-5.html","wheely 5","grass-and-football/CqtC.png"],["wheely-6.html","wheely 6","light-bulb-socks2/yLoK.png"],["wheely-7.html","wheely 7","rock-stone-glass/5WXf.png"],["wheely-8.html","wheely 8","tomato-for-potato/aVul.png"],["wheely.html","Wheely","birds-nice3/2kXu.png"],["wordle-unlimited.html","wordle unlimited","crown-snakes/sKjJ.png"],["worlds-hardest-game-2.html","worlds hardest game 2","pepperpurple/Xuab.png"],["worlds-hardest-game-3.html","worlds hardest game 3","sunny-apples/WCuf.png"],["worlds-hardest-game.html","worlds hardest game","baseball-garden2/m5vB.png"],["wrestle-bros.html","wrestle bros","pepperpurple/1S8S.png"],["yohoho-io.html","yohoho io","baseball-garden/syJm.png"],["zombie-rush.html","zombie rush","alien-planets/v9Iw.png"],["zrist.html","zrist","crown-snakes/PD0o.png"]];
+
 
 var MINE_BLANK="data:image/svg+xml,"+encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'+
   '<rect width="64" height="64" fill="#6e6e6e"/>'+
   '<rect x="6" y="6" width="52" height="52" fill="none" stroke="#9c9c9c" '+
   'stroke-width="2"/></svg>');
+
+var TPL_CDN="https://cdn.jsdelivr.net/npm/";
+var TPL_BLANK=MINE_BLANK;
+var tplZoneCache=null;
+var tplCoverMap=null;
+var tplCoverPromise=null;
+function tplZoneList(){
+  if(tplZoneCache)return tplZoneCache;
+  tplZoneCache=TPL_GAMES.map(function(g,i){
+    return {id:90000+i,name:g[1],cover:TPL_BLANK,url:TPL_CDN+g[2],author:"web",authorLink:"",
+      special:["template"],tpl:true,tplFile:g[0],tplZip:g[2]};
+  });
+  return tplZoneCache;
+}
+var LS_DUP="appDupPref";
+function dupPref(){return lsGet(LS_DUP,"1")!=="0"}
+function setDupPref(on){lsSet(LS_DUP,on?"1":"0");if(typeof syncMineZones==="function")syncMineZones();}
+function normGameName(s){return String(s||"").toLowerCase().replace(/[^a-z0-9]+/g,"")}
+function tplZones(){
+  var all=tplZoneList();
+  if(!dupPref())return all;
+  var taken={};
+  if(typeof zones!=="undefined"&&zones){
+    for(var i=0;i<zones.length;i++){
+      var z=zones[i];
+      if(z&&!z.tpl)taken[normGameName(z.name)]=1;
+    }
+  }
+  var mineNames=mineAll().map(function(m){return normGameName(m.name)});
+  mineNames.forEach(function(n){if(n)taken[n]=1});
+  return all.filter(function(z){
+    var k=normGameName(z.name);
+    if(!k)return true;
+    if(taken[k])return false;
+    for(var j=0;j<mineNames.length;j++){
+      var m=mineNames[j];
+      if(m&&(m.indexOf(k)===0||k.indexOf(m)===0))return false;
+    }
+    return true;
+  });
+}
+function tplCoverName(file){return String(file||"").replace(/\.html?$/i,"")}
+function tplLoadCovers(){
+  if(tplCoverPromise)return tplCoverPromise;
+  if(typeof JSZip==="undefined")return Promise.resolve(false);
+  tplCoverPromise=fetch(TPL_CDN+"detailed-art/coversv5.zip",{redirect:"follow"})
+    .then(function(r){if(!r.ok)throw new Error("covers "+r.status);return r.arrayBuffer()})
+    .then(function(buf){return JSZip.loadAsync(buf)})
+    .then(function(zip){
+      var entries=Object.keys(zip.files).filter(function(n){return !zip.files[n].dir});
+      var map={};
+      return Promise.all(entries.map(function(n){
+        return zip.files[n].async("blob").then(function(b){
+          try{map[n.split("/").pop().replace(/\.[^.]+$/,"")]=URL.createObjectURL(b)}catch(e){}
+        });
+      })).then(function(){
+        tplCoverMap=map;
+        tplZoneList().forEach(function(z){
+          var u=map[tplCoverName(z.tplFile)];
+          if(u)z.cover=u;
+        });
+        if(typeof sortZones==="function")sortZones();
+        return true;
+      });
+    })
+    .catch(function(){tplCoverPromise=null;return false});
+  return tplCoverPromise;
+}
+function tplZipText(z){
+  if(typeof JSZip==="undefined")return Promise.reject(new Error("the unzip helper did not load"));
+  return fetch(TPL_CDN+z.tplZip+"?t="+Date.now(),{redirect:"follow"}).then(function(res){
+    if(!res.ok)throw new Error("the server said "+res.status);
+    return res.arrayBuffer();
+  }).then(function(buf){return JSZip.loadAsync(buf)}).then(function(zip){
+    var names=Object.keys(zip.files).filter(function(n){return !zip.files[n].dir&&/\.html?$/i.test(n)});
+    if(!names.length)throw new Error("no game file inside");
+    return zip.files[names[0]].async("string");
+  });
+}
+function tplPlay(z){
+  var token=++zoneToken;
+  showZoneHead(z);
+  var f=freshFrame();
+  zoneLoading(f,z.name).then(function(){
+    return tplZipText(z);
+  }).then(function(html){
+    if(token!==zoneToken||!html)return;
+    if(html.length<10)throw new Error("that file came back empty");
+    return writeInto(f,html).then(function(okw){
+      if(okw===false&&token===zoneToken)zoneFailed(f,z.name,"the frame went away");
+    });
+  }).catch(function(err){
+    if(token!==zoneToken)return;
+    zoneFailed(f,z.name,err.message);
+    toast("could not load "+z.name,"bad");
+  });
+}
 
 function mineAll(){
   var saved=[];
@@ -2497,12 +2558,11 @@ function syncMineZones(){
   }
   var mine=mineAll().map(mineZone);
   for(var i=zones.length-1;i>=0;i--){
-    if(zones[i]&&zones[i].special&&zones[i].special.indexOf("user")>-1)zones.splice(i,1);
+    if(zones[i]&&((zones[i].special&&zones[i].special.indexOf("user")>-1)||zones[i].tpl))zones.splice(i,1);
   }
-  mine.forEach(function(z){
-
-    zones.unshift(z);
-  });
+  var front=mine.concat(tplZones());
+  zones.unshift.apply(zones,front);
+  tplLoadCovers();
 
   var sel=$("filterOptions");
   if(sel){
@@ -2554,7 +2614,6 @@ function installZoneHooks(){
   var RAW_CLOSE=window.closeZone;
   window.openZone=function(z){
     if(!z)return;
-    recordPlay(z);
     playAnyZone(z);
   };
 
@@ -2584,6 +2643,18 @@ installZoneHooks=function(){
 
   window.cloakIcon=myCloakIcon;
 
+  try{
+    var rawListZones=window.listZones;
+    if(typeof rawListZones==="function"&&!rawListZones.__mineSynced){
+      var syncedListZones=function(){
+        var out=rawListZones.apply(this,arguments);
+        return Promise.resolve(out).then(function(r){syncMineZones();return r},function(e){syncMineZones();throw e});
+      };
+      syncedListZones.__mineSynced=true;
+      window.listZones=syncedListZones;
+    }
+  }catch(e){}
+
 
   ["filterZones","filterZones2","sortZones"].forEach(function(name){
     var raw=window[name];
@@ -2611,6 +2682,15 @@ installZoneHooks=function(){
     var keep=body.innerHTML.replace(/<button class="settings-button" onclick="tabCloak\(\)">[\s\S]*?<\/button>\s*(<br\s*\/?>\s*)?/gi,"");
     body.innerHTML=keep;
     body.contentEditable=false;
+    var dup=document.createElement("button");
+    dup.className="settings-button";
+    dup.id="dupPref";
+    var paintDup=function(){dup.textContent="Hide duplicate games: "+(dupPref()?"on":"off")};
+    dup.onclick=function(){setDupPref(!dupPref());paintDup();};
+    paintDup();
+    body.appendChild(document.createElement("br"));
+    body.appendChild(document.createElement("br"));
+    body.appendChild(dup);
   });
 };
 window.__appAfterAlice=installZoneHooks;
@@ -2714,6 +2794,7 @@ function showZoneHead(z){
 
 function playAnyZone(z){
   if(!z)return;
+  if(z.tpl){tplPlay(z);return;}
   var raw=String(z.url||"");
 
   if(!z.mine&&/^https?:\/\//i.test(raw)){
@@ -2756,6 +2837,7 @@ function zoneOnScreen(){
 function myAboutBlank(){
   var z=zoneOnScreen();
   if(!z)return;
+  if(z.tpl){toast("template games only open in the game frame","bad");return}
   var url=mineUrl(z);
   if(!/^https?:/i.test(url)){toast("that one needs a real link","bad");return}
 
@@ -2767,6 +2849,19 @@ function myAboutBlank(){
 function myDownloadZone(){
   var z=zoneOnScreen();
   if(!z)return;
+  if(z.tpl){
+    tplZipText(z).then(function(text){
+      var u=URL.createObjectURL(new Blob([text],{type:"text/html;charset=utf-8"}));
+      var a=document.createElement("a");
+      a.href=u;
+      a.download=z.name+".html";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(function(){URL.revokeObjectURL(u)},4000);
+    }).catch(function(e){toast("could not download it - "+e.message,"bad")});
+    return;
+  }
   fetch(mineUrl(z)+"?t="+Date.now()).then(function(r){return r.text()}).then(function(text){
     var url=URL.createObjectURL(new Blob([text],{type:"text/html;charset=utf-8"}));
     var a=document.createElement("a");
@@ -4923,92 +5018,6 @@ else loadChat(activeChat)||newChat();
 renderChat();
 
 
-var LS_VISITS="appVisits";
-var LS_PLAYS="appPlays";
-function statPlays(){
-  var raw=lsGet(LS_PLAYS,"");
-  var obj={};
-  if(raw){
-    try{
-      var p=JSON.parse(raw);
-      if(p&&typeof p==="object"&&!Array.isArray(p))obj=p;
-    }catch(e){}
-  }
-  return obj;
-}
-function statSave(obj){lsSet(LS_PLAYS,JSON.stringify(obj||{}))}
-function countVisit(){
-  var n=parseInt(lsGet(LS_VISITS,"0"),10);
-  if(isNaN(n)||n<0)n=0;
-  n++;
-  lsSet(LS_VISITS,String(n));
-  return n;
-}
-function recordPlay(z){
-  try{
-    if(!z)return;
-    var name=String(z.name||z.id||"unknown");
-    var obj=statPlays();
-    var e=obj[name];
-    if(typeof e==="number")e={n:e,id:""};
-    if(!e||typeof e!=="object")e={n:0,id:""};
-    e.n=(e.n||0)+1;
-    if(z.id)e.id=z.id;
-    obj[name]=e;
-    statSave(obj);
-    if(activeTab==="stats")paintStats();
-  }catch(err){}
-}
-function paintStats(){
-  var v=$("statVisits");
-  if(v)v.textContent=String(parseInt(lsGet(LS_VISITS,"0"),10)||0);
-  var obj=statPlays();
-  var rows=[];
-  var total=0;
-  for(var k in obj){
-    if(!Object.prototype.hasOwnProperty.call(obj,k))continue;
-    var e=obj[k];
-    var n=typeof e==="number"?e:(e&&e.n)||0;
-    if(!n)continue;
-    total+=n;
-    rows.push({name:k,n:n});
-  }
-  rows.sort(function(a,b){return b.n-a.n});
-  var pv=$("statPlays");
-  if(pv)pv.textContent=String(total);
-  var uv=$("statUnique");
-  if(uv)uv.textContent=String(rows.length);
-  var body=$("statRows");
-  var empty=$("statEmpty");
-  var table=$("statTable");
-  if(!body)return;
-  if(!rows.length){
-    body.innerHTML="";
-    if(empty)empty.hidden=false;
-    if(table)table.hidden=true;
-    return;
-  }
-  if(empty)empty.hidden=true;
-  if(table)table.hidden=false;
-  var max=rows[0].n||1;
-  body.innerHTML=rows.slice(0,25).map(function(r,i){
-    var pct=Math.max(4,Math.round((r.n/max)*100));
-    return '<tr><td class="stat-rank">'+(i+1)+'</td>'+
-      '<td class="m-name">'+esc(r.name)+'</td>'+
-      '<td>'+r.n+'</td>'+
-      '<td><span class="stat-bar"><i style="width:'+pct+'%"></i></span></td></tr>';
-  }).join("");
-}
-if($("statReset"))$("statReset").onclick=function(){
-  if(!window.confirm("reset all stats?"))return;
-  statSave({});
-  lsSet(LS_VISITS,"0");
-  countVisit();
-  paintStats();
-  toast("stats reset");
-};
-countVisit();
-paintStats();
 
 window.APP={
   setTab:setTab, send:send, askAboutPage:askAboutPage, grabScreen:grabScreen,
@@ -5063,6 +5072,7 @@ window.setFavicon=setFavicon;
 </script>
 
 <script src="https://cdn.jsdelivr.net/gh/daknux/egg-shell@main/alice.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 
 try { if (window.__appAfterAlice) window.__appAfterAlice(); } catch (e) { console.error(e); }
