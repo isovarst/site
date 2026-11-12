@@ -117,6 +117,14 @@ summary:hover{background:var(--surf2)}
 .zone-item button{flex:1;min-width:0;background:transparent;border:0;padding:0;
   text-align:left;font-size:13px;min-height:0;cursor:pointer;color:var(--tx);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.gv #container,body.gv #featuredZones{display:grid;gap:8px;border:0}
+body.gv .zone-item{flex-direction:column;align-items:stretch;gap:6px;padding:6px;
+  border:1px solid var(--line)}
+body.gv .zone-item:last-child{border-bottom:1px solid var(--line)}
+body.gv .zone-item img{width:100%;height:var(--gcard,88px)}
+body.gv .zone-item button{white-space:normal;overflow:hidden;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:12px;line-height:1.25}
+body.gv .zone-item:hover{border-color:var(--line2)}
 
 
 #zoneViewer{position:fixed;inset:0;z-index:200;background:var(--bg);display:none}
@@ -635,10 +643,13 @@ body.wn-open{overflow:hidden}
         <h4>added</h4>
         <ul>
           <li><b>*new games added*</b> <span>- a whole new set of games, with covers</span></li>
+          <li><b>themes</b> <span>- dark, light, and 18 colour themes</span></li>
+          <li><b>grid view</b> <span>- set how many games sit in a row, and how big they are</span></li>
           <li><b>madden nfl 09</b> <span>- football, with a controller</span></li>
           <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
           <li><b>embedder</b> <span>- open other sites inside</span></li>
           <li><b>geometry dash full</b> <span>- the full game, in your browser</span></li>
+          <li><b>war of the knights</b> <span>- it's back</span></li>
         </ul>
       </div>
       <div class="wn-sec">
@@ -654,6 +665,7 @@ body.wn-open{overflow:hidden}
           <li>a game you remove now stays removed</li>
           <li>duplicate games are hidden now, and your own copy is the one that stays</li>
           <li>the stats page has been removed</li>
+          <li>the new tab button loads games properly again</li>
           <li>this update log</li>
         </ul>
       </div>
@@ -843,6 +855,36 @@ body.wn-open{overflow:hidden}
   <section class="view" id="viewSettings">
     <div class="panel">
       <h1 class="pagehead">options</h1>
+      <div class="note" style="margin:0 0 12px">Everything on this page saves on its own as you change it.</div>
+      <h3>look</h3>
+      <div class="field">
+        <label>theme</label>
+        <select id="themeSelect"></select>
+        <div class="note">dark, light, or one of the colour themes. the button up top jumps between the two basics.</div>
+      </div>
+      <div class="field">
+        <label>game style</label>
+        <select id="gridStyle">
+          <option value="grid">grid (default)</option>
+          <option value="list">list</option>
+        </select>
+      </div>
+      <div id="gridOpts" style="display:none">
+        <div class="field">
+          <label>games per row</label>
+          <div class="row">
+            <input type="range" id="gridCols" min="2" max="10" step="1">
+            <span class="hint" id="gridColsVal"></span>
+          </div>
+        </div>
+        <div class="field">
+          <label>cover size</label>
+          <div class="row">
+            <input type="range" id="gridCard" min="40" max="220" step="4">
+            <span class="hint" id="gridCardVal"></span>
+          </div>
+        </div>
+      </div>
       <h3>keys</h3>
       <div class="field">
         <label>chat key (groq)</label>
@@ -911,7 +953,7 @@ body.wn-open{overflow:hidden}
         </div>
       </div>
       <div class="actions">
-        <button class="act primary" id="saveSettings">save</button>
+        <button class="act primary" id="saveSettings">save and test key</button>
       </div>
     </div>
   </section>
@@ -1016,22 +1058,111 @@ if(RETIRED_KEYS.indexOf(apiKey)>=0){apiKey=DEFAULT_KEY;lsSet(LS.key,apiKey)}
 var models=[];
 
 
-var LS_MODE="appMode";
-function mode(){return document.body.classList.contains("light")?"light":"dark"}
-function applyMode(want,keep){
-  var dark=(want!=="light");
-  document.body.classList.toggle("light",!dark);
-  var meta=document.querySelector('meta[name="theme-color"]');
-  if(meta)meta.setAttribute("content",dark?"#111111":"#ffffff");
-  var b=$("modeBtn");
-  if(b)b.textContent=dark?"light":"dark";
-  if(!keep){try{localStorage.setItem(LS_MODE,dark?"dark":"light")}catch(e){}}
-  return dark?"dark":"light";
+var LS_THEME="appTheme",LS_GRID="appGrid",LS_GCOLS="appGridCols",LS_GCARD="appGridCard";
+function mkTheme(dark,bg,surf,surf2,line,line2,tx,mut,acc,accInk){
+  return {dark:dark,bg:bg,surf:surf,surf2:surf2,line:line,line2:line2,
+    tx:tx,mut:mut,acc:acc,accInk:accInk,dim:dark?"rgba(255,255,255,.06)":"rgba(0,0,0,.05)"};
 }
+var THEME_DEFS=[
+["dark",1,"#111111","#111111","#1d1d1d","#333333","#6e6e6e","#e9e9e9","#9c9c9c","#ffffff","#000000"],
+["light",0,"#ffffff","#ffffff","#f2f2f2","#c8c8c8","#8a8a8a","#000000","#666666","#000000","#ffffff"],
+["blossom",0,"#fff0f5","#fff5f8","#ffe0ea","#f3c2d3","#e08aa8","#4a1f30","#9c6b7c","#e83e8c","#ffffff"],
+["forest",0,"#f0f7f0","#f5faf5","#e0efe0","#bcd9bc","#7fae7f","#1d3b1d","#5f7d5f","#2f7d32","#ffffff"],
+["ocean",1,"#0b1a2b","#0e2033","#14304a","#23486a","#3d7bab","#d6e8f7","#7fa3c0","#4da3ff","#00121f"],
+["sunset",1,"#1a1020","#221430","#33193f","#5a2f5c","#a35a7a","#ffe3d0","#c99ab0","#ff7a59","#2a0f0a"],
+["dracula",1,"#282a36","#2d2f3d","#343746","#44475a","#6272a4","#f8f8f2","#a8a8c0","#bd93f9","#1a1b24"],
+["nord",1,"#2e3440","#333a47","#3b4252","#434c5e","#4c566a","#eceff4","#a3adbf","#88c0d0","#1c2230"],
+["mint",0,"#eefaf6","#f4fdfa","#d8f2ea","#a9ddd0","#5fb8a3","#10352c","#4f7d70","#12b886","#ffffff"],
+["coffee",1,"#1e1713","#251c17","#33261e","#4d3a2c","#7d5f45","#f0e2d4","#b79c86","#c98a4b","#1e1209"],
+["lavender",0,"#f6f2ff","#faf7ff","#ebe2ff","#d3c2f5","#a98ae0","#2c1e4a","#6f5f96","#7c5cff","#ffffff"],
+["rose",1,"#191724","#1f1d2e","#26233a","#403d52","#524f67","#e0def4","#908caa","#ebbcba","#191724"],
+["matrix",1,"#000000","#050b05","#0a150a","#123312","#1f5c1f","#7cff7c","#3fa83f","#00ff41","#001400"],
+["midnight",1,"#0a0e1a","#0f1524","#16203a","#24314f","#3c5185","#dfe6f5","#8395b8","#5b8cff","#050a18"],
+["crimson",1,"#1a0d0f","#221114","#33171b","#5c2a30","#9c4a52","#f7dede","#c08a8f","#ff4d5e","#240608"],
+["sand",0,"#f7f1e3","#fcf8ee","#efe4cb","#d8c6a0","#b59b6b","#3b3020","#7a6a4f","#c98a2b","#ffffff"],
+["grape",1,"#140b1f","#1b1029","#271740","#43285f","#7048a0","#eadcff","#a98cc7","#b06bff","#120722"],
+["ice",0,"#eef6fd","#f5faff","#dceafa","#b3d0ec","#6fa6d6","#123049","#517a9c","#2b8ae0","#ffffff"],
+["peach",0,"#fff6ef","#fffaf5","#ffe8d6","#f2ccae","#dd9d6d","#4a2c17","#966b4f","#ff8a3d","#ffffff"],
+["mono",1,"#1a1a1a","#202020","#2a2a2a","#3d3d3d","#5c5c5c","#ededed","#a0a0a0","#d0d0d0","#1a1a1a"]
+];
+var THEMES={},THEME_ORDER=[];
+THEME_DEFS.forEach(function(d){
+  THEMES[d[0]]=mkTheme(!!d[1],d[2],d[3],d[4],d[5],d[6],d[7],d[8],d[9],d[10]);
+  THEME_ORDER.push(d[0]);
+});
+var THEME_VARS=["bg","surf","surf2","line","line2","tx","mut","acc","accInk","dim"];
+function themeName(){var n=lsGet(LS_THEME,"dark");return THEMES[n]?n:"dark"}
+function applyTheme(name,keep){
+  if(!THEMES[name])name="dark";
+  var t=THEMES[name],b=document.body;
+  THEME_VARS.forEach(function(k){b.style.setProperty("--"+k,t[k])});
+  b.classList.toggle("light",!t.dark);
+  var meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute("content",t.bg);
+  var cs=document.querySelector('meta[name="color-scheme"]');
+  if(cs)cs.setAttribute("content",t.dark?"dark":"light");
+  var mb=$("modeBtn");
+  if(mb)mb.textContent=t.dark?"light":"dark";
+  if(!keep)lsSet(LS_THEME,name);
+  var sel=$("themeSelect");
+  if(sel)sel.value=name;
+  return name;
+}
+function mode(){return document.body.classList.contains("light")?"light":"dark"}
+function applyMode(want,keep){return applyTheme(want==="light"?"light":"dark",keep)}
 if($("modeBtn"))$("modeBtn").onclick=function(){
-  applyMode(mode()==="dark"?"light":"dark");
+  applyTheme(THEMES[themeName()].dark?"light":"dark");
 };
-applyMode(lsGet(LS_MODE,"dark"),true);
+function gridStyle(){return lsGet(LS_GRID,"grid")==="list"?"list":"grid"}
+function gridCols(){var n=parseInt(lsGet(LS_GCOLS,"5"),10);return (n>=2&&n<=10)?n:5}
+function gridCard(){var n=parseInt(lsGet(LS_GCARD,"88"),10);return (n>=40&&n<=220)?n:88}
+function applyGrid(){
+  var g=gridStyle()==="grid",b=document.body;
+  b.classList.toggle("gv",g);
+  b.style.setProperty("--gcard",gridCard()+"px");
+  var cols="repeat("+gridCols()+",minmax(0,1fr))";
+  ["container","featuredZones"].forEach(function(id){
+    var el=$(id);
+    if(el)el.style.gridTemplateColumns=g?cols:"";
+  });
+}
+function paintAppearance(){
+  var sel=$("themeSelect");
+  if(sel)sel.value=themeName();
+  var gs=$("gridStyle");
+  if(gs)gs.value=gridStyle();
+  var gc=$("gridCols");
+  if(gc)gc.value=gridCols();
+  var gcv=$("gridColsVal");
+  if(gcv)gcv.textContent=gridCols()+" per row";
+  var gk=$("gridCard");
+  if(gk)gk.value=gridCard();
+  var gkv=$("gridCardVal");
+  if(gkv)gkv.textContent=gridCard()+" px";
+  var wrap=$("gridOpts");
+  if(wrap)wrap.style.display=gridStyle()==="grid"?"":"none";
+}
+(function(){
+  var sel=$("themeSelect");
+  if(sel){
+    sel.innerHTML="";
+    THEME_ORDER.forEach(function(n){
+      var o=document.createElement("option");
+      o.value=n;o.textContent=n;
+      sel.appendChild(o);
+    });
+    sel.onchange=function(){applyTheme(sel.value)};
+  }
+  var gs=$("gridStyle");
+  if(gs)gs.onchange=function(){lsSet(LS_GRID,gs.value);applyGrid();paintAppearance()};
+  var gc=$("gridCols");
+  if(gc)gc.oninput=function(){lsSet(LS_GCOLS,gc.value);applyGrid();paintAppearance()};
+  var gk=$("gridCard");
+  if(gk)gk.oninput=function(){lsSet(LS_GCARD,gk.value);applyGrid();paintAppearance()};
+})();
+applyTheme(themeName(),true);
+applyGrid();
+paintAppearance();
 
 
 var TAB_IDS=["games","chat","google","youtube","settings"];
@@ -2642,6 +2773,12 @@ installZoneHooks=function(){
   _installZoneHooks();
 
   window.cloakIcon=myCloakIcon;
+
+  try{
+    window.darkMode=function(){
+      applyTheme(THEMES[themeName()].dark?"light":"dark");
+    };
+  }catch(e){}
 
   try{
     var rawListZones=window.listZones;
@@ -4453,7 +4590,7 @@ function cloakOpen(url,title,domain){
     if(!r.ok)throw new Error("that address answered "+r.status);
     return r.text();
   }).then(function(html){
-    var base="<base href=\""+new URL(".",url).href+"\">";
+    var base=/<base[\s>]/i.test(html)?"":"<base href=\""+new URL(".",url).href+"\">";
     var guard='<script>(function(){function keep(){if(document.title!=="Loading")document.title="Loading";Array.prototype.forEach.call(document.querySelectorAll("link[rel~=icon],link[rel~=apple-touch-icon]"),function(n){n.remove()})}keep();new MutationObserver(keep).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["rel","href"]});setInterval(keep,500)})();<\/script>';
     var head=/<head([^>]*)>/i;
     if(head.test(html))html=html.replace(head,"<head$1>"+base+"<title>Loading</title>"+guard);
@@ -4571,6 +4708,7 @@ function aiCopyStyles(win){
     head.appendChild(st);
     win.document.documentElement.setAttribute("data-app","1");
     win.document.body.className="app-window"+(mode()==="light"?" light":"");
+    try{win.document.body.setAttribute("style",document.body.getAttribute("style")||"")}catch(e){}
   }catch(e){}
 }
 
@@ -4886,8 +5024,22 @@ $("chatModel").addEventListener("change",function(){
   paintModelPickers();
   toast("answering with "+String(this.value).replace(/^openai\//,""));
 });
-$("temp").addEventListener("input",function(){settings.temperature=parseFloat(this.value);$("tempVal").textContent=this.value});
-$("maxTok").addEventListener("input",function(){settings.maxTokens=parseInt(this.value,10);$("maxVal").textContent=this.value+" tokens"});
+var persistTimer=0;
+function persistSettings(){
+  adoptKeys();
+  var ms=$("modelSelect");
+  if(ms&&ms.value)settings.model=ms.value;
+  var pe=$("persona");
+  if(pe)settings.persona=pe.value;
+  lsSet(LS.key,apiKey);lsSet(LS.gemKey,gemKey);lsSet(LS.model,settings.model);
+  lsSet(LS.settings,JSON.stringify(settings));
+}
+function queuePersist(){
+  if(persistTimer)clearTimeout(persistTimer);
+  persistTimer=setTimeout(function(){persistTimer=0;persistSettings()},400);
+}
+$("temp").addEventListener("input",function(){settings.temperature=parseFloat(this.value);$("tempVal").textContent=this.value;queuePersist()});
+$("maxTok").addEventListener("input",function(){settings.maxTokens=parseInt(this.value,10);$("maxVal").textContent=this.value+" tokens";queuePersist()});
 $("showKey").onclick=function(){var e=$("apiKey");e.type=e.type==="password"?"text":"password"};
 $("showGem").onclick=function(){var e=$("gemKey");e.type=e.type==="password"?"text":"password"};
 
@@ -4896,6 +5048,7 @@ function adoptKeys(){
   if(a)apiKey=a.value.trim()||DEFAULT_KEY;
   if(g)gemKey=g.value.trim()||DEFAULT_GEM;
 }
+$("persona").addEventListener("input",queuePersist);
 ["apiKey","gemKey"].forEach(function(id){
   var el=$(id);
   if(!el)return;
@@ -4904,14 +5057,19 @@ function adoptKeys(){
     keyCheck="";
     var kn=$("keyNote");
     if(kn)kn.textContent="not checked yet - press Test key";
+    queuePersist();
   });
 });
-$("saveSettings").onclick=function(){
-  adoptKeys();
-  settings.model=$("modelSelect").value||settings.model;
-  settings.persona=$("persona").value;
-  lsSet(LS.key,apiKey);lsSet(LS.gemKey,gemKey);lsSet(LS.model,settings.model);
+$("modelSelect").addEventListener("change",function(){
+  settings.model=this.value||settings.model;
+  lsSet(LS.model,settings.model);
   lsSet(LS.settings,JSON.stringify(settings));
+  paintModelPickers();
+  toast("answering with "+String(settings.model).replace(/^openai\//,""));
+});
+$("saveSettings").onclick=function(){
+  if(persistTimer){clearTimeout(persistTimer);persistTimer=0}
+  persistSettings();
   keyCheck="";
   toast("saved - checking that key now");
   testChatKey();
