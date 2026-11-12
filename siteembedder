@@ -360,24 +360,55 @@ const PRESETS=[
 {name:"HopEarth",url:"https://hop.earth"},
 {name:"Fortnite",url:"https://retrora.lol/"},
 {name:"Bonvo Skiing",url:"https://bonvo.ski/en/ride"},
+    {name:"Among Us",versions:[
+      {name:"Legacy",url:"https://wasm.rip/files/amongus/legacy/"},
+      {name:"Latest",url:"https://wasm.rip/files/amongus/latest/"}
+    ]},
 ];
 
 /* Automatically creates the preset buttons */
-$("presetList").innerHTML=PRESETS.map((preset,index)=>`
-<button class="preset" type="button" data-preset-index="${index}">
-<span class="preset-name">${escapeHTML(preset.name)}</span>
-<span class="preset-url">${escapeHTML(preset.url)}</span>
-</button>
-`).join("");
+function renderPresets(){
+  $("presetList").innerHTML=PRESETS.map((preset,index)=>`
+    <button class="preset" type="button" data-preset-index="${index}">
+      <span class="preset-name">${escapeHTML(preset.name)}</span>
+      <span class="preset-url">${escapeHTML(preset.url || (preset.versions ? "Choose a version" : ""))}</span>
+    </button>
+    ${preset.versions ? `<div class="preset-versions" data-version-index="${index}" hidden>
+      ${preset.versions.map((version,versionIndex)=>`
+        <button class="preset" type="button" data-parent-index="${index}" data-version-index="${versionIndex}">
+          <span class="preset-name">${escapeHTML(version.name)}</span>
+          <span class="preset-url">${escapeHTML(version.url)}</span>
+        </button>
+      `).join("")}
+    </div>` : ""}
+  `).join("");
 
-$("presetList").querySelectorAll(".preset").forEach(button=>{
-button.addEventListener("click",()=>{
-const preset=PRESETS[Number(button.dataset.presetIndex)];
-if(preset)openEmbed(preset.url);
-});
-});
+  $("presetList").querySelectorAll("[data-preset-index]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const index=Number(button.dataset.presetIndex);
+      const preset=PRESETS[index];
+      if(!preset)return;
+      if(preset.versions){
+        const choices=$("presetList").querySelector(`[data-version-index="${index}"]`);
+        if(choices)choices.hidden=!choices.hidden;
+      }else{
+        openEmbed(preset.url);
+      }
+    });
+  });
 
-$("open").addEventListener("click",openEmbed);
+  $("presetList").querySelectorAll("[data-parent-index]").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const preset=PRESETS[Number(button.dataset.parentIndex)];
+      const version=preset?.versions?.[Number(button.dataset.versionIndex)];
+      if(version)openEmbed(version.url);
+    });
+  });
+}
+renderPresets();
+
+/* Pass a function so the click event isn't mistaken for a URL. */
+$("open").addEventListener("click",()=>openEmbed());
 
 $("url").addEventListener("keydown",e=>{
 if(e.key==="Enter")openEmbed();
