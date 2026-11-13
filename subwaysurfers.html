@@ -35,11 +35,12 @@
   .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   .btn{cursor:pointer;border:1px solid #666;background:transparent;color:#fff;
     padding:6px 9px;font:12px monospace}
-  #console{position:fixed;left:12px;right:12px;bottom:12px;max-height:22vh;overflow:auto;
-    color:#aaa;background:transparent;font:10px/1.45 monospace;white-space:pre-wrap;pointer-events:none}
-  #console .ok{color:#00ff48}
-  #console .bad{color:#ff5555}
-  #console .info{color:#aaa}
+  #console{position:fixed;left:14px;right:14px;bottom:14px;max-height:16vh;overflow:hidden;
+    color:rgba(255,255,255,.62);background:transparent;font:11px/1.5 ui-monospace,Consolas,monospace;
+    white-space:pre-wrap;pointer-events:none}
+  #console .ok{color:rgba(255,255,255,.72)}
+  #console .bad{color:#ff7777}
+  #console .info{color:rgba(255,255,255,.52)}
   /* ---------- chrome ---------- */
   #game-mark{position:fixed;left:12px;bottom:10px;z-index:5;color:#fff;opacity:.5;font:12px/1.3 monospace;pointer-events:none;text-shadow:0 1px 2px #000}
   #fs{position:fixed;right:10px;bottom:10px;z-index:6;width:30px;height:30px;border-radius:6px;display:none;
@@ -126,9 +127,15 @@ function createUnityInstance(n,t,r=()=>{}){function d(e,n){if(!d.aborted&&t.show
     var isSuccess = /ready|assets ready|cache hit|success|downloaded|loaded successfully/i.test(m);
     var isDownload = /download|github|\.wasm|\.data|framework|\.js\.unityweb|\.unityweb|streamingassets|cache hit|host race/i.test(m);
     if (isError || isSuccess || isDownload) {
+      // Keep the visible console plain: show asset names, never long GitHub URLs.
+      var displayMsg = m.replace(/https?:\/\/[^\s)]+/gi, function (url) {
+        try { return new URL(url).pathname.split("/").filter(Boolean).pop() || "remote asset"; }
+        catch (_) { return "remote asset"; }
+      });
+      displayMsg = displayMsg.replace(/\s*\([^)]*github[^)]*\)/ig, "");
       var line = document.createElement("div");
       line.className = isError ? "bad" : (isSuccess ? "ok" : "info");
-      line.textContent = "[" + new Date().toLocaleTimeString() + "] " + m;
+      line.textContent = displayMsg;
       consoleEl.appendChild(line);
       while (consoleEl.children.length > 9) consoleEl.removeChild(consoleEl.firstChild);
       consoleEl.scrollTop = consoleEl.scrollHeight;
