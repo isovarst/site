@@ -281,23 +281,53 @@ body.wide .px-frame-wrap{flex:1 1 auto;height:auto;min-height:0;border-left:0;bo
 body.wide .px-out{padding:6px 12px;border-top:1px solid var(--line);flex-shrink:0}
 
 
-.tabs-px{display:flex;gap:0;overflow-x:auto;border:1px solid var(--line2);flex-shrink:0}
-.ptab{display:flex;align-items:center;gap:6px;height:26px;padding:0 8px;
+.px-strip{display:flex;align-items:stretch;border:1px solid var(--line2);flex-shrink:0}
+.tabs-px{display:flex;gap:0;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.tabs-px::-webkit-scrollbar{height:0}
+.ptab{display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;
   border-right:1px solid var(--line);background:var(--bg);cursor:pointer;
   max-width:190px;flex-shrink:0;font-size:12px}
 .ptab:hover{background:var(--surf2)}
 .ptab.on{background:var(--tx);color:var(--bg)}
 .ptab img,.ptab .ptabico{width:12px;height:12px;object-fit:cover;flex-shrink:0}
 .ptab .ptabico{display:grid;place-items:center;font-size:8px;font-weight:700}
-.ptab span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ptab .pt-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ptab .pinf{font-size:8px;opacity:.75}
 .ptab button{border:0;background:transparent;color:inherit;cursor:pointer;
   font-size:14px;line-height:1;padding:0 2px}
+.ptab.pinned{max-width:58px}
+.ptab.pinned .pt-name{display:none}
+.ptab-new{display:flex;align-items:stretch;flex-shrink:0}
+.ptab-new input{height:28px;border:0;border-left:1px solid var(--line);
+  background:var(--bg);color:var(--tx);font-size:12px;padding:0 8px;width:160px;outline:none}
+.ptab-add{border:0;border-left:1px solid var(--line);background:var(--bg);color:var(--tx);
+  cursor:pointer;font-size:16px;line-height:1;padding:0 12px;flex-shrink:0}
+.ptab-add:hover{background:var(--tx);color:var(--bg)}
 .px-bar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;flex-shrink:0}
 .px-url{flex:1;min-width:180px}
+.px-marks{border:1px solid var(--line);border-bottom:0;max-height:34vh;overflow:auto;flex-shrink:0}
+.px-marks[hidden]{display:none}
+.px-mark{display:flex;align-items:center;gap:8px;padding:6px 10px;
+  border-bottom:1px solid var(--line);cursor:pointer;font-size:12.5px}
+.px-mark:hover{background:var(--surf2)}
+.px-mark img,.px-mark .ptabico{width:14px;height:14px;object-fit:cover;flex-shrink:0}
+.px-mark .mk-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.px-mark .mk-u{color:var(--mut);font-size:11px;max-width:42%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.px-mark .mk-x{border:0;background:transparent;color:var(--mut);cursor:pointer;
+  font-size:14px;line-height:1;padding:0 2px}
+.px-mark .mk-x:hover{color:var(--tx)}
+.px-empty{padding:10px;color:var(--mut);font-size:12px}
 .px-frame-wrap{border:1px solid var(--line);background:var(--bg);height:68vh}
 .px-frame{width:100%;height:100%;border:0;display:block}
 .px-out{display:flex;align-items:center;gap:8px;padding:8px 0 0;flex-wrap:wrap}
 .px-out .hint{flex:1;min-width:170px}
+body.pxfull header,body.pxfull .pagehead,body.pxfull .px-strip,
+body.pxfull .px-bar,body.pxfull .px-marks{display:none}
+body.pxfull main{padding:0;margin:0;max-width:none}
+body.pxfull .px-frame-wrap{position:fixed;inset:0;height:100vh;border:0;z-index:400}
+#pxExit{position:fixed;top:10px;right:10px;z-index:401;display:none}
+body.pxfull #pxExit{display:block}
 
 
 .mtable{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:12px}
@@ -666,53 +696,73 @@ body.bday #bdayBanner{display:flex}
 
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div id="bdayBanner" aria-hidden="true"><span>🎂</span> happy birthday <span>🎉</span></div>
-
 <div id="whatsNew" role="dialog" aria-modal="true" aria-labelledby="wnTitle">
   <div class="wn-box">
     <div class="wn-head">
       <b id="wnTitle">what's new</b>
-      <span class="wn-ver" id="wnVer">update log</span>
+      <span class="wn-ver" id="wnVer">Update 2.8</span>
     </div>
+
     <div class="wn-body">
       <div id="wnNormal">
-      <div class="wn-sec">
-        <h4>added</h4>
-        <ul>
-          <li><b>*new games added*</b> <span>- a whole new set of games, with covers</span></li>
-          <li><b>themes</b> <span>- dark, light, and 19 colour themes</span></li>
-          <li><b>grid view</b> <span>- set how many games sit in a row, and how big they are</span></li>
-          <li><b>madden nfl 09</b> <span>- football, with a controller</span></li>
-          <li><b>snow rider 3d</b> <span>- sled down the mountain</span></li>
-          <li><b>embedder</b> <span>- open other sites inside</span></li>
-          <li><b>geometry dash full</b> <span>- the full game, in your browser</span></li>
-          <li><b>war of the knights</b> <span>- it's back</span></li>
-        </ul>
+
+        <div class="wn-sec">
+          <h4>updates</h4>
+          <ul style="list-style:none;padding:0;margin:0;">
+
+            <!-- Subway Surfers -->
+            <li style="margin-bottom:18px;">
+              <b style="font-size:1.25em;display:block;margin-bottom:4px;">
+                Fixed Subway Surfers
+              </b>
+              <span style="display:block;font-size:0.9em;margin-bottom:9px;">
+                subway surfers ported to web by me
+              </span>
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThrsUFGCi0TgejavUMJPG-HMDB3y6UnmPwg5RLtsVKxggxjc8Ou18swlXy&s=10"
+                alt="Subway Surfers banner"
+                style="display:block;width:100%;max-width:420px;height:auto;object-fit:cover;border-radius:6px;"
+              >
+            </li>
+
+            <!-- Among Us Multiplayer -->
+            <li style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSta0yrHeIgJstp4NgNkpdQMreqnCtWkCFOYL8sXehgjA&s=10"
+                alt="Among Us"
+                style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;"
+              >
+              <div>
+                <b>Among Us Multiplayer and Roblox added</b>
+              </div>
+            </li>
+
+            <!-- Roblox -->
+            <li style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9-ZL3DqRpijj1RpmLxFUEK8ib658GxGZWq4bGhGSt8w&s=10"
+                alt="Roblox"
+                style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;"
+              >
+              <div>
+                <b>Ask owner for help</b>
+              </div>
+            </li>
+
+          </ul>
+        </div>
+
       </div>
-      <div class="wn-sec">
-        <h4>popular right now</h4>
-        <ul>
-          <li><b>flowline</b> <span>- very popular right now</span></li>
-        </ul>
-      </div>
-      <div class="wn-sec">
-        <h4>changed</h4>
-        <ul>
-          <li>the games list refreshes itself every 30 seconds</li>
-          <li>a game you remove now stays removed</li>
-          <li>duplicate games are hidden now, and your own copy is the one that stays</li>
-          <li>the stats page has been removed</li>
-          <li>the new tab button loads games properly again</li>
-          <li>this update log</li>
-        </ul>
-      </div>
-      </div>
+
       <div id="bdayLog" hidden>
         <div class="bday-hero">
           <div class="bday-cake">🎂</div>
           <h2 class="bday-title">happy birthday!</h2>
           <p class="bday-sub">the whole launcher is celebrating today</p>
         </div>
-        <div class="bday-emojis"><span>🎉</span><span>🎈</span><span>🎁</span><span>🧁</span><span>🎊</span></div>
+        <div class="bday-emojis">
+          <span>🎉</span><span>🎈</span><span>🎁</span><span>🧁</span><span>🎊</span>
+        </div>
         <ul class="bday-list">
           <li>confetti is falling just for you</li>
           <li>there's a <b>birthday</b> theme in options</li>
@@ -720,6 +770,7 @@ body.bday #bdayBanner{display:flex}
         </ul>
       </div>
     </div>
+
     <div class="wn-foot">
       <button id="whatsNewGo" type="button">got it</button>
     </div>
@@ -808,22 +859,25 @@ body.bday #bdayBanner{display:flex}
 
   <section class="view" id="viewGoogle">
     <h1 class="pagehead">web</h1>
-    <div class="tabs-px" id="pxTabs"></div>
+    <div class="px-strip">
+      <div class="tabs-px" id="pxTabs"></div>
+      <button class="ptab-add" id="pxNewTab" title="open a new tab">+</button>
+    </div>
     <div class="px-bar">
       <input type="text" id="pxUrl" class="px-url" placeholder="address, or words to search for">
       <button class="small-btn" id="pxGo">go</button>
-      <button class="small-btn" id="pxNew">new tab</button>
-      <button class="small-btn" id="pxAsk">ask about this</button>
+      <button class="small-btn" id="pxCopy" title="copy this address">copy</button>
+      <button class="small-btn" id="pxAsk" title="read this page into the chat">ask</button>
+      <button class="small-btn" id="pxPin" title="pin this tab">pin</button>
+      <button class="small-btn" id="pxStar" title="bookmark this tab">star</button>
+      <button class="small-btn" id="pxMarks" title="your bookmarks">bookmarks</button>
+      <button class="small-btn" id="pxFull" title="fullscreen this tab">full</button>
     </div>
+    <div class="px-marks" id="pxMarkList" hidden></div>
     <div class="px-frame-wrap"><iframe id="pxFrame" class="px-frame"
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
       referrerpolicy="no-referrer"></iframe></div>
-    <div class="px-out">
-      <span class="hint">Some sites refuse to sit in a frame. If the box stays blank,
-        open it in a real tab - that always works.</span>
-      <button class="small-btn" id="pxAway">open in a new tab</button>
-      <button class="small-btn" id="pxRead">read this page into the chat</button>
-    </div>
+    <button class="small-btn" id="pxExit" title="leave fullscreen">exit fullscreen</button>
   </section>
 
 
@@ -1078,7 +1132,7 @@ var NATIVE_TO_DATA_URL = HTMLCanvasElement.prototype.toDataURL;
 
 var LS={key:"appGroqKey",gemKey:"appGeminiKey",model:"appModel",settings:"appSettings",
         chats:"appChats",active:"appActive",marks:"appMarks",pxUrl:"appPxUrl",
-        fav:"appFav"};
+        fav:"appFav",bookmarks:"appPxBookmarks"};
 
 var DEFAULT_KEY="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";
 var DEFAULT_GEM="AQ.Ab8RN6LfZ6xbmPmu30YI5XOzo7dzdg4eyA81bktv26RkJIyWyg";
@@ -1174,7 +1228,7 @@ if($("modeBtn"))$("modeBtn").onclick=function(){
 };
 function gridStyle(){return lsGet(LS_GRID,"grid")==="list"?"list":"grid"}
 function gridCols(){var n=parseInt(lsGet(LS_GCOLS,"5"),10);return (n>=2&&n<=10)?n:5}
-function gridCard(){var n=parseInt(lsGet(LS_GCARD,"88"),10);return (n>=40&&n<=220)?n:88}
+function gridCard(){var n=parseInt(lsGet(LS_GCARD,"156"),10);return (n>=40&&n<=220)?n:156}
 function applyGrid(){
   var g=gridStyle()==="grid",b=document.body;
   b.classList.toggle("gv",g);
@@ -2392,6 +2446,7 @@ function recentreZone(){
 
 var pxTabs=[];
 var pxActive=0;
+var pxMarks=[];
 var PX_HOME="https://www.google.com?igu=1";
 
 function pxTarget(raw){
@@ -2420,47 +2475,59 @@ function loadPxTabs(){
     if(Array.isArray(v))pxTabs=v.filter(function(t){return t&&t.url});
   }catch(e){}
   if(!pxTabs.length)pxTabs.push({url:PX_HOME,title:"home",icon:favicon(PX_HOME)});
+  try{
+    var m=JSON.parse(lsGet(LS.bookmarks,"[]")||"[]");
+    if(Array.isArray(m))pxMarks=m.filter(function(t){return t&&t.url});
+  }catch(e){}
+  pxSortTabs();
 }
-function savePxTabs(){lsSet(LS.marks,JSON.stringify(pxTabs.map(function(t){return {url:t.url,title:t.title}})))}
+function pxSortTabs(){
+  var cur=pxTabs[pxActive];
+  pxTabs.sort(function(a,b){return (b.pinned?1:0)-(a.pinned?1:0)});
+  if(cur)pxActive=pxTabs.indexOf(cur);
+}
+function savePxTabs(){lsSet(LS.marks,JSON.stringify(pxTabs.map(function(t){return {url:t.url,title:t.title,pinned:!!t.pinned}})))}
+function savePxMarks(){lsSet(LS.bookmarks,JSON.stringify(pxMarks.map(function(t){return {url:t.url,title:t.title}})))}
+function pxIcon(t){
+  var im=document.createElement("img");
+  im.alt="";im.loading="lazy";im.src=t.icon||favicon(t.url);
+  im.onerror=function(){
+    var l=document.createElement("span");
+    l.className="ptabico";
+    l.textContent=(t.title||"?").replace(/[^A-Za-z0-9]/g,"").slice(0,1).toUpperCase();
+    im.replaceWith(l);
+  };
+  return im;
+}
 function paintPx(){
   var strip=$("pxTabs");
   strip.innerHTML="";
   pxTabs.forEach(function(t,i){
     var el=document.createElement("div");
-    el.className="ptab"+(i===pxActive?" on":"");
-    var im=document.createElement("img");
-    im.alt="";im.loading="lazy";im.src=t.icon||favicon(t.url);
-    im.onerror=function(){
-      var l=document.createElement("span");
-      l.textContent=(t.title||"?").replace(/[^A-Za-z0-9]/g,"").slice(0,1).toUpperCase();
-      l.style.cssText="width:14px;height:14px;border-radius:3px;display:grid;place-items:center;"+
-        "background:var(--surf2);font-size:9px;font-weight:800";
-      im.replaceWith(l);
-    };
-    var nm=document.createElement("span");
-    nm.textContent=t.title;
-    el.append(im,nm);
+    el.className="ptab"+(i===pxActive?" on":"")+(t.pinned?" pinned":"");
+    el.appendChild(pxIcon(t));
+    if(t.pinned){
+      var p=document.createElement("span");
+      p.className="pinf";p.textContent="\u25cf";
+      el.appendChild(p);
+    }else{
+      var nm=document.createElement("span");
+      nm.className="pt-name";nm.textContent=t.title||hostOf(t.url);
+      el.appendChild(nm);
+    }
     var x=document.createElement("button");
-    x.textContent="\u00d7";
-    x.onclick=function(e){e.stopPropagation();pxTabs.splice(i,1);
+    x.textContent="\u00d7";x.title="close";
+    x.onclick=function(e){
+      e.stopPropagation();
+      pxTabs.splice(i,1);
       if(pxActive>=pxTabs.length)pxActive=pxTabs.length-1;
       if(!pxTabs.length)pxTabs.push({url:PX_HOME,title:"home",icon:favicon(PX_HOME)});
-      savePxTabs();paintPx();};
+      savePxTabs();paintPx();
+    };
     el.appendChild(x);
     el.onclick=function(){pxActive=i;paintPx()};
     strip.appendChild(el);
   });
-  var add=document.createElement("button");
-  add.className="ptab";
-  add.style.padding="0 12px";
-  add.textContent="+";
-  add.title="open another site";
-  add.onclick=function(){
-    var v=window.prompt("address, or words to search for");
-    if(v)pxGo(v,true);
-  };
-  strip.appendChild(add);
-
   var t=pxTabs[pxActive];
   if(!t)return;
   $("pxUrl").value=t.url;
@@ -2475,23 +2542,135 @@ function pxGo(raw,forceNew){
   if(!forceNew&&here&&(here.url===url||hostOf(here.url)===hostOf(url))){
     here.url=url;
     here.title=(/^https?:\/\//i.test(typed))?hostOf(url):typed;
+    here.icon=favicon(url);
     savePxTabs();paintPx();
     return;
   }
   var found=-1;
   pxTabs.forEach(function(t,i){if(t.url===url)found=i});
   if(found>-1){pxActive=found;paintPx();return}
-  pxTabs.push({url:url,title:(/^https?:\/\//i.test(typed))?hostOf(url):typed,icon:favicon(url)});
-  pxActive=pxTabs.length-1;
+  var nt={url:url,title:(/^https?:\/\//i.test(typed))?hostOf(url):typed,icon:favicon(url)};
+  pxTabs.push(nt);
+  pxSortTabs();
+  pxActive=pxTabs.indexOf(nt);
   savePxTabs();paintPx();
+}
+function pxNewTabInline(){
+  var strip=$("pxTabs");
+  var old=$("pxNewInput");
+  if(old){old.focus();old.select();return}
+  var wrap=document.createElement("div");
+  wrap.className="ptab-new";
+  var inp=document.createElement("input");
+  inp.id="pxNewInput";inp.type="text";inp.autocomplete="off";
+  inp.placeholder="address, or search";
+  inp.onkeydown=function(e){
+    if(e.key==="Enter"){
+      var v=inp.value.trim();
+      wrap.remove();
+      if(v)pxGo(v,true);
+    }else if(e.key==="Escape"){wrap.remove()}
+  };
+  inp.onblur=function(){setTimeout(function(){if(wrap.parentNode)wrap.remove()},160)};
+  wrap.appendChild(inp);
+  strip.appendChild(wrap);
+  inp.focus();
+  strip.scrollLeft=strip.scrollWidth;
+}
+function pxPinActive(){
+  var t=pxTabs[pxActive];
+  if(!t)return;
+  t.pinned=!t.pinned;
+  pxSortTabs();
+  savePxTabs();paintPx();
+  toast(t.pinned?"tab pinned":"tab unpinned");
+}
+function pxMarked(url){
+  for(var i=0;i<pxMarks.length;i++)if(pxMarks[i].url===url)return i;
+  return -1;
+}
+function pxToggleMark(){
+  var t=pxTabs[pxActive];
+  if(!t)return;
+  var i=pxMarked(t.url);
+  if(i>-1){pxMarks.splice(i,1);toast("removed from bookmarks")}
+  else{pxMarks.unshift({url:t.url,title:t.title||hostOf(t.url)});toast("bookmarked")}
+  savePxMarks();paintMarks();
+}
+function paintMarks(){
+  var box=$("pxMarkList");
+  if(!box)return;
+  box.innerHTML="";
+  if(!pxMarks.length){
+    var e=document.createElement("div");
+    e.className="px-empty";
+    e.textContent="no bookmarks yet - open a page and hit star";
+    box.appendChild(e);
+    return;
+  }
+  pxMarks.forEach(function(m,i){
+    var row=document.createElement("div");
+    row.className="px-mark";
+    row.appendChild(pxIcon(m));
+    var tt=document.createElement("span");
+    tt.className="mk-t";tt.textContent=m.title||hostOf(m.url);
+    var uu=document.createElement("span");
+    uu.className="mk-u";uu.textContent=hostOf(m.url);
+    var x=document.createElement("button");
+    x.className="mk-x";x.textContent="\u00d7";x.title="remove bookmark";
+    x.onclick=function(e){e.stopPropagation();pxMarks.splice(i,1);savePxMarks();paintMarks()};
+    row.append(tt,uu,x);
+    row.onclick=function(){pxGo(m.url)};
+    box.appendChild(row);
+  });
+}
+function pxToggleMarks(){
+  var box=$("pxMarkList");
+  if(!box)return;
+  if(box.hidden){paintMarks();box.hidden=false}
+  else box.hidden=true;
+}
+function pxCopy(){
+  var t=pxTabs[pxActive];
+  var url=t?t.url:$("pxUrl").value;
+  var done=function(){toast("link copied")};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(done,function(){pxCopyFallback(url,done)});
+  }else pxCopyFallback(url,done);
+}
+function pxCopyFallback(url,done){
+  try{
+    var ta=document.createElement("textarea");
+    ta.value=url;ta.style.cssText="position:fixed;top:-9999px;opacity:0";
+    document.body.appendChild(ta);ta.select();
+    document.execCommand("copy");
+    ta.remove();done();
+  }catch(e){toast("could not copy that","bad")}
+}
+function pxFullscreen(on){
+  var b=document.body;
+  var now=typeof on==="boolean"?on:!b.classList.contains("pxfull");
+  b.classList.toggle("pxfull",now);
+  var btn=$("pxFull");
+  if(btn)btn.textContent=now?"exit":"full";
 }
 loadPxTabs();
 paintPx();
+paintMarks();
 $("pxGo").onclick=function(){pxGo($("pxUrl").value)};
 $("pxUrl").addEventListener("keydown",function(e){
   if(e.key==="Enter"){e.preventDefault();pxGo(this.value)}
 });
-$("pxNew").onclick=function(){pxGo($("pxUrl").value,true)};
+$("pxNewTab").onclick=pxNewTabInline;
+$("pxCopy").onclick=pxCopy;
+$("pxPin").onclick=pxPinActive;
+$("pxStar").onclick=pxToggleMark;
+$("pxMarks").onclick=pxToggleMarks;
+$("pxFull").onclick=function(){pxFullscreen()};
+$("pxExit").onclick=function(){pxFullscreen(false)};
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"&&document.body.classList.contains("pxfull"))pxFullscreen(false);
+});
 if($("pageOpen"))$("pageOpen").onclick=function(){
   var v=$("pageInput").value.trim();
   if(!v){toast("type a link or a search first");return}
@@ -2528,12 +2707,6 @@ async function askAboutPage(url){
   }
 }
 $("pxAsk").onclick=function(){askAboutPage($("pxUrl").value)};
-$("pxAway").onclick=function(){
-
-  window.open($("pxUrl").value,"_blank","noopener");
-  toast("opened in a new tab");
-};
-$("pxRead").onclick=function(){askAboutPage($("pxUrl").value)};
 if($("pageGo"))$("pageGo").onclick=function(){
   var v=$("pageInput").value.trim();
   if(!v){toast("type a link or a search first");return}
@@ -2598,8 +2771,8 @@ var MINE_SEED=[
    kind:"game",tags:"flying, arcade",author:"L3br00n",
    note:"fly through endless procedurally generated landscapes"},
 
-  {id:"m-subway-surfers",name:"SUBWAY SURFERS",builtIn:true,
-   link:"https://raw.githubusercontent.com/TubRub142/Subway-Surfers/refs/heads/main/index.html",
+  {id:"m-subway-surfers",name:"Subway Surfers",builtIn:true,
+   link:"https://raw.githubusercontent.com/isovarst/site/refs/heads/main/subwaysurfers.html",
    icon:"https://www.jopi.com/cdn-cgi/image/quality=78,width=320,height=320,fit=cover,f=auto/img/t/subway-surfers-berlin.png",
    kind:"game",tags:"running, arcade",author:"TubRub142",
    note:"run through the subway, dodge trains, and collect coins"},
@@ -3168,7 +3341,28 @@ function zoneOnScreen(){
 function myAboutBlank(){
   var z=zoneOnScreen();
   if(!z)return;
-  if(z.tpl){toast("template games only open in the game frame","bad");return}
+  if(z.tpl){
+    var win=window.open("about:blank","_blank");
+    if(!win){toast("your browser blocked the new tab","bad");return}
+    try{win.document.title="Loading"}catch(e){}
+    toast("opening "+z.name+" in a new tab");
+    tplZipText(z).then(function(html){
+      var doc=win.document;
+      doc.open();
+      doc.write(html);
+      doc.close();
+      try{
+        doc.title="Loading";
+        var s=doc.createElement("script");
+        s.textContent='(function(){function keep(){if(document.title!=="Loading")document.title="Loading";Array.prototype.forEach.call(document.querySelectorAll("link[rel~=icon],link[rel~=apple-touch-icon]"),function(n){n.remove()})}keep();new MutationObserver(keep).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["rel","href"]});setInterval(keep,500)})();';
+        (doc.documentElement||doc).appendChild(s);
+      }catch(e){}
+    }).catch(function(e){
+      try{win.close()}catch(e2){}
+      toast("could not read it - "+e.message,"bad");
+    });
+    return;
+  }
   var url=mineUrl(z);
   if(!/^https?:/i.test(url)){toast("that one needs a real link","bad");return}
 
@@ -4776,6 +4970,18 @@ function cloakApply(win,title,icon){
     d.head.appendChild(b);
   }catch(e){}
 }
+function cloakFill(win,html,baseHref){
+  var base=(baseHref&&!/<base[\s>]/i.test(html))?"<base href=\""+baseHref+"\">":"";
+  var guard='<script>(function(){function keep(){if(document.title!=="Loading")document.title="Loading";Array.prototype.forEach.call(document.querySelectorAll("link[rel~=icon],link[rel~=apple-touch-icon]"),function(n){n.remove()})}keep();new MutationObserver(keep).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["rel","href"]});setInterval(keep,500)})();<\/script>';
+  var head=/<head([^>]*)>/i;
+  if(head.test(html))html=html.replace(head,"<head$1>"+base+"<title>Loading</title>"+guard);
+  else html="<!doctype html><html><head>"+base+"<title>Loading</title>"+guard+"</head>"+html+"</html>";
+  var doc=win.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  return win;
+}
 function cloakOpen(url,title,domain){
   var win=window.open("about:blank","_blank");
   if(!win){toast("your browser blocked the new tab","bad");return Promise.reject(new Error("blocked"))}
@@ -4784,16 +4990,7 @@ function cloakOpen(url,title,domain){
     if(!r.ok)throw new Error("that address answered "+r.status);
     return r.text();
   }).then(function(html){
-    var base=/<base[\s>]/i.test(html)?"":"<base href=\""+new URL(".",url).href+"\">";
-    var guard='<script>(function(){function keep(){if(document.title!=="Loading")document.title="Loading";Array.prototype.forEach.call(document.querySelectorAll("link[rel~=icon],link[rel~=apple-touch-icon]"),function(n){n.remove()})}keep();new MutationObserver(keep).observe(document,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["rel","href"]});setInterval(keep,500)})();<\/script>';
-    var head=/<head([^>]*)>/i;
-    if(head.test(html))html=html.replace(head,"<head$1>"+base+"<title>Loading</title>"+guard);
-    else html="<!doctype html><html><head>"+base+"<title>Loading</title>"+guard+"</head>"+html+"</html>";
-    var doc=win.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
-    return win;
+    return cloakFill(win,html,new URL(".",url).href);
   }).catch(function(e){
     try{win.close()}catch(e2){}
     throw e;
@@ -5447,7 +5644,7 @@ setInterval(function(){
     if(typeof window.listZones==="function")window.listZones();
     if(window.APP&&window.APP.mineSync)setTimeout(function(){window.APP.mineSync()},900);
   }catch(e){}
-},600000);
+},30000);
 </script>
 </body>
 </html>
