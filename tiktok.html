@@ -1,0 +1,156 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading...</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+}
+
+/* LOADING SCREEN */
+
+#loading {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+    font-family: "Comic Sans MS", cursive;
+    color: #fff;
+    z-index: 10;
+}
+
+/* TIKTOK LOGO */
+
+.logo {
+    width: 145px;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 8px;
+}
+
+/* LOADING TEXT */
+
+.loading-text {
+    font-size: 16px;
+    color: #bdbdbd;
+    letter-spacing: 0.5px;
+}
+
+/* PROGRESS BAR */
+
+.bar {
+    width: 220px;
+    max-width: 75vw;
+    height: 3px;
+    background: #292929;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #fff;
+    border-radius: 10px;
+    animation: load var(--loading-time) linear forwards;
+}
+
+@keyframes load {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+/* WEBSITE */
+
+#website {
+    display: none;
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+}
+
+#website iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="loading">
+
+    <img
+        class="logo"
+        src="https://p16-ttark.tiktokcdn-us.com/tos-useast5-i-1rzkm2vceq-tx/b951e0594d260fcf71a30f13c2af2759.png~tplv-1rzkm2vceq-default:0:0:q75.image"
+        alt="TikTok"
+    >
+
+    <div class="loading-text">Loading, please wait...</div>
+
+    <div class="bar">
+        <div class="bar-fill"></div>
+    </div>
+
+</div>
+
+<div id="website">
+    <iframe
+        src="https://us.anyproxy.site/?__ap=aHR0cHM6Ly93d3cudGlrdG9rLmNvbS8&sid=3b4b6a977bb543eea8959553065a25ae#https://www.tiktok.com/"
+        allow="autoplay; clipboard-read; clipboard-write; fullscreen"
+        allowfullscreen>
+    </iframe>
+</div>
+
+<script>
+
+/* =================================
+   CONFIGURATION
+================================= */
+
+// Change loading duration here (in seconds)
+const LOADING_TIME = 1.8;
+
+// =================================
+
+const loading = document.getElementById("loading");
+const website = document.getElementById("website");
+const progress = document.querySelector(".bar-fill");
+
+// Set animation duration automatically
+progress.style.setProperty(
+    "--loading-time",
+    LOADING_TIME + "s"
+);
+
+// Load iframe after configured duration
+setTimeout(() => {
+    loading.style.display = "none";
+    website.style.display = "block";
+}, LOADING_TIME * 1000);
+
+</script>
+
+</body>
+</html>
