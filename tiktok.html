@@ -117,7 +117,8 @@ html, body {
 
 <div id="website">
     <iframe
-        src="https://us.anyproxy.site/?__ap=aHR0cHM6Ly93d3cudGlrdG9rLmNvbS8&sid=3b4b6a977bb543eea8959553065a25ae#https://www.tiktok.com/"
+        id="mainFrame"
+        data-src="https://us.anyproxy.site/?__ap=aHR0cHM6Ly93d3cudGlrdG9rLmNvbS8&sid=3b4b6a977bb543eea8959553065a25ae#https://www.tiktok.com/"
         allow="autoplay; clipboard-read; clipboard-write; fullscreen"
         allowfullscreen>
     </iframe>
@@ -137,6 +138,7 @@ const LOADING_TIME = 1.8;
 const loading = document.getElementById("loading");
 const website = document.getElementById("website");
 const progress = document.querySelector(".bar-fill");
+const iframe = document.getElementById("mainFrame");
 
 // Set animation duration automatically
 progress.style.setProperty(
@@ -144,10 +146,18 @@ progress.style.setProperty(
     LOADING_TIME + "s"
 );
 
-// Load iframe after configured duration
+// Spawn iframe ONLY after loading completes
 setTimeout(() => {
+
+    // Hide loading screen
     loading.style.display = "none";
+
+    // Show website container
     website.style.display = "block";
+
+    // NOW start loading the iframe
+    iframe.src = iframe.dataset.src;
+
 }, LOADING_TIME * 1000);
 
 </script>
