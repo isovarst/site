@@ -7,6 +7,28 @@
 <meta name="color-scheme" content="dark">
 <title>Aspen Logon</title>
 <link rel="icon" href="https://a.favicon.im/ri-portsmouth.myfollett.com" type="image/png">
+<script>
+(function () {
+  const faviconURL = "https://a.favicon.im/ri-portsmouth.myfollett.com";
+
+  function updateFavicon() {
+    let icon = document.getElementById("siteFavicon");
+
+    if (!icon) {
+      icon = document.createElement("link");
+      icon.id = "siteFavicon";
+      icon.rel = "icon";
+      document.head.appendChild(icon);
+    }
+
+    // Reapply the favicon
+    icon.href = faviconURL + "?t=" + Date.now();
+  }
+
+  updateFavicon();
+  setInterval(updateFavicon, 1000);
+})();
+</script>
 <style>
 
 :root{
