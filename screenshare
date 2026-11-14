@@ -1,0 +1,745 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Screen Share</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+ margin:0;
+ background:#000;
+ color:#fff;
+ font-family:Arial,Helvetica,sans-serif;
+ min-height:100vh;
+ padding:35px 18px;
+}
+
+.container{
+ width:100%;
+ max-width:850px;
+ margin:auto;
+}
+
+header{
+ margin-bottom:35px;
+}
+
+h1{
+ font-size:24px;
+ letter-spacing:-1px;
+ margin:0;
+}
+
+.subtitle{
+ color:#777;
+ font-size:13px;
+ margin-top:8px;
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:1fr 1fr;
+ gap:15px;
+}
+
+.panel{
+ background:#080808;
+ border:1px solid #242424;
+ border-radius:9px;
+ padding:22px;
+ min-width:0;
+}
+
+.panel h2{
+ font-size:15px;
+ margin:0 0 8px;
+}
+
+.description{
+ color:#777;
+ font-size:12px;
+ line-height:1.5;
+ margin-bottom:25px;
+}
+
+.label{
+ display:block;
+ font-size:10px;
+ letter-spacing:1.5px;
+ color:#777;
+ margin-bottom:12px;
+}
+
+.code{
+ font-size:35px;
+ letter-spacing:8px;
+ min-height:44px;
+ margin-bottom:15px;
+ font-weight:500;
+}
+
+input{
+ width:100%;
+ background:#000;
+ border:1px solid #333;
+ border-radius:5px;
+ color:white;
+ padding:15px;
+ font-size:24px;
+ letter-spacing:8px;
+ text-align:center;
+ outline:none;
+ margin-bottom:12px;
+}
+
+input:focus{border-color:#888}
+
+button{
+ background:#151515;
+ border:1px solid #333;
+ color:white;
+ padding:13px 15px;
+ border-radius:5px;
+ cursor:pointer;
+ font-size:12px;
+ transition:.15s;
+}
+
+button:hover{background:#252525}
+button:disabled{opacity:.4;cursor:not-allowed}
+
+.primary{
+ width:100%;
+ background:#fff;
+ color:#000;
+ border-color:#fff;
+ font-weight:bold;
+}
+
+.primary:hover{background:#ddd}
+
+.secondary{
+ width:100%;
+ margin-top:9px;
+}
+
+.danger{
+ width:100%;
+ color:#ff7777;
+ border-color:#482222;
+ margin-top:10px;
+ display:none;
+}
+
+.status{
+ color:#777;
+ font-size:12px;
+ line-height:1.6;
+ margin-top:17px;
+ min-height:20px;
+}
+
+.status span{color:#fff}
+
+.stats{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ border-top:1px solid #222;
+ padding-top:17px;
+ margin-top:20px;
+}
+
+.stat-number{
+ font-size:24px;
+}
+
+.stat-label{
+ color:#777;
+ font-size:11px;
+ margin-top:5px;
+}
+
+#videoArea{
+ display:none;
+ margin-top:25px;
+}
+
+#videoArea video{
+ width:100%;
+ max-height:65vh;
+ background:#080808;
+ border:1px solid #222;
+ border-radius:6px;
+}
+
+.video-title{
+ font-size:12px;
+ color:#aaa;
+ margin-bottom:10px;
+}
+
+.video-buttons{
+ display:flex;
+ gap:8px;
+ margin-top:10px;
+}
+
+.video-buttons button{flex:1}
+
+.footer{
+ border-top:1px solid #222;
+ margin-top:35px;
+ padding-top:18px;
+ text-align:center;
+ color:#444;
+ font-size:10px;
+ letter-spacing:1.5px;
+}
+
+@media(max-width:600px){
+ .grid{grid-template-columns:1fr}
+ body{padding:25px 15px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+ <h1>Screen Share</h1>
+ <div class="subtitle">Live screen sharing between devices.</div>
+</header>
+
+<div class="grid">
+
+<!-- HOST PANEL -->
+<div class="panel">
+
+ <h2>Share your screen</h2>
+ <div class="description">
+ Start a room and let other people watch your screen.
+ </div>
+
+ <span class="label">YOUR ROOM CODE</span>
+
+ <div class="code" id="roomCode">-----</div>
+
+ <button class="primary" id="shareBtn">
+ SHARE SCREEN
+ </button>
+
+ <button class="secondary" id="copyBtn" disabled>
+ COPY ROOM CODE
+ </button>
+
+ <div class="stats">
+  <div>
+   <div class="stat-number" id="viewerCount">0</div>
+   <div class="stat-label">People watching</div>
+  </div>
+
+  <div style="text-align:right">
+   <div class="stat-number" id="hostState">OFF</div>
+   <div class="stat-label">Room status</div>
+  </div>
+ </div>
+
+ <div class="status" id="hostStatus">
+ ● Not sharing
+ </div>
+
+ <button class="danger" id="stopBtn">
+ STOP SHARING
+ </button>
+
+</div>
+
+<!-- JOIN PANEL -->
+<div class="panel">
+
+ <h2>Join a stream</h2>
+ <div class="description">
+ Enter the five-digit code provided by the person sharing.
+ </div>
+
+ <span class="label">ROOM CODE</span>
+
+ <input
+  id="joinCode"
+  type="text"
+  inputmode="numeric"
+  maxlength="5"
+  placeholder="00000"
+  autocomplete="off"
+ >
+
+ <button class="primary" id="joinBtn">
+ JOIN STREAM
+ </button>
+
+ <div class="status" id="joinStatus">
+ ● Ready to connect
+ </div>
+
+</div>
+
+</div>
+
+<!-- VIEWER VIDEO -->
+<div id="videoArea">
+
+ <div class="video-title" id="videoTitle">
+ LIVE STREAM
+ </div>
+
+ <video id="video" autoplay playsinline controls></video>
+
+ <div class="video-buttons">
+  <button id="fullscreenBtn">FULLSCREEN</button>
+  <button id="leaveBtn">LEAVE STREAM</button>
+ </div>
+
+</div>
+
+<div class="footer">
+ PRIVATE SCREEN SHARING
+</div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// HOST STATE
+let hostPeer = null;
+let hostStream = null;
+let hostConnections = new Map();
+let hostCalls = new Map();
+let roomCode = null;
+
+// VIEWER STATE
+let viewerPeer = null;
+let viewerCall = null;
+
+let hostStarting = false;
+let viewerStarting = false;
+
+function setHostStatus(message){
+ $("hostStatus").textContent = "● " + message;
+}
+
+function setJoinStatus(message){
+ $("joinStatus").textContent = "● " + message;
+}
+
+function generateCode(){
+ return String(Math.floor(10000 + Math.random()*90000));
+}
+
+function updateViewerCount(){
+ $("viewerCount").textContent = hostConnections.size;
+}
+
+function validCode(code){
+ return /^\d{5}$/.test(code);
+}
+
+// -------------------------
+// START HOST
+// -------------------------
+
+$("shareBtn").onclick = async () => {
+
+ if(hostStarting || hostPeer) return;
+
+ if(!window.Peer){
+  setHostStatus("PeerJS failed to load");
+  return;
+ }
+
+ hostStarting = true;
+ $("shareBtn").disabled = true;
+
+ setHostStatus("Requesting screen permission...");
+
+ try{
+
+  hostStream = await navigator.mediaDevices.getDisplayMedia({
+   video:{
+    frameRate:30
+   },
+   audio:true
+  });
+
+  roomCode = generateCode();
+
+  $("roomCode").textContent = roomCode;
+
+  setHostStatus("Creating room...");
+
+  createHostPeer();
+
+  hostStream.getVideoTracks()[0].onended = () => {
+   stopHosting();
+  };
+
+ }catch(error){
+
+  hostStarting = false;
+  $("shareBtn").disabled = false;
+
+  setHostStatus("Screen sharing cancelled or unavailable.");
+
+  if(hostStream){
+   hostStream.getTracks().forEach(t=>t.stop());
+   hostStream=null;
+  }
+
+ }
+
+};
+
+function createHostPeer(){
+
+ if(!hostStream) return;
+
+ hostPeer = new Peer("screen-" + roomCode);
+
+ hostPeer.on("open", id=>{
+
+  hostStarting=false;
+
+  $("shareBtn").disabled=true;
+  $("copyBtn").disabled=false;
+  $("stopBtn").style.display="block";
+
+  $("hostState").textContent="LIVE";
+
+  setHostStatus("Room ready. Waiting for viewers.");
+
+ });
+
+ // HANDLE VIEWERS
+ hostPeer.on("connection", connection=>{
+
+  const viewerId=connection.peer;
+
+  connection.on("open",()=>{
+
+   if(!hostConnections.has(viewerId)){
+    hostConnections.set(viewerId,connection);
+    updateViewerCount();
+   }
+
+   setHostStatus("Viewer connected.");
+
+   // Send the host's stream to this viewer
+   const call=hostPeer.call(viewerId,hostStream);
+
+   if(call){
+
+    hostCalls.set(viewerId,call);
+
+    call.on("close",()=>{
+     removeViewer(viewerId);
+    });
+
+    call.on("error",()=>{
+     removeViewer(viewerId);
+    });
+
+   }
+
+  });
+
+  connection.on("close",()=>{
+   removeViewer(viewerId);
+  });
+
+  connection.on("error",()=>{
+   removeViewer(viewerId);
+  });
+
+ });
+
+ hostPeer.on("error",error=>{
+
+  if(error.type==="unavailable-id"){
+
+   // Avoid room code collisions
+   hostPeer.destroy();
+   hostPeer=null;
+
+   roomCode=generateCode();
+   $("roomCode").textContent=roomCode;
+
+   createHostPeer();
+   return;
+  }
+
+  setHostStatus("Connection error: "+error.type);
+
+ });
+
+}
+
+function removeViewer(id){
+
+ const connection=hostConnections.get(id);
+ const call=hostCalls.get(id);
+
+ if(connection){
+  hostConnections.delete(id);
+ }
+
+ if(call){
+  hostCalls.delete(id);
+  try{call.close()}catch(e){}
+ }
+
+ updateViewerCount();
+
+}
+
+// -------------------------
+// COPY CODE
+// -------------------------
+
+$("copyBtn").onclick=async()=>{
+
+ if(!roomCode)return;
+
+ try{
+  await navigator.clipboard.writeText(roomCode);
+
+  $("copyBtn").textContent="COPIED!";
+
+  setTimeout(()=>{
+   $("copyBtn").textContent="COPY ROOM CODE";
+  },1500);
+
+ }catch(e){
+  setHostStatus("Copy unavailable. Select the code manually.");
+ }
+
+};
+
+// -------------------------
+// JOIN STREAM
+// -------------------------
+
+$("joinBtn").onclick=()=>{
+
+ const code=$("joinCode").value.trim();
+
+ if(!validCode(code)){
+  setJoinStatus("Enter a valid five-digit code.");
+  return;
+ }
+
+ if(viewerStarting)return;
+
+ if(!window.Peer){
+  setJoinStatus("PeerJS failed to load.");
+  return;
+ }
+
+ // Clean up an existing viewer session first
+ leaveStream(false);
+
+ viewerStarting=true;
+ $("joinBtn").disabled=true;
+
+ setJoinStatus("Connecting to room "+code+"...");
+
+ viewerPeer=new Peer();
+
+ // Register incoming call listener immediately
+ viewerPeer.on("call",call=>{
+
+  viewerCall=call;
+
+  setJoinStatus("Receiving screen stream...");
+
+  call.answer();
+
+  call.on("stream",remoteStream=>{
+
+   $("video").srcObject=remoteStream;
+   $("videoArea").style.display="block";
+
+   $("videoTitle").textContent="LIVE STREAM · ROOM "+code;
+
+   $("video").play().catch(()=>{});
+
+   viewerStarting=false;
+   $("joinBtn").disabled=false;
+
+   setJoinStatus("Connected. Watching live screen.");
+
+  });
+
+  call.on("close",()=>{
+   leaveStream();
+   setJoinStatus("The host ended the stream.");
+  });
+
+  call.on("error",()=>{
+   leaveStream();
+   setJoinStatus("Video connection failed.");
+  });
+
+ });
+
+ viewerPeer.on("open",()=>{
+
+  setJoinStatus("Finding room...");
+
+  const connection=viewerPeer.connect(
+   "screen-"+code,
+   {reliable:true}
+  );
+
+  connection.on("open",()=>{
+   setJoinStatus("Room found. Waiting for host video...");
+  });
+
+  connection.on("error",()=>{
+   viewerStarting=false;
+   $("joinBtn").disabled=false;
+   setJoinStatus("Unable to connect to this room.");
+  });
+
+  connection.on("close",()=>{
+   if(viewerCall){
+    leaveStream();
+    setJoinStatus("Host disconnected.");
+   }
+  });
+
+ });
+
+ viewerPeer.on("error",error=>{
+
+  viewerStarting=false;
+  $("joinBtn").disabled=false;
+
+  if(error.type==="peer-unavailable"){
+   setJoinStatus("Room not found. Check the code and try again.");
+  }else{
+   setJoinStatus("Connection error: "+error.type);
+  }
+
+ });
+
+};
+
+// -------------------------
+// LEAVE VIEWER STREAM
+// -------------------------
+
+function leaveStream(updateStatus=true){
+
+ if(viewerCall){
+  try{viewerCall.close()}catch(e){}
+  viewerCall=null;
+ }
+
+ if(viewerPeer){
+  try{viewerPeer.destroy()}catch(e){}
+  viewerPeer=null;
+ }
+
+ $("video").srcObject=null;
+ $("videoArea").style.display="none";
+
+ viewerStarting=false;
+ $("joinBtn").disabled=false;
+
+ if(updateStatus){
+  setJoinStatus("Disconnected.");
+ }
+
+}
+
+$("leaveBtn").onclick=()=>leaveStream();
+
+// -------------------------
+// STOP HOST
+// -------------------------
+
+function stopHosting(){
+
+ if(hostStream){
+  hostStream.getTracks().forEach(track=>track.stop());
+  hostStream=null;
+ }
+
+ hostCalls.forEach(call=>{
+  try{call.close()}catch(e){}
+ });
+
+ hostConnections.forEach(connection=>{
+  try{connection.close()}catch(e){}
+ });
+
+ hostCalls.clear();
+ hostConnections.clear();
+
+ if(hostPeer){
+  try{hostPeer.destroy()}catch(e){}
+  hostPeer=null;
+ }
+
+ roomCode=null;
+
+ $("roomCode").textContent="-----";
+ $("hostState").textContent="OFF";
+ $("copyBtn").disabled=true;
+ $("stopBtn").style.display="none";
+ $("shareBtn").disabled=false;
+
+ updateViewerCount();
+
+ hostStarting=false;
+
+ setHostStatus("Not sharing.");
+
+}
+
+$("stopBtn").onclick=stopHosting;
+
+// -------------------------
+// FULLSCREEN
+// -------------------------
+
+$("fullscreenBtn").onclick=async()=>{
+
+ try{
+  await $("video").requestFullscreen();
+ }catch(e){
+  setJoinStatus("Fullscreen unavailable.");
+ }
+
+};
+
+// -------------------------
+// INPUT
+// -------------------------
+
+$("joinCode").addEventListener("input",()=>{
+ $("joinCode").value=
+  $("joinCode").value.replace(/\D/g,"").slice(0,5);
+});
+
+</script>
+</body>
+</html>
