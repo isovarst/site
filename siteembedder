@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,7 +45,7 @@ button:hover{background:#ccc}
 <body>
 <main>
 <h1>Embed</h1>
-<p>Open a website in a new about:blank tab.</p>
+<p>Open a website in a new tab.</p>
 
 <div class="layout">
 <div>
@@ -59,6 +60,16 @@ button:hover{background:#ccc}
 <div class="presets-title">PRESETS</div>
 <div id="presetList"></div>
 </aside>
+</div>
+
+<div class="section">
+<div class="section-title">Opening settings</div>
+<div class="checks">
+<label class="check">
+<input id="aboutBlank" type="checkbox" checked>
+Open in about:blank
+</label>
+</div>
 </div>
 
 <div class="section">
@@ -157,6 +168,8 @@ button:hover{background:#ccc}
 const $=id=>document.getElementById(id);
 
 const defaults={
+aboutBlank:true,
+
 tabName:"Loading",
 favicon:"",
 countdown:3,
@@ -313,14 +326,27 @@ if(remaining>0)loading.innerHTML='<div class="spinner"></div><span>'+escapeHTML(
 
 setTimeout(()=>{
 clearInterval(interval);
-if(!tab.closed)loadIframe(tab,url,s);
+if(!tab.closed)finishLoading(tab,url,s);
 },duration*1000);
 
 }else{
 if(duration>0){
-setTimeout(()=>{if(!tab.closed)loadIframe(tab,url,s)},duration*1000);
-}else loadIframe(tab,url,s);
+setTimeout(()=>{if(!tab.closed)finishLoading(tab,url,s)},duration*1000);
+}else finishLoading(tab,url,s);
 }
+}
+
+function finishLoading(tab,url,s){
+if(tab.closed)return;
+
+// Direct navigation mode: no iframe, no embedded document.
+if(!s.aboutBlank){
+tab.location.href=url;
+return;
+}
+
+// Original about:blank iframe behavior.
+loadIframe(tab,url,s);
 }
 
 function loadIframe(tab,url,s){
@@ -360,54 +386,54 @@ const PRESETS=[
 {name:"HopEarth",url:"https://hop.earth"},
 {name:"Fortnite",url:"https://retrora.lol/"},
 {name:"Bonvo Skiing",url:"https://bonvo.ski/en/ride"},
-    {name:"Among Us",versions:[
-      {name:"Legacy",url:"https://wasm.rip/files/amongus/legacy/"},
-      {name:"Latest",url:"https://wasm.rip/files/amongus/latest/"}
-    ]},
+{name:"Among Us",versions:[
+{name:"Legacy",url:"https://wasm.rip/files/amongus/legacy/"},
+{name:"Latest",url:"https://wasm.rip/files/amongus/latest/"}
+]},
 ];
 
 /* Automatically creates the preset buttons */
 function renderPresets(){
-  $("presetList").innerHTML=PRESETS.map((preset,index)=>`
-    <button class="preset" type="button" data-preset-index="${index}">
-      <span class="preset-name">${escapeHTML(preset.name)}</span>
-      <span class="preset-url">${escapeHTML(preset.url || (preset.versions ? "Choose a version" : ""))}</span>
-    </button>
-    ${preset.versions ? `<div class="preset-versions" data-version-index="${index}" hidden>
-      ${preset.versions.map((version,versionIndex)=>`
-        <button class="preset" type="button" data-parent-index="${index}" data-version-index="${versionIndex}">
-          <span class="preset-name">${escapeHTML(version.name)}</span>
-          <span class="preset-url">${escapeHTML(version.url)}</span>
-        </button>
-      `).join("")}
-    </div>` : ""}
-  `).join("");
+$("presetList").innerHTML=PRESETS.map((preset,index)=>`
+<button class="preset" type="button" data-preset-index="${index}">
+<span class="preset-name">${escapeHTML(preset.name)}</span>
+<span class="preset-url">${escapeHTML(preset.url || (preset.versions ? "Choose a version" : ""))}</span>
+</button>
+${preset.versions ? `<div class="preset-versions" data-version-index="${index}" hidden>
+${preset.versions.map((version,versionIndex)=>`
+<button class="preset" type="button" data-parent-index="${index}" data-version-index="${versionIndex}">
+<span class="preset-name">${escapeHTML(version.name)}</span>
+<span class="preset-url">${escapeHTML(version.url)}</span>
+</button>
+`).join("")}
+</div>` : ""}
+`).join("");
 
-  $("presetList").querySelectorAll("[data-preset-index]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      const index=Number(button.dataset.presetIndex);
-      const preset=PRESETS[index];
-      if(!preset)return;
-      if(preset.versions){
-        const choices=$("presetList").querySelector(`[data-version-index="${index}"]`);
-        if(choices)choices.hidden=!choices.hidden;
-      }else{
-        openEmbed(preset.url);
-      }
-    });
-  });
-
-  $("presetList").querySelectorAll("[data-parent-index]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      const preset=PRESETS[Number(button.dataset.parentIndex)];
-      const version=preset?.versions?.[Number(button.dataset.versionIndex)];
-      if(version)openEmbed(version.url);
-    });
-  });
+$("presetList").querySelectorAll("[data-preset-index]").forEach(button=>{
+button.addEventListener("click",()=>{
+const index=Number(button.dataset.presetIndex);
+const preset=PRESETS[index];
+if(!preset)return;
+if(preset.versions){
+const choices=$("presetList").querySelector(`[data-version-index="${index}"]`);
+if(choices)choices.hidden=!choices.hidden;
+}else{
+openEmbed(preset.url);
 }
+});
+});
+
+$("presetList").querySelectorAll("[data-parent-index]").forEach(button=>{
+button.addEventListener("click",()=>{
+const preset=PRESETS[Number(button.dataset.parentIndex)];
+const version=preset?.versions?.[Number(button.dataset.versionIndex)];
+if(version)openEmbed(version.url);
+});
+});
+}
+
 renderPresets();
 
-/* Pass a function so the click event isn't mistaken for a URL. */
 $("open").addEventListener("click",()=>openEmbed());
 
 $("url").addEventListener("keydown",e=>{
