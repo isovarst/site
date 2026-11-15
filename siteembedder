@@ -384,7 +384,7 @@ tab.document.body.innerHTML="<div style='font:13px Arial;padding:25px;color:whit
 const PRESETS=[
 {name:"Roblox",url:"https://tru.ss/"},
 {name:"HopEarth",url:"https://hop.earth"},
-{name:"Fortnite",url:"https://retrora.lol/"},
+{name:"Fortnite (Ripoff)",url:"https://2v2.io"},
 {name:"Bonvo Skiing",url:"https://bonvo.ski/en/ride"},
 {name:"Among Us",versions:[
 {name:"Legacy",url:"https://wasm.rip/files/amongus/legacy/"},
