@@ -712,12 +712,47 @@ body.bday #bdayBanner{display:flex}
 .bday-list{list-style:none;margin:0;padding:0;font-size:13px}
 .bday-list li{margin:6px 0}
 
+
+/* tutorial library */
+.tutorial-wrap{max-width:1120px;margin:0 auto}
+.tutorial-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;
+  padding:0 0 12px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.tutorial-intro p{margin:4px 0 0;color:var(--mut);font-size:11.5px}
+.tutorial-count{color:var(--mut);font-size:11px;white-space:nowrap}
+.tutorial-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.tutorial-card{min-width:0;overflow:hidden;border:1px solid var(--line);background:var(--bg)}
+.tutorial-banner{position:relative;display:flex;align-items:center;gap:22px;min-height:158px;
+  padding:22px 26px;overflow:hidden;border-bottom:1px solid var(--line);
+  background:#000}
+.tutorial-logos{display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative;z-index:1}
+.tutorial-logo{width:76px;height:76px;display:grid;place-items:center;padding:0;
+  border:0;border-radius:0;background:transparent}
+.tutorial-logo img{display:block;width:100%;height:100%;padding:0;object-fit:contain;
+  border-radius:14px;background:transparent}
+.tutorial-banner-copy{position:relative;z-index:1;min-width:0}
+.tutorial-banner-copy small{display:block;margin-bottom:7px;color:#b7bdc9;font-size:10px;
+  letter-spacing:1.8px;text-transform:uppercase}
+.tutorial-banner-copy b{display:block;color:#fff;font-size:clamp(20px,3vw,30px);
+  line-height:1.15;letter-spacing:-.6px}
+.tutorial-banner-copy span{display:block;margin-top:8px;color:#c2c7d0;font-size:12px}
+.tutorial-video{position:relative;width:100%;aspect-ratio:16/9;max-height:680px;background:#000}
+.tutorial-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}
+@media(max-width:560px){
+  .tutorial-banner{min-height:132px;padding:16px;gap:14px}
+  .tutorial-logo{width:58px;height:58px;padding:0;border-radius:0}
+  .tutorial-logo img{border-radius:11px}
+  .tutorial-logos{gap:7px}
+  .tutorial-banner-copy b{font-size:20px}
+  .tutorial-banner-copy span{font-size:11px}
+}
+
 </style>
 </head>
 <body class="wn-open">
 
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div id="bdayBanner" aria-hidden="true"><span>🎂</span> happy birthday <span>🎉</span></div>
+
 <div id="whatsNew" role="dialog" aria-modal="true" aria-labelledby="wnTitle">
   <div class="wn-box">
     <div class="wn-head">
@@ -732,20 +767,37 @@ body.bday #bdayBanner{display:flex}
           <h4>updates</h4>
           <ul style="list-style:none;padding:0;margin:0;">
 
-            <li style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-              <div>
-                <b>Web tab revamp: pin tabs, bookmark tabs and fullscreen tabs, plus a copy link button</b>
-              </div>
+            <!-- Roblox + Among Us Tutorial -->
+            <li style="margin-bottom:22px;">
+              <b style="font-size:1.25em;display:block;margin-bottom:9px;">
+                Roblox and Among Us tutorial added
+              </b>
+
+              <img
+                src="https://raw.githubusercontent.com/isovarst/site/main/tutorial%20thing.png"
+                alt="Tutorial tab highlighted in the launcher"
+                style="display:block;width:100%;max-width:420px;height:auto;border-radius:7px;margin-bottom:9px;"
+              >
+
+              <span style="display:block;font-size:0.9em;line-height:1.5;">
+                You can unblock any site with this.
+              </span>
+
+              <b style="display:block;color:#ff3b3b;font-size:1.2em;font-weight:800;margin-top:12px;">
+                AMONG US IS DOWN CURRENTLY
+              </b>
             </li>
 
             <!-- Subway Surfers -->
-            <li style="margin-bottom:18px;">
+            <li style="margin-bottom:22px;">
               <b style="font-size:1.25em;display:block;margin-bottom:4px;">
                 Fixed Subway Surfers
               </b>
+
               <span style="display:block;font-size:0.9em;margin-bottom:9px;">
-                subway surfers ported to web by me
+                Subway Surfers ported to web by me.
               </span>
+
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThrsUFGCi0TgejavUMJPG-HMDB3y6UnmPwg5RLtsVKxggxjc8Ou18swlXy&s=10"
                 alt="Subway Surfers banner"
@@ -753,28 +805,15 @@ body.bday #bdayBanner{display:flex}
               >
             </li>
 
-            <!-- Among Us Multiplayer -->
-            <li style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSta0yrHeIgJstp4NgNkpdQMreqnCtWkCFOYL8sXehgjA&s=10"
-                alt="Among Us"
-                style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;"
-              >
-              <div>
-                <b>Among Us Multiplayer and Roblox added</b>
-              </div>
-            </li>
+            <!-- Update 2.2 -->
+            <li style="margin-bottom:18px;">
+              <b style="font-size:1.2em;display:block;margin-bottom:5px;">
+                Update 2.2
+              </b>
 
-            <!-- Roblox -->
-            <li style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-              <img
-                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT9-ZL3DqRpijj1RpmLxFUEK8ib658GxGZWq4bGhGSt8w&s=10"
-                alt="Roblox"
-                style="width:48px;height:48px;object-fit:cover;border-radius:6px;flex-shrink:0;"
-              >
-              <div>
-                <b>Ask owner for help</b>
-              </div>
+              <span style="display:block;font-size:0.9em;line-height:1.5;">
+                Web tab revamp: pin tabs, bookmark tabs, fullscreen tabs, and a copy link button.
+              </span>
             </li>
 
           </ul>
@@ -788,9 +827,11 @@ body.bday #bdayBanner{display:flex}
           <h2 class="bday-title">happy birthday!</h2>
           <p class="bday-sub">the whole launcher is celebrating today</p>
         </div>
+
         <div class="bday-emojis">
           <span>🎉</span><span>🎈</span><span>🎁</span><span>🧁</span><span>🎊</span>
         </div>
+
         <ul class="bday-list">
           <li>confetti is falling just for you</li>
           <li>there's a <b>birthday</b> theme in options</li>
@@ -812,6 +853,7 @@ body.bday #bdayBanner{display:flex}
       <button class="tab hidden-tab" data-tab="chat">ask</button>
       <button class="tab" data-tab="google">web</button>
       <button class="tab" data-tab="youtube">videos</button>
+      <button class="tab" data-tab="tutorial">tutorial</button>
       <button class="tab" data-tab="settings">options</button>
     </nav>
 
@@ -983,6 +1025,51 @@ body.bday #bdayBanner{display:flex}
     </div>
   </section>
 
+
+  <section class="view" id="viewTutorial">
+    <div class="tutorial-wrap">
+      <h1 class="pagehead">tutorial</h1>
+      <div class="tutorial-intro">
+        <div>
+          <b>tutorial library</b>
+          <p>Guides, walkthroughs, and useful sites.</p>
+        </div>
+        <span class="tutorial-count">1 tutorial</span>
+      </div>
+
+      <div class="tutorial-grid">
+        <article class="tutorial-card">
+          <div class="tutorial-banner">
+            <div class="tutorial-logos" aria-label="Among Us and Roblox">
+              <div class="tutorial-logo">
+                <img src="https://images.wikia.com/among-us-wiki/images/b/bc/Wiki.png"
+                     alt="Among Us icon">
+              </div>
+              <div class="tutorial-logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Roblox_Logo_2025.png"
+                     alt="Roblox icon">
+              </div>
+            </div>
+            <div class="tutorial-banner-copy">
+              <small>game tutorial</small>
+              <b>Among Us + Roblox</b>
+              <span>A quick walkthrough for both games.</span>
+            </div>
+          </div>
+          <div class="tutorial-video">
+            <iframe
+              src="https://streamable.com/e/joyfm3?autoplay=0"
+              title="Among Us + Roblox TUTORIAL"
+              loading="lazy"
+              allow="fullscreen; picture-in-picture"
+              allowfullscreen
+              referrerpolicy="no-referrer">
+            </iframe>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
 
   <section class="view" id="viewSettings">
     <div class="panel">
@@ -1381,7 +1468,7 @@ paintAppearance();
 applyBirthday();
 
 
-var TAB_IDS=["games","chat","google","youtube","settings"];
+var TAB_IDS=["games","chat","google","youtube","tutorial","settings"];
 var activeTab="games";
 
 var WIDE_TABS=["chat","google","youtube"];
