@@ -386,6 +386,7 @@ const PRESETS=[
 {name:"HopEarth",url:"https://hop.earth"},
 {name:"Fortnite (Ripoff)",url:"https://2v2.io"},
 {name:"Bonvo Skiing",url:"https://bonvo.ski/en/ride"},
+{name:"proxy + games",url:"squall.cc"},
 {name:"Among Us",versions:[
 {name:"Legacy",url:"https://wasm.rip/files/amongus/legacy/"},
 {name:"Latest",url:"https://wasm.rip/files/amongus/latest/"}
