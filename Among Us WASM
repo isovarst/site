@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>among us</title>
+<!-- Single-file launcher. Streams public Unity WebGL builds from GitHub,
+     stitches split chunks into Blobs, then boots Unity from them. -->
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  #unity-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000;
+    outline: none;
+  }
+  #gameContainer {
+    position: fixed;
+    inset: 0;
+    display: none;
+    background: #000;
+  }
+  #gameContainer canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    outline: none;
+  }
+  #boot {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    background: #000;
+    transition: opacity .6s ease;
+  }
+  body.running #boot { opacity: 0; pointer-events: none; }
+  #msg {
+    margin: 0;
+    font-size: 13px;
+    letter-spacing: .06em;
+    color: #737373;
+  }
+  #bar {
+    width: 220px;
+    height: 2px;
+    background: #151515;
+    overflow: hidden;
+  }
+  #fill {
+    width: 0;
+    height: 100%;
+    background: #ddd;
+    transition: width .25s ease;
+  }
+  #bar.indet #fill {
+    width: 35%;
+    animation: slide 1.2s ease-in-out infinite;
+  }
+  @keyframes slide {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(300%); }
+  }
+  #choices {
+    display: flex;
+    gap: 10px;
+        margin-top: 4px;
+  }
+  #choices[hidden] { display: none; }
+  #choices button {
+    padding: 8px 20px;
+    border: 1px solid #262626;
+    border-radius: 5px;
+    background: #0a0a0a;
+    color: #b5b5b5;
+    font: 12px/1 system-ui, sans-serif;
+    letter-spacing: .04em;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  #choices button:hover { border-color: #4a4a4a; color: #fff; }
+  #choices button small {
+    display: block;
+    margin-top: 5px;
+    font-size: 9.5px;
+    color: #5c5c5c;
+    letter-spacing: .02em;
+  }
+  #term {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+    z-index: 3;
+    pointer-events: none;
+    font: 11px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+    color: #4d4d4d;
+    word-break: break-word;
+  }
+  #term div { animation: fadein .4s ease both; }
+  #term div.out { animation: fadeout 1.2s ease forwards; }
+  #term .err { color: #c05050; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeout { to { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<canvas id="unity-canvas" width="960" height="540" tabindex="0"></canvas>
+<div id="gameContainer"></div>
+
+<div id="boot">
+  <p id="msg">among us</p>
+  <div id="bar" hidden><div id="fill"></div></div>
+  <div id="choices">
+    <button type="button" data-mode="legacy">Legacy<small>recommended</small></button>
+    <button type="button" data-mode="latest">Latest<small>current build</small></button>
+  </div>
+</div>
+
+<div id="term" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------ */
+  /* modes                                                               */
+  /* ------------------------------------------------------------------ */
+  var MODES = {
+    legacy: {
+      kind: "legacy",
+      label: "legacy",
+      repo: "RealestXenoxx/Among-Us-Web-Port",
+      ref: "main",
+      dir: "legacy/",
+      jsonPath: "Build/AmongUSWebPortByTSProllyFinalBuild9.json",
+      buildPrefix: "Build/AmongUSWebPortByTSProllyFinalBuild9"
+    },
+    latest: {
+      kind: "latest",
+      label: "latest",
+      repo: "AlexBoops/dotripports",
+      ref: "main",
+      dir: "AmongUs-WebGL/"
+    }
+  };
+
+  var CACHE_PREFIX = "amongus-webgl-";
+  var CONCURRENCY = 4;
+  var MAX_ASSEMBLED_CACHE = 256 * 1048576;
+  var FRAMEWORK_SIZE = 522724;
+  var CORE_FILES = ["Build/Build.data", "Build/Build.wasm"];
+  var ASSET_ROOT = "StreamingAssets/";
+  var LEGACY_BYTES = 20426571; // data + wasm code + wasm framework
+
+  var canvas = document.getElementById("unity-canvas");
+  var gameContainer = document.getElementById("gameContainer");
+  var term = document.getElementById("term");
+  var msgEl = document.getElementById("msg");
+  var barEl = document.getElementById("bar");
+  var fillEl = document.getElementById("fill");
+  var choicesEl = document.getElementById("choices");
+  var body = document.body;
+
+  var mode = null;
+
+  /* ------------------------------------------------------------------ */
+  /* terminal                                                            */
+  /* ------------------------------------------------------------------ */
+  var termLines = [];
+
+  function log(text, cls) {
+    var line = document.createElement("div");
+    if (cls) line.className = cls;
+    line.textContent = text;
+    term.appendChild(line);
+    termLines.push(line);
+    var ttl = cls === "err" ? 15000 : 5500;
+    setTimeout(function () { line.classList.add("out"); }, ttl);
+    setTimeout(function () { if (line.parentNode) line.parentNode.removeChild(line); }, ttl + 1300);
+    while (termLines.length > 7) {
+      var old = termLines.shift();
+      if (old.parentNode) old.parentNode.removeChild(old);
+    }
+  }
+  function logErr(text) { log(text, "err"); }
+
+  window.addEventListener("error", function (e) {
+    logErr("error: " + (e && e.message ? e.message : e));
+  });
+  window.addEventListener("unhandledrejection", function (e) {
+    var r = e && e.reason;
+    logErr("error: " + (r && r.message ? r.message : r));
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* status                                                              */
+  /* ------------------------------------------------------------------ */
+  var state = { phase: "idle", pct: 0, indeterminate: true };
+
+  function setBar(pct, indeterminate) {
+    if (indeterminate) {
+      barEl.classList.add("indet");
+      fillEl.style.width = "";
+    } else {
+      barEl.classList.remove("indet");
+      fillEl.style.width = Math.max(0, Math.min(100, pct)).toFixed(1) + "%";
+    }
+  }
+
+  function setState(patch) {
+    Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });
+    setBar(state.pct, state.indeterminate);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* helpers                                                             */
+  /* ------------------------------------------------------------------ */
+  function fmtMB(n) { return (n / 1048576).toFixed(1); }
+
+  function dirOf(path) {
+    var i = path.lastIndexOf("/");
+    return i >= 0 ? path.slice(0, i) : "";
+  }
+
+  function mimeFor(path) {
+    if (/\.wasm$/i.test(path)) return "application/wasm";
+    if (/\.js$/i.test(path)) return "text/javascript";
+    if (/\.json$/i.test(path)) return "application/json";
+    return "application/octet-stream";
+  }
+
+  function mirrors() {
+    var m = MODES[mode];
+    var ref = m.ref || "main";
+    return [
+      "https://raw.githubusercontent.com/" + m.repo + "/" + ref + "/" + m.dir,
+      "https://cdn.statically.io/gh/" + m.repo + "/" + ref + "/" + m.dir,
+      "https://cdn.jsdelivr.net/gh/" + m.repo + "@" + ref + "/" + m.dir
+    ];
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* networking                                                          */
+  /* ------------------------------------------------------------------ */
+  var nativeFetch = window.fetch.bind(window);
+  var preferred = 0;
+  var lastGoodBase = "";
+
+  function sourceOrder() {
+    var list = mirrors();
+    var out = [];
+    for (var i = 0; i < list.length; i++) out.push(list[(preferred + i) % list.length]);
+    return out;
+  }
+
+  async function fetchRaw(rel, kind) {
+    var lastErr = null;
+    var list = mirrors();
+    for (var round = 0; round < 2; round++) {
+      var order = sourceOrder();
+      for (var i = 0; i < order.length; i++) {
+        var base = order[i];
+        try {
+          var res = await nativeFetch(base + rel, { cache: "no-store" });
+          if (!res.ok) {
+            var httpErr = new Error("HTTP " + res.status);
+            httpErr.status = res.status;
+            throw httpErr;
+          }
+          preferred = list.indexOf(base);
+          lastGoodBase = base;
+          if (kind === "text") return await res.text();
+          return await res.blob();
+        } catch (e) {
+          lastErr = e;
+          if (e && e.status === 404) { round = 2; break; }
+        }
+      }
+    }
+    throw new Error(rel + " — " + (lastErr && lastErr.message ? lastErr.message : "download failed"));
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* concurrency limiter                                                 */
+  /* ------------------------------------------------------------------ */
+  var activeJobs = 0;
+  var jobQueue = [];
+  var pendingJobs = 0;
+
+  function schedule(fn) {
+    return new Promise(function (resolve, reject) {
+      jobQueue.push({ fn: fn, resolve: resolve, reject: reject });
+      pendingJobs++;
+      pump();
+    });
+  }
+
+  function pump() {
+    while (activeJobs < CONCURRENCY && jobQueue.length) {
+      (function (job) {
+        activeJobs++;
+        Promise.resolve()
+          .then(job.fn)
+          .then(function (v) {
+            activeJobs--; pendingJobs--; job.resolve(v); pump(); paint();
+          }, function (e) {
+            activeJobs--; pendingJobs--; job.reject(e); pump(); paint();
+          });
+      })(jobQueue.shift());
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* counters + progress                                                 */
+  /* ------------------------------------------------------------------ */
+  var counters = { core: 0, assets: 0 };
+  var expectedCore = 0;
+  var expectedAssets = 0;
+  var speed = 0;
+  var lastSampleAt = 0;
+  var lastSampleBytes = 0;
+  var paintQueued = false;
+  var unityProgress = 0;
+  var legacySplit = 0.55; // our downloads take 55% of the legacy bar
+
+  function downloaded() { return counters.core + counters.assets; }
+
+  function addBytes(n, bucket) {
+    counters[bucket] += n;
+    var now = performance.now();
+    if (!lastSampleAt) { lastSampleAt = now; lastSampleBytes = downloaded(); }
+    if (now - lastSampleAt > 450) {
+      var dt = (now - lastSampleAt) / 1000;
+      var inst = (downloaded() - lastSampleBytes) / dt / 1048576;
+      speed = speed ? speed * 0.6 + inst * 0.4 : inst;
+      lastSampleAt = now;
+      lastSampleBytes = downloaded();
+    }
+    if (!paintQueued) {
+      paintQueued = true;
+      requestAnimationFrame(function () { paintQueued = false; paint(); });
+    }
+  }
+
+  function paint() {
+    if (state.phase === "core") {
+      var denom = mode === "legacy" ? LEGACY_BYTES : expectedCore;
+      var share = mode === "legacy" ? legacySplit * 100 : 100;
+      var pct = denom ? (counters.core / denom) * share : 0;
+      setState({ pct: pct, indeterminate: counters.core === 0 });
+    } else if (state.phase === "booting") {
+      if (mode === "legacy") {
+        var base = legacySplit * 100;
+        setState({ pct: base + unityProgress * (100 - base), indeterminate: false });
+      } else {
+        setState({ pct: Math.max(3, unityProgress * 100), indeterminate: false });
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* cache storage                                                       */
+  /* ------------------------------------------------------------------ */
+  var cacheHandle = null;
+  var cacheAvailable = false;
+
+  function cacheKey(rel) {
+    return "https://amongus.local/" + rel.split("/").map(encodeURIComponent).join("/");
+  }
+
+  async function openCache() {
+    cacheAvailable = false;
+    if (!("caches" in self)) {
+      log("cache unavailable — reloads re-download");
+      return null;
+    }
+    try {
+      cacheHandle = await caches.open(CACHE_PREFIX + mode);
+      cacheAvailable = true;
+      return cacheHandle;
+    } catch (e) {
+      log("cache blocked: " + e.message);
+      cacheHandle = null;
+      return null;
+    }
+  }
+
+  async function cacheGet(rel) {
+    if (!cacheHandle) return null;
+    try {
+      var hit = await cacheHandle.match(cacheKey(rel));
+      if (!hit) return null;
+      var blob = await hit.blob();
+      if (!blob.size) return null;
+      return blob;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function cachePut(rel, blob) {
+    if (!cacheHandle) return;
+    try {
+      await cacheHandle.put(cacheKey(rel), new Response(blob, {
+        headers: { "Content-Type": mimeFor(rel), "Content-Length": String(blob.size) }
+      }));
+    } catch (e) {
+      log("cache write failed · " + rel);
+    }
+  }
+
+  async function cacheSize() {
+    if (!cacheHandle) return 0;
+    try {
+      var keys = await cacheHandle.keys();
+      var total = 0;
+      for (var i = 0; i < keys.length; i++) {
+        var res = await cacheHandle.match(keys[i]);
+        if (res) total += Number(res.headers.get("Content-Length") || 0);
+      }
+      return total;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  async function clearCache() {
+    var names = [CACHE_PREFIX + "legacy", CACHE_PREFIX + "latest", "amongus-webgl-v1"];
+    try {
+      if ("caches" in self) {
+        for (var i = 0; i < names.length; i++) await caches.delete(names[i]);
+        log("cache cleared");
+      }
+    } catch (e) {
+      logErr("could not clear cache: " + e.message);
+    }
+    blobPromises.clear();
+    cacheHandle = null;
+    if (mode) await openCache();
+  }
+  window.clearGameCache = clearCache;
+
+  /* ------------------------------------------------------------------ */
+  /* manifest + assembly (latest)                                        */
+  /* ------------------------------------------------------------------ */
+  var manifest = null;
+  var manifestMap = new Map();
+  var knownList = [];
+  var knownSet = new Set();
+  var blobPromises = new Map();
+  var assetsStarted = false;
+
+  async function loadManifest() {
+    log("fetching manifest");
+    var text = await fetchRaw("split_manifest.json", "text");
+    manifest = JSON.parse(text);
+    manifestMap.clear();
+    knownList = [];
+    knownSet = new Set();
+    expectedCore = FRAMEWORK_SIZE;
+    expectedAssets = 0;
+
+    manifest.forEach(function (entry) {
+      manifestMap.set(entry.original, entry);
+      knownList.push(entry.original);
+      knownSet.add(entry.original);
+      if (CORE_FILES.indexOf(entry.original) >= 0) expectedCore += entry.size;
+      if (entry.original.indexOf(ASSET_ROOT) === 0) expectedAssets += entry.size;
+    });
+
+    ["Build/Build.framework.js", "Build/Build.loader.js"].forEach(function (p) {
+      if (!knownSet.has(p)) { knownList.push(p); knownSet.add(p); }
+    });
+
+    log("manifest · " + fmtMB(expectedCore) + " MB to start · " + fmtMB(expectedAssets) + " MB assets");
+  }
+
+  function resolveRel(input) {
+    if (!input) return null;
+    var u = String(input);
+    if (u.indexOf("blob:") === 0 || u.indexOf("data:") === 0) return null;
+    var p;
+    try {
+      p = new URL(u, location.href).pathname;
+    } catch (e) {
+      return null;
+    }
+    p = p.replace(/\\/g, "/");
+    try { p = decodeURIComponent(p); } catch (e) { /* keep raw */ }
+    p = p.replace(/^\/+/, "");
+
+    if (knownSet.has(p)) return p;
+    for (var i = 0; i < knownList.length; i++) {
+      if (p.endsWith("/" + knownList[i])) return knownList[i];
+    }
+    var idx = p.indexOf(ASSET_ROOT);
+    if (idx >= 0) return p.slice(idx);
+    return null;
+  }
+
+  async function downloadParts(entry) {
+    var dir = dirOf(entry.original);
+    var bucket = entry.original.indexOf(ASSET_ROOT) === 0 ? "assets" : "core";
+    var blobs = new Array(entry.parts.length);
+    var fetched = 0;
+
+    if (bucket === "assets") assetsStarted = true;
+
+    await Promise.all(entry.parts.map(function (partName, index) {
+      return schedule(async function () {
+        var rel = dir ? dir + "/" + partName : partName;
+        var blob = await cacheGet(rel);
+        if (!blob) {
+          blob = await fetchRaw(rel, "blob");
+          if (!blob.size) throw new Error(rel + " came back empty");
+          addBytes(blob.size, bucket);
+          await cachePut(rel, blob);
+        } else {
+          fetched++;
+        }
+        blobs[index] = blob;
+      });
+    }));
+
+    var assembled = new Blob(blobs, { type: mimeFor(entry.original) });
+    if (assembled.size !== entry.size) {
+      throw new Error("size mismatch for " + entry.original + ": got " + assembled.size + ", expected " + entry.size);
+    }
+    var how = fetched === entry.parts.length ? "cached" : fetched > 0 ? "partly cached" : "downloaded";
+    log("ready · " + entry.original.split("/").pop() + " · " + fmtMB(assembled.size) + " MB (" + how + ")");
+    return assembled;
+  }
+
+  function getBlob(rel) {
+    if (!blobPromises.has(rel)) {
+      var p = loadBlob(rel).catch(function (e) {
+        blobPromises.delete(rel);
+        throw e;
+      });
+      blobPromises.set(rel, p);
+    }
+    return blobPromises.get(rel);
+  }
+
+  async function loadBlob(rel) {
+    var cached = await cacheGet(rel);
+    if (cached) {
+      log("cached · " + rel + " · " + fmtMB(cached.size) + " MB");
+      return cached;
+    }
+    var entry = manifestMap.get(rel);
+    var blob;
+    if (entry) {
+      blob = await downloadParts(entry);
+    } else {
+      var bucket = rel.indexOf(ASSET_ROOT) === 0 ? "assets" : "core";
+      if (bucket === "assets") assetsStarted = true;
+      blob = await fetchRaw(rel, "blob");
+      addBytes(blob.size, bucket);
+      log("got · " + rel);
+    }
+    if (!entry && blob.size <= MAX_ASSEMBLED_CACHE) await cachePut(rel, blob);
+    return blob;
+  }
+
+  /* serve split files to Unity (latest only; legacy uses blob URLs) */
+  window.fetch = function (input, init) {
+    if (mode !== "latest") return nativeFetch(input, init);
+    var url = "";
+    try {
+      url = typeof input === "string" ? input : (input && input.url) || String(input);
+    } catch (e) {
+      url = "";
+    }
+    var rel = resolveRel(url);
+    if (!rel) return nativeFetch(input, init);
+
+    return getBlob(rel).then(function (blob) {
+      return new Response(blob, {
+        status: 200,
+        statusText: "OK",
+        headers: {
+          "Content-Type": mimeFor(rel),
+          "Content-Length": String(blob.size)
+        }
+      });
+    }).catch(function (e) {
+      logErr("failed · " + rel + " · " + e.message);
+      return new Response(null, { status: 404, statusText: "Not Found" });
+    });
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* unity helpers                                                       */
+  /* ------------------------------------------------------------------ */
+  var unityInstance = null;
+  var running = false;
+  var busy = false;
+  var failed = false;
+  var attempted = false;
+
+  function injectScript(text, label) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+      var s = document.createElement("script");
+      s.src = url;
+      s.onload = function () { resolve(url); };
+      s.onerror = function () { reject(new Error(label + " failed to load")); };
+      document.body.appendChild(s);
+    });
+  }
+
+  function showUnityBanner(m) {
+    log(String(m).replace(/<[^>]*>/g, " "), "err");
+  }
+
+  function enteredGame() {
+    running = true;
+    setState({ phase: "running", pct: 100, indeterminate: false });
+    body.classList.add("running");
+    if (mode === "latest") canvas.focus();
+    log("running");
+    if (pendingJobs > 0) log("assets still downloading in background");
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* legacy build (Unity 5.x loader)                                     */
+  /* ------------------------------------------------------------------ */
+  async function fetchCachedFile(rel) {
+    var hit = await cacheGet(rel);
+    if (hit) {
+      log("cached · " + rel.split("/").pop() + " · " + fmtMB(hit.size) + " MB");
+      return hit;
+    }
+    var blob = await fetchRaw(rel, "blob");
+    if (!blob.size) throw new Error(rel + " came back empty");
+    addBytes(blob.size, "core");
+    await cachePut(rel, blob);
+    log("got · " + rel.split("/").pop() + " · " + fmtMB(blob.size) + " MB");
+    return blob;
+  }
+
+  async function bootLegacy() {
+    var m = MODES.legacy;
+    var prefix = m.buildPrefix;
+    var rels = [
+      prefix + ".data.unityweb",
+      prefix + ".wasm.code.unityweb",
+      prefix + ".wasm.framework.unityweb"
+    ];
+
+    setState({ phase: "core", pct: 0, indeterminate: true });
+
+    var blobs = await Promise.all(rels.map(function (rel) {
+      return schedule(function () { return fetchCachedFile(rel); });
+    }));
+
+    setState({ phase: "booting", pct: legacySplit * 100, indeterminate: false });
+    log("starting legacy runtime");
+
+    var loaderText = await fetchRaw("Build/UnityLoader.js", "text");
+    await injectScript(loaderText, "UnityLoader");
+    if (typeof UnityLoader === "undefined") throw new Error("legacy loader missing");
+
+    gameContainer.style.display = "block";
+    canvas.style.display = "none";
+    window.serverurl = "wss://nostaligafun.pages.dev";
+
+    var jsonUrl = (lastGoodBase || mirrors()[0]) + m.jsonPath;
+    var dataUrl = URL.createObjectURL(blobs[0]);
+    var codeUrl = URL.createObjectURL(blobs[1]);
+    var fwUrl = URL.createObjectURL(blobs[2]);
+
+    await new Promise(function (resolve, reject) {
+      var timer = setTimeout(function () {
+        reject(new Error("legacy runtime did not start"));
+      }, 240000);
+
+      try {
+        UnityLoader.instantiate("gameContainer", jsonUrl, {
+          Module: {
+            dataUrl: dataUrl,
+            wasmCodeUrl: codeUrl,
+            wasmFrameworkUrl: fwUrl,
+            cacheControl: { default: "no-store" },
+            resolveBuildUrl: function (u) { return u; },
+            print: function (t) { if (t) console.log(t); },
+            printErr: function (t) { if (t) console.warn(t); }
+          },
+          onProgress: function (gi, p) {
+            p = Math.max(0, Math.min(1, p || 0));
+            unityProgress = p;
+            if (state.phase === "booting") {
+              setState({
+                pct: legacySplit * 100 + p * (100 - legacySplit * 100),
+                indeterminate: false
+              });
+            }
+            if (p >= 1) {
+              clearTimeout(timer);
+              resolve();
+            }
+          }
+        });
+      } catch (e) {
+        clearTimeout(timer);
+        reject(e);
+      }
+    });
+
+    enteredGame();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* latest build (Unity 2022 loader + split parts)                      */
+  /* ------------------------------------------------------------------ */
+  async function bootLatest() {
+    blobPromises.clear();
+    setState({ phase: "core", pct: 0, indeterminate: counters.core === 0 });
+
+    if (!manifest) await loadManifest();
+
+    var t0 = performance.now();
+    var core = await Promise.all([
+      getBlob("Build/Build.data"),
+      getBlob("Build/Build.wasm"),
+      getBlob("Build/Build.framework.js"),
+      fetchRaw("Build/Build.loader.js", "text")
+    ]);
+    var dataBlob = core[0];
+    var wasmBlob = core[1];
+    var frameworkBlob = core[2];
+    var loaderText = core[3];
+
+    log("core ready in " + ((performance.now() - t0) / 1000).toFixed(1) + "s");
+    setState({ phase: "booting", pct: 3, indeterminate: false });
+
+    var dataUrl = URL.createObjectURL(new Blob([dataBlob], { type: "application/octet-stream" }));
+    var codeUrl = URL.createObjectURL(new Blob([wasmBlob], { type: "application/wasm" }));
+    var frameworkUrl = URL.createObjectURL(new Blob([frameworkBlob], { type: "text/javascript" }));
+
+    window.Module = undefined;
+    window.unityFramework = undefined;
+
+    var config = {
+      dataUrl: dataUrl,
+      frameworkUrl: frameworkUrl,
+      codeUrl: codeUrl,
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Innersloth",
+      productName: "Among Us",
+      productVersion: "2026.6.5",
+      cacheControl: function () { return "no-store"; },
+      print: function (t) { if (t) console.log(t); },
+      printErr: function (t) { if (t) console.warn(t); },
+      showBanner: showUnityBanner,
+      matchWebGLToCanvasSize: true,
+      devicePixelRatio: window.devicePixelRatio || 1
+    };
+
+    await injectScript(loaderText, "Unity loader");
+    if (typeof createUnityInstance !== "function") {
+      throw new Error("Unity loader did not define createUnityInstance()");
+    }
+
+    log("starting runtime");
+    unityInstance = await createUnityInstance(canvas, config, function (p) {
+      unityProgress = Math.max(0, Math.min(1, p || 0));
+      if (state.phase === "booting") setState({ pct: Math.max(3, unityProgress * 100), indeterminate: false });
+    });
+
+    window.unityInstance = unityInstance;
+    enteredGame();
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* start                                                              */
+  /* ------------------------------------------------------------------ */
+  async function start(which) {
+    if (busy || running) return;
+    busy = true;
+    attempted = true;
+    failed = false;
+    mode = which;
+
+    body.classList.remove("running");
+    canvas.style.display = "block";
+    gameContainer.style.display = "none";
+    gameContainer.innerHTML = "";
+
+    choicesEl.hidden = true;
+    barEl.hidden = false;
+    msgEl.textContent = "loading " + MODES[which].label + " among us...";
+    counters.core = 0;
+    counters.assets = 0;
+    preferred = 0;
+    lastGoodBase = "";
+    lastSampleAt = 0;
+    lastSampleBytes = 0;
+    speed = 0;
+    manifest = null;
+    setState({ phase: "core", pct: 0, indeterminate: true });
+
+    log(MODES[which].label + " build");
+    await openCache();
+    var cachedBytes = await cacheSize();
+    if (cachedBytes) log("cache · " + fmtMB(cachedBytes) + " MB");
+
+    try {
+      if (which === "legacy") await bootLegacy();
+      else await bootLatest();
+    } catch (e) {
+      failed = true;
+      logErr("failed · " + (e && e.message ? e.message : e));
+      msgEl.textContent = "failed to load " + MODES[which].label + " — pick a build";
+      setState({ phase: "error", indeterminate: false });
+      choicesEl.hidden = false;
+      startChooser();
+    } finally {
+      busy = false;
+    }
+  }
+
+  function startChooser() {
+    Array.prototype.forEach.call(choicesEl.querySelectorAll("button"), function (b) {
+      b.disabled = false;
+      b.onclick = function () {
+        var pick = b.getAttribute("data-mode");
+        if (attempted) {
+          // a previous build already ran in this page — reload cleanly into the pick
+          location.href = location.pathname + "?mode=" + pick;
+          return;
+        }
+        Array.prototype.forEach.call(choicesEl.querySelectorAll("button"), function (x) { x.disabled = true; });
+        start(pick);
+      };
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* fullscreen                                                          */
+  /* ------------------------------------------------------------------ */
+  function goFullscreen() {
+    if (document.fullscreenElement) return;
+    var el = document.documentElement;
+    if (el.requestFullscreen) el.requestFullscreen().catch(function () {});
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "f" || e.key === "F") {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else goFullscreen();
+    }
+  });
+
+  canvas.addEventListener("dblclick", function () {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else goFullscreen();
+  });
+
+  document.addEventListener("pointerdown", function () {
+    goFullscreen();
+  });
+
+  /* ------------------------------------------------------------------ */
+  /* init                                                                */
+  /* ------------------------------------------------------------------ */
+  (async function init() {
+    setBar(0, true);
+    startChooser();
+    var q = "";
+    try { q = new URLSearchParams(location.search).get("mode") || ""; } catch (e) { q = ""; }
+    if (MODES[q]) {
+      await start(q);
+    }
+  })();
+})();
+</script>
+</body>
+</html>
