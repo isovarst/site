@@ -1,0 +1,885 @@
+
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DEEEER Simulator</title>
+
+<style>
+:root {
+  --terminal-height: 135px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,body {
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  color:#fff;
+  font:13px system-ui,sans-serif;
+}
+
+#unity-canvas {
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:calc(100% - var(--terminal-height));
+  display:block;
+  background:#000;
+  outline:none;
+}
+
+#overlay {
+  position:fixed;
+  inset:0 0 var(--terminal-height) 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  background:#000;
+  color:#fff;
+  z-index:5;
+}
+
+#overlay h1 {
+  margin:0;
+  font-size:19px;
+  font-weight:500;
+}
+
+#credit {
+  color:#777;
+  font-size:11px;
+  margin-top:-5px;
+}
+
+#bar {
+  width:min(260px,70vw);
+  height:2px;
+  background:#252525;
+  overflow:hidden;
+}
+
+#fill {
+  width:0%;
+  height:100%;
+  background:#fff;
+  transition:width .2s;
+}
+
+#status {
+  color:#888;
+  font-size:11px;
+  min-height:16px;
+  text-align:center;
+  max-width:85vw;
+  overflow-wrap:anywhere;
+}
+
+/* Minimal text terminal */
+
+#terminal {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  height:var(--terminal-height);
+  padding:8px 12px;
+  overflow:hidden;
+  background:rgba(0,0,0,.48);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  border-top:1px solid rgba(255,255,255,.07);
+  z-index:999;
+  transition:height .2s;
+}
+
+#terminal-output {
+  width:100%;
+  height:100%;
+  overflow-y:auto;
+  font:10px/1.6 Consolas,Monaco,monospace;
+  color:#aaa;
+  overflow-wrap:anywhere;
+  scrollbar-width:thin;
+  scrollbar-color:#333 transparent;
+}
+
+.log {
+  white-space:pre-wrap;
+}
+
+.log-time {
+  color:#555;
+}
+
+.log-info {
+  color:#aaa;
+}
+
+.log-success {
+  color:#8eb99a;
+}
+
+.log-warning {
+  color:#c3aa79;
+}
+
+.log-error {
+  color:#d98282;
+}
+
+.log-download {
+  color:#91aabe;
+}
+
+/* Simple toggle */
+
+#terminal-toggle {
+  position:fixed;
+  right:12px;
+  top:12px;
+  z-index:1001;
+  padding:5px 9px;
+  border:0;
+  background:rgba(0,0,0,.45);
+  color:#aaa;
+  font:11px system-ui,sans-serif;
+  cursor:pointer;
+}
+
+#terminal-toggle:hover {
+  color:#fff;
+}
+
+body.terminal-hidden {
+  --terminal-height:0px;
+}
+
+body.terminal-hidden #terminal {
+  display:none;
+}
+
+body.terminal-hidden #unity-canvas {
+  height:100%;
+}
+
+body.terminal-hidden #overlay {
+  inset:0;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="unity-canvas" tabindex="-1"></canvas>
+
+<div id="overlay">
+  <h1>DEEEER Simulator</h1>
+  <div id="credit">by Holdy</div>
+  <div id="bar"><div id="fill"></div></div>
+  <div id="status">Initializing...</div>
+</div>
+
+<div id="terminal">
+  <div id="terminal-output"></div>
+</div>
+
+<button id="terminal-toggle" type="button">Hide terminal</button>
+
+<script>
+(async function () {
+
+"use strict";
+
+// ========================================
+// CONFIGURATION
+// ========================================
+
+const repoBase =
+  "https://cdn.jsdelivr.net/gh/AlexBoops/DEEEER-Simulator-Port@main";
+
+const buildUrl = `${repoBase}/Build`;
+
+const files = {
+  loader:"WebBuild.loader.js",
+  data:"WebBuild.data",
+  framework:"WebBuild.framework.js",
+  code:"WebBuild.wasm"
+};
+
+// ========================================
+// ELEMENTS
+// ========================================
+
+const canvas = document.getElementById("unity-canvas");
+const fill = document.getElementById("fill");
+const status = document.getElementById("status");
+const overlay = document.getElementById("overlay");
+
+const terminal = document.getElementById("terminal-output");
+const toggle = document.getElementById("terminal-toggle");
+
+// ========================================
+// TERMINAL TOGGLE
+// ========================================
+
+let terminalVisible = true;
+
+toggle.addEventListener("click", () => {
+  terminalVisible = !terminalVisible;
+
+  document.body.classList.toggle(
+    "terminal-hidden",
+    !terminalVisible
+  );
+
+  toggle.textContent = terminalVisible
+    ? "Hide terminal"
+    : "Show terminal";
+
+  if (terminalVisible) {
+    terminal.scrollTop = terminal.scrollHeight;
+  }
+
+  if (window.unityInstance) {
+    window.dispatchEvent(new Event("resize"));
+  }
+});
+
+// ========================================
+// TERMINAL LOGGER
+// ========================================
+
+function timestamp() {
+  return new Date().toLocaleTimeString("en-US", {
+    hour12:false
+  });
+}
+
+function log(message,type="info") {
+  const line = document.createElement("div");
+  line.className = "log";
+
+  const time = document.createElement("span");
+  time.className = "log-time";
+  time.textContent = `[${timestamp()}] `;
+
+  const content = document.createElement("span");
+  content.className = "log-" + type;
+  content.textContent = message;
+
+  line.append(time,content);
+  terminal.appendChild(line);
+
+  terminal.scrollTop = terminal.scrollHeight;
+
+  while (terminal.children.length > 300) {
+    terminal.removeChild(terminal.firstChild);
+  }
+}
+
+// ========================================
+// LOADING STATUS
+// ========================================
+
+function setStatus(message,isError=false) {
+  status.textContent = message;
+  status.style.color = isError ? "#ff6666" : "#888";
+
+  if (isError) {
+    log(message,"error");
+  }
+}
+
+function setProgress(value) {
+  fill.style.width =
+    Math.max(0,Math.min(100,value)) + "%";
+}
+
+// ========================================
+// ERROR MONITORING
+// ========================================
+
+window.addEventListener("error",event => {
+
+  if (event.target && event.target !== window) {
+    const resource =
+      event.target.src || event.target.href;
+
+    if (resource) {
+      log("Resource failed: " + resource,"error");
+      return;
+    }
+  }
+
+  log(
+    (event.message || "JavaScript error") +
+    (event.filename ? " at " + event.filename : "") +
+    (event.lineno ? ":" + event.lineno : ""),
+    "error"
+  );
+
+});
+
+window.addEventListener("unhandledrejection",event => {
+  const reason = event.reason;
+
+  log(
+    "Unhandled promise rejection: " +
+    (reason?.message || String(reason)),
+    "error"
+  );
+});
+
+// ========================================
+// UNITY XHR MONITOR
+// ========================================
+
+const originalOpen = XMLHttpRequest.prototype.open;
+const originalSend = XMLHttpRequest.prototype.send;
+
+XMLHttpRequest.prototype.open = function(method,url,...rest) {
+  this._terminalUrl = String(url);
+  this._terminalMethod = method;
+
+  return originalOpen.call(this,method,url,...rest);
+};
+
+XMLHttpRequest.prototype.send = function(body) {
+
+  const xhr = this;
+  const url = xhr._terminalUrl || "unknown";
+
+  log(
+    "Request: " + xhr._terminalMethod + " " + url,
+    "download"
+  );
+
+  let lastProgress = -1;
+
+  xhr.addEventListener("progress",event => {
+    if (!event.lengthComputable) return;
+
+    const pct = Math.round(
+      event.loaded / event.total * 100
+    );
+
+    if (pct !== lastProgress) {
+      lastProgress = pct;
+
+      log(
+        "Downloading: " + url + " (" + pct + "%)",
+        "info"
+      );
+    }
+  });
+
+  xhr.addEventListener("load",() => {
+    if (xhr.status >= 200 && xhr.status < 400) {
+      log(
+        "Completed HTTP " + xhr.status + ": " + url,
+        "success"
+      );
+    } else {
+      log(
+        "HTTP " + xhr.status + ": " + url,
+        "error"
+      );
+    }
+  });
+
+  xhr.addEventListener("error",() => {
+    log("Network error: " + url,"error");
+  });
+
+  xhr.addEventListener("timeout",() => {
+    log("Request timed out: " + url,"error");
+  });
+
+  xhr.addEventListener("abort",() => {
+    log("Request aborted: " + url,"warning");
+  });
+
+  return originalSend.call(this,body);
+};
+
+// ========================================
+// DOWNLOAD CONFIGURATION
+// ========================================
+
+let totalChunks = 0;
+let totalBytes = 0;
+let doneBytes = 0;
+
+const retryDelay = 5000;
+const maxRetries = 6;
+
+// ========================================
+// FETCH WITH RETRIES AND REAL PROGRESS
+// ========================================
+
+async function fetchWithRetry(url,retries=maxRetries) {
+
+  for (let attempt=1;attempt<=retries;attempt++) {
+
+    log(
+      "Downloading " + url +
+      " (attempt " + attempt + "/" + retries + ")",
+      "download"
+    );
+
+    try {
+
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error(
+          "HTTP " + res.status + " " + res.statusText
+        );
+      }
+
+      const contentType =
+        res.headers.get("content-type") || "";
+
+      if (contentType.includes("text/html")) {
+        throw new Error(
+          "Received HTML instead of the requested file"
+        );
+      }
+
+      if (!res.body) {
+        throw new Error("Response body unavailable");
+      }
+
+      const reader = res.body.getReader();
+      const chunks = [];
+
+      let received = 0;
+
+      const expected = Number(
+        res.headers.get("content-length")
+      ) || 0;
+
+      let lastProgress = -1;
+
+      while (true) {
+
+        const {done,value} = await reader.read();
+
+        if (done) break;
+
+        chunks.push(value);
+        received += value.byteLength;
+
+        if (expected > 0) {
+
+          const pct = Math.round(
+            received / expected * 100
+          );
+
+          if (pct !== lastProgress &&
+              (pct === 100 || pct % 10 === 0)) {
+
+            lastProgress = pct;
+
+            log(
+              "Progress: " + url + " — " + pct + "%",
+              "info"
+            );
+          }
+        }
+      }
+
+      if (received === 0) {
+        throw new Error("Downloaded file is empty");
+      }
+
+      const result = new Uint8Array(received);
+      let offset = 0;
+
+      for (const chunk of chunks) {
+        result.set(chunk,offset);
+        offset += chunk.byteLength;
+      }
+
+      log(
+        "Completed: " + url +
+        " (" + received.toLocaleString() + " bytes)",
+        "success"
+      );
+
+      return result.buffer;
+
+    } catch(err) {
+
+      log(
+        "Attempt " + attempt + "/" + retries +
+        " failed: " + err.message,
+        "warning"
+      );
+
+      if (attempt < retries) {
+
+        setStatus(
+          "Retrying connection in " +
+          retryDelay / 1000 + "s..."
+        );
+
+        log(
+          "Retrying in " + retryDelay / 1000 + " seconds",
+          "info"
+        );
+
+        await new Promise(resolve =>
+          setTimeout(resolve,retryDelay)
+        );
+      }
+    }
+  }
+
+  throw new Error(
+    "Download failed after " + retries +
+    " attempts: " + url
+  );
+}
+
+// ========================================
+// LOAD MANIFEST
+// ========================================
+
+let parts = {};
+
+try {
+
+  setStatus("Loading download manifest...");
+
+  log("Loading parts.json","download");
+
+  const response = await fetch(
+    `${buildUrl}/parts.json`,
+    {cache:"no-cache"}
+  );
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status);
+  }
+
+  parts = await response.json();
+
+  if (!parts || typeof parts !== "object") {
+    throw new Error("Invalid manifest format");
+  }
+
+  log("Download manifest loaded","success");
+
+} catch(error) {
+
+  log(
+    "Manifest unavailable: " + error.message,
+    "warning"
+  );
+
+  log("Using direct file downloads","info");
+
+  parts = {};
+}
+
+// ========================================
+// CHUNK CALCULATION
+// ========================================
+
+Object.keys(parts).forEach(key => {
+  if (Array.isArray(parts[key])) {
+    totalChunks += parts[key].length;
+  }
+});
+
+totalBytes = totalChunks * 19922944;
+
+log("Manifest chunks: " + totalChunks,"info");
+
+// ========================================
+// DOWNLOAD AND JOIN FILES
+// ========================================
+
+async function fetchJoined(name,mime) {
+
+  const list = parts[name];
+
+  // Direct download fallback.
+
+  if (!Array.isArray(list) || list.length === 0) {
+
+    log("Downloading direct file: " + name,"download");
+
+    const buf = await fetchWithRetry(
+      `${buildUrl}/${name}`
+    );
+
+    doneBytes += buf.byteLength;
+
+    if (totalBytes > 0) {
+      setProgress(
+        Math.min(60,60 * doneBytes / totalBytes)
+      );
+    }
+
+    return URL.createObjectURL(
+      new Blob([buf],{type:mime})
+    );
+  }
+
+  log(
+    "Starting " + name +
+    " (" + list.length + " chunks)",
+    "info"
+  );
+
+  const chunks = [];
+  let combinedLength = 0;
+
+  for (let i=0;i<list.length;i++) {
+
+    const chunkName = list[i];
+    const url = `${buildUrl}/${chunkName}`;
+
+    setStatus(
+      "Downloading " + name +
+      " (" + (i+1) + "/" + list.length + ")"
+    );
+
+    const buf = await fetchWithRetry(url);
+
+    chunks.push(buf);
+    combinedLength += buf.byteLength;
+    doneBytes += buf.byteLength;
+
+    if (totalBytes > 0) {
+      setProgress(
+        Math.min(60,60 * doneBytes / totalBytes)
+      );
+    }
+
+    log(
+      "Chunk " + (i+1) + "/" + list.length +
+      " saved: " + chunkName,
+      "success"
+    );
+  }
+
+  log("Assembling " + name,"info");
+
+  const combined = new Uint8Array(combinedLength);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    combined.set(new Uint8Array(chunk),offset);
+    offset += chunk.byteLength;
+  }
+
+  log(
+    name + " assembled successfully (" +
+    combinedLength.toLocaleString() + " bytes)",
+    "success"
+  );
+
+  return URL.createObjectURL(
+    new Blob([combined],{type:mime})
+  );
+}
+
+// ========================================
+// START UNITY
+// ========================================
+
+try {
+
+  setStatus("Initializing downloader...");
+
+  log("DEEEER Simulator downloader started","success");
+
+  const dataUrl = await fetchJoined(
+    files.data,
+    "application/octet-stream"
+  );
+
+  const codeUrl = await fetchJoined(
+    files.code,
+    "application/wasm"
+  );
+
+  const frameworkUrl = await fetchJoined(
+    files.framework,
+    "application/javascript"
+  );
+
+  log("All game assets downloaded","success");
+
+  setProgress(60);
+
+  const config = {
+    dataUrl:dataUrl,
+    frameworkUrl:frameworkUrl,
+    codeUrl:codeUrl,
+    streamingAssetsUrl:`${repoBase}/StreamingAssets`,
+    companyName:"Gibier Games",
+    productName:"DEEEER Simulator",
+    productVersion:"6.4.0",
+    matchWebGLToCanvasSize:true,
+    devicePixelRatio:Math.min(
+      window.devicePixelRatio || 1,
+      2
+    )
+  };
+
+  log("Unity configuration created","success");
+  log("Loading Unity loader script","download");
+
+  setStatus("Loading Unity runtime...");
+
+  const script = document.createElement("script");
+
+  script.src = `${buildUrl}/${files.loader}`;
+  script.crossOrigin = "anonymous";
+
+  script.onload = function() {
+
+    log("Unity loader script loaded","success");
+
+    setProgress(65);
+    setStatus("Starting Unity...");
+
+    if (typeof createUnityInstance !== "function") {
+
+      const error =
+        "createUnityInstance is unavailable";
+
+      log(error,"error");
+      setStatus(error,true);
+
+      return;
+    }
+
+    log("Initializing Unity instance","info");
+
+    let lastUnityProgress = -1;
+
+    createUnityInstance(
+      canvas,
+      config,
+      function(p) {
+
+        const base = totalChunks ? 60 : 0;
+        const progress = base + (100-base)*p;
+
+        setProgress(progress);
+
+        const pct = Math.round(p*100);
+
+        setStatus("Starting Unity... " + pct + "%");
+
+        if (pct !== lastUnityProgress) {
+          lastUnityProgress = pct;
+
+          log(
+            "Unity initialization: " + pct + "%",
+            "info"
+          );
+        }
+      }
+
+    ).then(function(instance) {
+
+      window.unityInstance = instance;
+
+      log("Unity instance created successfully","success");
+      log("DEEEER Simulator is ready","success");
+
+      setProgress(100);
+      setStatus("Ready");
+
+      overlay.style.display = "none";
+
+      canvas.focus();
+
+      window.dispatchEvent(new Event("resize"));
+
+    }).catch(function(error) {
+
+      const message =
+        error?.message || String(error);
+
+      setStatus(message,true);
+      log("Unity initialization failed: " + message,"error");
+
+    });
+
+  };
+
+  script.onerror = function() {
+
+    const error =
+      "Failed to load Unity loader: " + script.src;
+
+    setStatus(error,true);
+    log(error,"error");
+
+  };
+
+  document.body.appendChild(script);
+
+} catch(error) {
+
+  const message =
+    error?.message || String(error);
+
+  setStatus("Download failed: " + message,true);
+
+  log("FATAL: " + message,"error");
+
+}
+
+// ========================================
+// GAME CONTROLS
+// ========================================
+
+window.addEventListener("keydown",function(e) {
+
+  if (
+    [" ","ArrowUp","ArrowDown","ArrowLeft",
+     "ArrowRight","Tab"].includes(e.key)
+  ) {
+    e.preventDefault();
+  }
+
+},{passive:false});
+
+canvas.addEventListener("click",function() {
+  canvas.focus();
+});
+
+canvas.addEventListener("contextmenu",function(e) {
+  e.preventDefault();
+});
+
+// ========================================
+// FINISHED
+// ========================================
+
+log("System initialization complete","success");
+
+})();
+</script>
+
+</body>
+</html>
