@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORK7</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #000;
+    color: #fff;
+    font-family: "Comic Sans MS", cursive;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 90%;
+    max-width: 360px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 30px;
+    font-weight: normal;
+    margin: 0 0 8px;
+}
+
+.subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 35px;
+}
+
+#status {
+    font-size: 13px;
+    margin-bottom: 14px;
+}
+
+.progress-container {
+    width: 100%;
+    height: 7px;
+    background: #292929;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+#progressBar {
+    width: 0%;
+    height: 100%;
+    background: white;
+    border-radius: 20px;
+}
+
+#progressText {
+    font-size: 12px;
+    color: #888;
+    margin-top: 10px;
+}
+
+button {
+    display: none;
+    width: 100%;
+    padding: 12px;
+    margin-top: 25px;
+    background: white;
+    color: black;
+    border: none;
+    font-family: "Comic Sans MS", cursive;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #ccc;
+}
+
+#error {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 15px;
+}
+
+.credit {
+    position: fixed;
+    bottom: 18px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>CORK7</h1>
+    <div class="subtitle">game loader</div>
+
+    <div id="status">Downloading...</div>
+
+    <div class="progress-container">
+        <div id="progressBar"></div>
+    </div>
+
+    <div id="progressText">Connecting...</div>
+
+    <button id="loadButton">Load CORK7</button>
+
+    <div id="error"></div>
+
+</div>
+
+<div class="credit">port by holdy (the goat)</div>
+
+<script>
+const SOURCE = "https://cork7.holdenfernandesss.workers.dev/";
+
+let gameHTML = "";
+
+const status = document.getElementById("status");
+const bar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+const button = document.getElementById("loadButton");
+const errorBox = document.getElementById("error");
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1048576).toFixed(2) + " MB";
+}
+
+async function downloadGame() {
+    try {
+        const response = await fetch(SOURCE, {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        if (!response.body) {
+            throw new Error("Streaming unavailable");
+        }
+
+        const total = Number(response.headers.get("Content-Length")) || 0;
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let received = 0;
+        let result = "";
+
+        status.textContent = "Downloading CORK7...";
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) break;
+
+            received += value.byteLength;
+            result += decoder.decode(value, { stream: true });
+
+            if (total > 0) {
+                const percent = Math.min(100, received / total * 100);
+
+                bar.style.width = percent + "%";
+                progressText.textContent =
+                    percent.toFixed(1) + "% · " + formatBytes(received);
+            } else {
+                progressText.textContent =
+                    formatBytes(received) + " downloaded";
+            }
+        }
+
+        result += decoder.decode();
+
+        if (!result.trim()) {
+            throw new Error("Empty file");
+        }
+
+        gameHTML = result;
+
+        bar.style.width = "100%";
+        progressText.textContent =
+            "100% · " + formatBytes(received);
+
+        status.textContent = "Download complete";
+        button.style.display = "block";
+
+    } catch (error) {
+        status.textContent = "Download failed";
+        errorBox.textContent = error.message;
+    }
+}
+
+button.addEventListener("click", () => {
+    if (!gameHTML) return;
+
+    document.open();
+    document.write(gameHTML);
+    document.close();
+});
+
+downloadGame();
+</script>
+
+</body>
+</html>
