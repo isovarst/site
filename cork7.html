@@ -1,283 +1,115 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#000000">
 <title>CORK7</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:#000;color:#fff;font-family:"Comic Sans MS",cursive;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
-.container{width:90%;max-width:360px;text-align:center;z-index:2}
-h1{font-size:30px;font-weight:normal;margin:0 0 8px}
-.subtitle{font-size:13px;color:#888;margin-bottom:35px}
-#status{font-size:13px;margin-bottom:14px}
-.progress-container{width:100%;height:7px;background:#292929;overflow:hidden;border-radius:20px}
-#progressBar{width:0%;height:100%;background:#fff;border-radius:20px;transition:width .15s ease}
-#progressText{font-size:12px;color:#888;margin-top:10px;line-height:1.8}
-#eta{font-size:11px;color:#666;margin-top:3px}
-button{display:none;width:100%;padding:12px;margin-top:25px;background:white;color:black;border:none;font-family:"Comic Sans MS",cursive;font-size:14px;cursor:pointer}
+:root{color-scheme:dark}
+body{margin:0;min-height:100vh;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px;overflow-x:hidden}
+.container{width:100%;max-width:520px;text-align:center;z-index:2}
+h1{font-size:36px;letter-spacing:5px;font-weight:700;margin:0 0 7px}
+.subtitle{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:34px}
+#status{font-size:13px;color:#ddd;margin-bottom:16px;min-height:18px}
+.progress-container{width:100%;height:8px;background:#202020;border-radius:20px;overflow:hidden;position:relative}
+#progressBar{width:0;height:100%;background:#fff;border-radius:20px;transition:width .18s linear;will-change:width}
+#progressBar.pulse{animation:completePulse .72s ease-out}
+@keyframes completePulse{0%{background:#fff;box-shadow:0 0 0 rgba(40,255,120,0)}18%{background:#35ff82;box-shadow:0 0 15px rgba(40,255,120,.9),0 0 28px rgba(40,255,120,.35)}100%{background:#fff;box-shadow:0 0 0 rgba(40,255,120,0)}}
+#progressText{font-size:11px;color:#aaa;margin-top:12px;font-variant-numeric:tabular-nums}
+#eta{font-size:11px;color:#666;margin-top:6px;font-variant-numeric:tabular-nums}
+#partTracker{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:15px;text-align:left}.part-row{background:#070707;border:1px solid #1d1d1d;border-radius:4px;padding:7px 8px;min-width:0}.part-top{display:flex;justify-content:space-between;gap:8px;font-size:9px;color:#999;margin-bottom:5px}.part-top span:last-child{white-space:nowrap;color:#777}.part-track{height:3px;background:#202020;border-radius:8px;overflow:hidden}.part-fill{height:100%;width:0;background:#ddd;transition:width .16s linear}.part-row.done .part-fill{width:100%;background:#fff}.part-row.done .part-top span:last-child{color:#ddd}.part-row.cached .part-fill{width:100%;background:#777}.part-row.failed{border-color:#542525}.part-row.failed .part-top span:last-child{color:#f77}@media(max-width:390px){#partTracker{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:24px}
+.stat{background:#080808;border:1px solid #222;border-radius:5px;padding:12px 8px;min-width:0}
+.stat-label{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
+.stat-value{font-size:13px;color:#ddd;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.controls{display:grid;grid-template-columns:1fr;gap:9px;margin-top:18px}
+button{padding:12px 10px;background:#fff;color:#000;border:0;font-size:12px;font-weight:600;cursor:pointer;border-radius:4px;transition:background .15s,opacity .15s}
 button:hover{background:#ccc}
-#error{color:#f44;font-size:12px;margin-top:15px;overflow-wrap:anywhere}
-.credit{position:fixed;bottom:18px;left:0;width:100%;text-align:center;font-size:11px;color:#666}
-#debug{position:fixed;left:18px;top:50%;transform:translateY(-50%);width:270px;height:340px;background:#080808;border:1px solid #252525;padding:12px;display:flex;flex-direction:column;text-align:left;z-index:5}
-.debug-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #252525;padding-bottom:9px;margin-bottom:9px}
-.debug-title{font-size:12px;color:#aaa}
-#copyLogs{display:block;width:auto;margin:0;padding:5px 9px;font-size:10px;background:#222;color:#ddd;border:1px solid #333}
-#copyLogs:hover{background:#333}
-#logs{flex:1;overflow-y:auto;overflow-x:hidden;font-family:monospace;font-size:10px;line-height:1.7;scrollbar-width:thin;scrollbar-color:#333 transparent}
-.log{color:#999;overflow-wrap:anywhere;animation:fadeLog 8s forwards}
-.log.error{color:#ff4545}
-.log.success{color:#ddd}
-.log.warning{color:#aaa}
-@keyframes fadeLog{0%{opacity:0}10%{opacity:1}75%{opacity:1}100%{opacity:.45}}
-@media(max-width:850px){body{align-items:flex-start;padding-top:90px;padding-bottom:380px}#debug{top:auto;bottom:55px;left:5%;width:90%;height:240px;transform:none}.container{max-width:360px}}
+button:disabled{opacity:.35;cursor:not-allowed}
+.danger{background:#1c1010;color:#ff8585;border:1px solid #482222}
+.danger:hover{background:#351515}
+#launchButton{background:#fff;color:#000}
+#error{color:#ff6666;font-size:12px;margin-top:14px;overflow-wrap:anywhere;line-height:1.5}
+#debug{position:fixed;left:14px;top:14px;width:300px;height:245px;background:#070707;border:1px solid #222;border-radius:5px;padding:11px;display:flex;flex-direction:column;text-align:left;z-index:5}
+.debug-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222;padding-bottom:8px;margin-bottom:7px;gap:8px}
+.debug-title{font-size:10px;color:#aaa;letter-spacing:1px}
+#copyLogs{padding:5px 8px;background:#222;color:#ddd;font-size:10px;white-space:nowrap}
+#logs{flex:1;overflow:auto;font-family:Consolas,monospace;font-size:10px;line-height:1.65;color:#888;overflow-wrap:anywhere;overscroll-behavior:contain}
+.log.error{color:#f66}.log.success{color:#ddd}.log.warning{color:#d9b18a}
+.credit{position:fixed;bottom:13px;left:0;width:100%;text-align:center;font-size:10px;color:#444;letter-spacing:.5px}
+@media(max-width:850px){body{align-items:flex-start;padding:285px 18px 55px}#debug{top:10px;left:5%;width:90%;height:235px}}
+@media(max-width:390px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:last-child{grid-column:span 2}h1{font-size:31px}}
+@media(prefers-reduced-motion:reduce){#progressBar{transition:none}.progress-container #progressBar.pulse{animation:none;background:#35ff82}}
 </style>
 </head>
 <body>
-<div class="container">
+<main class="container">
 <h1>CORK7</h1>
-<div class="subtitle">game loader</div>
-<div id="status">Preparing download...</div>
+<div class="subtitle">for bricky</div>
+<div id="status">Initializing CORK7...</div>
 <div class="progress-container"><div id="progressBar"></div></div>
-<div id="progressText">Connecting...</div>
-<div id="eta">Calculating download time...</div>
-<button id="loadButton">Load CORK7</button>
-<div id="error"></div>
+<div id="progressText">Preparing...</div>
+<div id="eta">Estimating time remaining...</div>
+<div id="partTracker" aria-label="Individual part download progress"></div>
+<div class="stats">
+<div class="stat"><div class="stat-label">Parts complete</div><div class="stat-value" id="partsStat">0 / ?</div></div>
+<div class="stat"><div class="stat-label">Cached parts</div><div class="stat-value" id="cachedStat">0</div></div>
+<div class="stat"><div class="stat-label">Active workers</div><div class="stat-value" id="workersStat">0</div></div>
+<div class="stat"><div class="stat-label">Downloaded</div><div class="stat-value" id="downloadedStat">0 B</div></div>
+<div class="stat"><div class="stat-label">Download speed</div><div class="stat-value" id="speedStat">0 B/s</div></div>
+<div class="stat"><div class="stat-label">Saved assets</div><div class="stat-value" id="savedStat">Checking...</div></div>
 </div>
-<div id="debug">
-<div class="debug-header">
-<div class="debug-title">DEBUG CONSOLE</div>
-<button id="copyLogs">Copy logs</button>
-</div>
-<div id="logs"></div>
-</div>
+<div class="controls"><button id="launchButton" disabled>Downloading CORK7...</button><button id="wipeButton" class="danger">Wipe all CORK7 data</button></div>
+<div id="error" role="alert"></div>
+</main>
+<section id="debug" aria-label="CORK7 debug console">
+<div class="debug-header"><div class="debug-title">CORK7 DEBUG CONSOLE</div><button id="copyLogs">Copy logs</button></div>
+<div id="logs" aria-live="polite"></div>
+</section>
 <div class="credit">port by holdy (the goat)</div>
 <script>
-
-const WORKER_URL="https://cork7parts.holdenfernandesss.workers.dev";
-const TOTAL_PARTS=61;
-const CONCURRENCY=20;
-const MAX_ATTEMPTS=8;
-const BASE_RETRY_DELAY=250;
-const MAX_RETRY_DELAY=8000;
-const status=document.getElementById("status");
-const bar=document.getElementById("progressBar");
-const progressText=document.getElementById("progressText");
-const eta=document.getElementById("eta");
-const button=document.getElementById("loadButton");
-const errorBox=document.getElementById("error");
-const logs=document.getElementById("logs");
-const copyButton=document.getElementById("copyLogs");
-let gameBlob=null,logHistory=[],startTime=0,completedParts=0,downloadedBytes=0,averageSpeed=0,lastSampleBytes=0,lastSampleTime=0,displayedPercent=0,estimatedTotal=0,downloading=false;
-const loaded=new Array(TOTAL_PARTS).fill(0);
-const sizes=new Array(TOTAL_PARTS).fill(0);
-const sizeKnown=new Array(TOTAL_PARTS).fill(false);
-const parts=new Array(TOTAL_PARTS);
-function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
-function formatBytes(n){
-if(n<1024)return n.toFixed(0)+" B";
-if(n<1048576)return(n/1024).toFixed(1)+" KB";
-if(n<1073741824)return(n/1048576).toFixed(2)+" MB";
-return(n/1073741824).toFixed(2)+" GB";
-}
-function formatTime(n){
-if(!isFinite(n)||n<0)return"Calculating...";
-n=Math.ceil(n);
-const h=Math.floor(n/3600),m=Math.floor(n%3600/60),s=n%60;
-return h>0?h+"h "+m+"m "+s+"s":m>0?m+"m "+s+"s":s+"s";
-}
-function log(message,type="normal"){
-const entry="["+new Date().toLocaleTimeString()+"] "+message;
-logHistory.push(entry);
-const el=document.createElement("div");
-el.className="log "+type;
-el.textContent=entry;
-logs.appendChild(el);
-while(logs.children.length>150)logs.removeChild(logs.firstChild);
-logs.scrollTop=logs.scrollHeight;
-}
-copyButton.addEventListener("click",async()=>{
-try{await navigator.clipboard.writeText(logHistory.join("\n"))}
-catch(e){
-const t=document.createElement("textarea");
-t.value=logHistory.join("\n");
-document.body.appendChild(t);
-t.select();
-document.execCommand("copy");
-t.remove();
-}
-copyButton.textContent="Copied!";
-setTimeout(()=>copyButton.textContent="Copy logs",1500);
-});
-function partURL(n){return WORKER_URL.replace(/\/$/,"")+"/part"+n}
-function calculateTotal(){
-const known=[];
-for(let i=0;i<TOTAL_PARTS;i++){
-if(sizeKnown[i]&&sizes[i]>0)known.push(sizes[i]);
-else if(parts[i]&&sizes[i]>0)known.push(sizes[i]);
-}
-if(known.length===TOTAL_PARTS){
-estimatedTotal=known.reduce((a,b)=>a+b,0);
-return;
-}
-if(known.length>=3){
-const average=known.reduce((a,b)=>a+b,0)/known.length;
-estimatedTotal=average*TOTAL_PARTS;
-}else if(known.length>0){
-estimatedTotal=Math.max(estimatedTotal,known.reduce((a,b)=>a+b,0)/known.length*TOTAL_PARTS);
-}
-}
-function updateProgress(){
-downloadedBytes=loaded.reduce((a,b)=>a+b,0);
-calculateTotal();
-const now=Date.now();
-const dt=(now-lastSampleTime)/1000;
-if(dt>=0.75){
-const instant=Math.max(0,(downloadedBytes-lastSampleBytes)/dt);
-averageSpeed=averageSpeed===0?instant:averageSpeed*.8+instant*.2;
-lastSampleBytes=downloadedBytes;
-lastSampleTime=now;
-}
-let target=estimatedTotal>0?downloadedBytes/estimatedTotal*100:0;
-target=Math.min(99.5,Math.max(0,target));
-displayedPercent=Math.max(displayedPercent,target);
-if(completedParts===TOTAL_PARTS)displayedPercent=100;
-bar.style.width=displayedPercent.toFixed(2)+"%";
-const remaining=averageSpeed>0&&estimatedTotal>0?Math.max(0,estimatedTotal-downloadedBytes)/averageSpeed:NaN;
-progressText.textContent=displayedPercent.toFixed(1)+"% · "+formatBytes(downloadedBytes)+(estimatedTotal>0?" / ~"+formatBytes(estimatedTotal):"") +" · "+completedParts+"/"+TOTAL_PARTS+" parts";
-eta.textContent="Speed: "+formatBytes(averageSpeed)+"/s · ETA: "+formatTime(remaining);
-}
-async function downloadPart(number){
-const i=number-1;
-let lastError;
-for(let attempt=1;attempt<=MAX_ATTEMPTS;attempt++){
-let reader=null;
-try{
-log("Part "+number+" · Attempt "+attempt+"/"+MAX_ATTEMPTS);
-const response=await fetch(partURL(number),{method:"GET",cache:"no-store"});
-if(!response.ok)throw new Error("HTTP "+response.status);
-if(!response.body)throw new Error("No response body");
-const length=Number(response.headers.get("Content-Length"));
-if(length>0){
-sizes[i]=length;
-sizeKnown[i]=true;
-}
-updateProgress();
-reader=response.body.getReader();
-const chunks=[];
-let size=0;
-while(true){
-const result=await reader.read();
-if(result.done)break;
-chunks.push(result.value);
-size+=result.value.byteLength;
-loaded[i]=size;
-updateProgress();
-}
-if(size===0)throw new Error("Empty part");
-if(length>0&&size!==length)throw new Error("Incomplete part: "+size+"/"+length);
-sizes[i]=size;
-sizeKnown[i]=true;
-loaded[i]=size;
-parts[i]=new Blob(chunks);
-completedParts++;
-log("Part "+number+" complete · "+formatBytes(size),"success");
-updateProgress();
-return;
-}catch(error){
-if(reader){try{await reader.cancel()}catch(e){}}
-loaded[i]=0;
-sizes[i]=0;
-sizeKnown[i]=false;
-lastError=error;
-updateProgress();
-if(attempt===MAX_ATTEMPTS)break;
-const delay=Math.min(MAX_RETRY_DELAY,BASE_RETRY_DELAY*Math.pow(2,attempt-1));
-log("Part "+number+" failed: "+error.message+" · Retry in "+delay+"ms","warning");
-await sleep(delay);
-}
-}
-throw new Error("Part "+number+" failed: "+lastError.message);
-}
-async function validateGame(){
-log("Validating HTML...");
-const first=await parts[0].slice(0,512).text();
-if(!/^\s*(?:<!doctype|<html)/i.test(first))throw new Error("Invalid first part");
-const last=await parts[TOTAL_PARTS-1].slice(-2048).text();
-if(!/<\/html>\s*$/i.test(last))throw new Error("Last part incomplete");
-log("Validation successful","success");
-}
-async function downloadGame(){
-if(downloading)return;
-downloading=true;
-gameBlob=null;
-button.style.display="none";
-errorBox.textContent="";
-startTime=Date.now();
-lastSampleTime=startTime;
-lastSampleBytes=0;
-averageSpeed=0;
-completedParts=0;
-downloadedBytes=0;
-displayedPercent=0;
-estimatedTotal=0;
-loaded.fill(0);
-sizes.fill(0);
-sizeKnown.fill(false);
-parts.fill(null);
-bar.style.width="0%";
-log("CORK7 initialized","success");
-log("Starting "+CONCURRENCY+" continuous workers");
-log("Total parts: "+TOTAL_PARTS);
-log("Retry limit: "+MAX_ATTEMPTS);
-let nextPart=1;
-let failure=null;
-async function worker(){
-while(!failure){
-const number=nextPart++;
-if(number>TOTAL_PARTS)return;
-try{
-status.textContent="Downloading · "+completedParts+"/"+TOTAL_PARTS;
-await downloadPart(number);
-}catch(error){
-failure=error;
-log(error.message,"error");
-}
-}
-}
-try{
-await Promise.all(Array.from({length:CONCURRENCY},()=>worker()));
-if(failure)throw failure;
-status.textContent="Validating CORK7...";
-await validateGame();
-status.textContent="Combining parts...";
-gameBlob=new Blob(parts,{type:"text/html;charset=utf-8"});
-displayedPercent=100;
-bar.style.width="100%";
-progressText.textContent="100% · "+formatBytes(gameBlob.size);
-eta.textContent="Completed in "+formatTime((Date.now()-startTime)/1000);
-status.textContent="CORK7 ready";
-button.style.display="block";
-log("Download successful · "+formatBytes(gameBlob.size),"success");
-}catch(error){
-status.textContent="Download failed";
-errorBox.textContent=error.message;
-eta.textContent="Download interrupted";
-log("ERROR: "+error.message,"error");
-console.error(error);
-}finally{
-downloading=false;
-}
-}
-button.addEventListener("click",()=>{
-if(!gameBlob)return;
-log("Launching CORK7...","success");
-const url=URL.createObjectURL(gameBlob);
-window.location.href=url;
-});
-downloadGame();
-
+"use strict";
+const CONFIG={WORKER_URL:"https://cork7parts.holdenfernandesss.workers.dev",FALLBACK_PARTS:10,CACHE_VERSION:"cork7-v2",CONCURRENCY:10,MAX_CONCURRENCY:12,MAX_ATTEMPTS:5,RETRY_DELAY:450,DB_NAME:"CORK7_ASSET_DATABASE",DB_VERSION:1,STORE:"assets",MAX_LOGS:160,PROGRESS_INTERVAL:400};
+const $=id=>document.getElementById(id);
+const ui={status:$("status"),bar:$("progressBar"),progress:$("progressText"),eta:$("eta"),tracker:$("partTracker"),launch:$("launchButton"),wipe:$("wipeButton"),error:$("error"),logs:$("logs"),copy:$("copyLogs"),parts:$("partsStat"),cached:$("cachedStat"),workers:$("workersStat"),downloaded:$("downloadedStat"),speed:$("speedStat"),saved:$("savedStat")};
+let db=null,gameBlob=null,parts=[],totalParts=CONFIG.FALLBACK_PARTS,completed=0,cached=0,activeWorkers=0,downloadedBytes=0,cachedBytes=0,cacheVersion=CONFIG.CACHE_VERSION,logHistory=[],isRunning=false,progressTimer=null,speed=0,lastSpeedBytes=0,lastSpeedTime=0,manifestParts=null,expectedSizes=[],inflightBytes=[],partStates=[],pulseAnimation=null,objectUrl=null;
+const baseUrl=CONFIG.WORKER_URL.replace(/\/+$/,"");
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function formatBytes(value){if(!Number.isFinite(value)||value<=0)return"0 B";if(value<1024)return Math.round(value)+" B";if(value<1048576)return(value/1024).toFixed(1)+" KB";if(value<1073741824)return(value/1048576).toFixed(2)+" MB";return(value/1073741824).toFixed(2)+" GB"}
+function formatTime(seconds){if(!Number.isFinite(seconds)||seconds<0)return"Estimating...";seconds=Math.ceil(seconds);const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),s=seconds%60;return h?`${h}h ${m}m ${s}s`:m?`${m}m ${s}s`:`${s}s`}
+function log(message,type="normal"){const entry=`[${new Date().toLocaleTimeString()}] ${message}`;logHistory.push(entry);if(logHistory.length>CONFIG.MAX_LOGS)logHistory.splice(0,logHistory.length-CONFIG.MAX_LOGS);const el=document.createElement("div");el.className="log "+type;el.textContent=entry;ui.logs.appendChild(el);while(ui.logs.children.length>CONFIG.MAX_LOGS)ui.logs.removeChild(ui.logs.firstChild);ui.logs.scrollTop=ui.logs.scrollHeight}
+ui.copy.onclick=async()=>{try{await navigator.clipboard.writeText(logHistory.join("\n"));ui.copy.textContent="Copied!";setTimeout(()=>ui.copy.textContent="Copy logs",1400)}catch(error){log("Clipboard unavailable: "+error.message,"warning")}};
+function openDatabase(){return new Promise((resolve,reject)=>{if(!("indexedDB"in window)){reject(new Error("IndexedDB is unavailable in this browser."));return}const request=indexedDB.open(CONFIG.DB_NAME,CONFIG.DB_VERSION);request.onupgradeneeded=()=>{const database=request.result;if(!database.objectStoreNames.contains(CONFIG.STORE))database.createObjectStore(CONFIG.STORE,{keyPath:"key"})};request.onsuccess=()=>{db=request.result;db.onversionchange=()=>{db.close();db=null};resolve(db)};request.onerror=()=>reject(request.error||new Error("Could not open asset database."));request.onblocked=()=>log("Database open is blocked by another CORK7 tab.","warning")})}
+function dbOperation(mode,operation){return new Promise((resolve,reject)=>{if(!db){reject(new Error("Asset database is not open."));return}let result;const tx=db.transaction(CONFIG.STORE,mode);const store=tx.objectStore(CONFIG.STORE);try{result=operation(store)}catch(error){reject(error);return}tx.oncomplete=()=>resolve(result&&result.result);tx.onerror=()=>reject(tx.error||new Error("Database transaction failed."));tx.onabort=()=>reject(tx.error||new Error("Database transaction aborted."))})}
+function cacheKey(number){return`${baseUrl}|${cacheVersion}|part${number}`}
+async function getCachedPart(number){return dbOperation("readonly",store=>store.get(cacheKey(number)))}
+async function saveCachedPart(number,blob){await dbOperation("readwrite",store=>store.put({key:cacheKey(number),blob,size:blob.size,savedAt:Date.now(),version:cacheVersion}))}
+async function deleteCachedPart(number){await dbOperation("readwrite",store=>store.delete(cacheKey(number)))}
+async function getAllCached(){return dbOperation("readonly",store=>store.getAll())}
+function requestPersistentStorage(){if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().then(granted=>log(granted?"Persistent browser storage granted.":"Browser storage persistence not granted.","normal")).catch(error=>log("Storage persistence request failed: "+error.message,"warning"))}}
+async function wipeDatabase(){if(db){db.close();db=null}await new Promise((resolve,reject)=>{const request=indexedDB.deleteDatabase(CONFIG.DB_NAME);request.onsuccess=()=>resolve();request.onerror=()=>reject(request.error||new Error("Could not delete CORK7 database."));request.onblocked=()=>reject(new Error("Close other CORK7 tabs before wiping CORK7 data."))})}
+async function loadManifest(){const url=baseUrl+"/manifest";try{log("Requesting manifest.");const response=await fetch(url,{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const data=await response.json();let count=Number(data.totalParts);if(Array.isArray(data.parts)){manifestParts=data.parts;count=data.parts.length}if(!Number.isSafeInteger(count)||count<1||count>10000)throw new Error("Manifest has an invalid part count.");totalParts=count;if(data.version!==undefined&&String(data.version).trim())cacheVersion=String(data.version);else cacheVersion=CONFIG.CACHE_VERSION;expectedSizes=Array.from({length:totalParts},(_,index)=>{const item=manifestParts&&manifestParts[index];const value=typeof item==="object"&&item?Number(item.size??item.bytes):NaN;return Number.isFinite(value)&&value>0?value:NaN});log(`Manifest loaded: ${totalParts} parts · version ${cacheVersion}`,"success")}catch(error){manifestParts=null;totalParts=CONFIG.FALLBACK_PARTS;cacheVersion=CONFIG.CACHE_VERSION;expectedSizes=new Array(totalParts).fill(NaN);log(`Manifest unavailable (${error.message}); using configured fallback of ${totalParts} parts.`,"warning")}}
+function pulse(){if(pulseAnimation){pulseAnimation.cancel();pulseAnimation=null}ui.bar.classList.remove("pulse");if(window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches){ui.bar.style.background="#35ff82";setTimeout(()=>ui.bar.style.removeProperty("background"),250);return}void ui.bar.offsetWidth;ui.bar.classList.add("pulse");pulseAnimation=ui.bar.animate([{backgroundColor:"#fff",boxShadow:"0 0 0 rgba(40,255,120,0)"},{backgroundColor:"#35ff82",boxShadow:"0 0 15px rgba(40,255,120,.9),0 0 28px rgba(40,255,120,.35)",offset:.18},{backgroundColor:"#fff",boxShadow:"0 0 0 rgba(40,255,120,0)"}],{duration:720,easing:"ease-out"});pulseAnimation.onfinish=()=>{ui.bar.classList.remove("pulse");pulseAnimation=null}}
+function estimatedPartSize(){const known=expectedSizes.filter(Number.isFinite);if(known.length)return known.reduce((a,b)=>a+b,0)/known.length;const doneSizes=parts.map(part=>part instanceof Blob?part.size:0).filter(size=>size>0);if(doneSizes.length)return doneSizes.reduce((a,b)=>a+b,0)/doneSizes.length;return NaN}
+function renderPartTracker(){if(ui.tracker.children.length!==totalParts){ui.tracker.replaceChildren();for(let i=0;i<totalParts;i++){const row=document.createElement("div");row.className="part-row";row.innerHTML=`<div class="part-top"><span>PART ${i+1}</span><span class="part-state">Waiting</span></div><div class="part-track"><div class="part-fill"></div></div>`;ui.tracker.appendChild(row)}}for(let i=0;i<totalParts;i++){const row=ui.tracker.children[i];const state=partStates[i]||"missing";const received=inflightBytes[i]||0;const expected=Number.isFinite(expectedSizes[i])&&expectedSizes[i]>0?expectedSizes[i]:estimatedPartSize();const fill=row.querySelector(".part-fill");const label=row.querySelector(".part-state");row.className="part-row"+(state==="done"?" done":state==="cached"?" cached":state==="failed"?" failed":"");if(state==="done")label.textContent="Complete";else if(state==="cached")label.textContent="Cached";else if(state==="downloading")label.textContent=expected>0?`${formatBytes(received)} / ${formatBytes(expected)}`:formatBytes(received)+" received";else if(state==="failed")label.textContent="Retrying";else label.textContent="Waiting";const percent=state==="done"||state==="cached"?100:expected>0?Math.min(99,received/expected*100):0;fill.style.width=percent+"%"}}
+function currentProgress(){let sum=0;const average=estimatedPartSize();for(let i=0;i<totalParts;i++){if(parts[i]){sum+=1;continue}const expected=Number.isFinite(expectedSizes[i])&&expectedSizes[i]>0?expectedSizes[i]:average;const received=inflightBytes[i]||0;if(expected>0)sum+=Math.min(.999,received/expected)}return totalParts?Math.min(99.9,sum/totalParts*100):0}
+function updateProgress(){const percent=completed===totalParts?100:currentProgress();ui.bar.style.width=percent+"%";ui.parts.textContent=`${completed} / ${totalParts}`;ui.cached.textContent=String(cached);ui.workers.textContent=String(activeWorkers);ui.downloaded.textContent=formatBytes(downloadedBytes);ui.speed.textContent=speed>0?formatBytes(speed)+"/s":"—";ui.progress.textContent=`${percent.toFixed(1)}% · ${completed}/${totalParts} parts`;const average=estimatedPartSize();let remainingBytes=0,hasEstimate=true;for(let i=0;i<totalParts;i++){if(parts[i])continue;const expected=Number.isFinite(expectedSizes[i])&&expectedSizes[i]>0?expectedSizes[i]:average;if(Number.isFinite(expected)&&expected>0)remainingBytes+=Math.max(0,expected-(inflightBytes[i]||0));else hasEstimate=false}const remainingParts=totalParts-completed;const seconds=speed>0&&hasEstimate?remainingBytes/speed:NaN;ui.eta.textContent=completed===totalParts?"All parts downloaded":seconds>=0?`Estimated time remaining: ${formatTime(seconds)}`:remainingParts?`Remaining: ${remainingParts} parts · estimating size`:"Finalizing...";ui.saved.textContent=formatBytes(cachedBytes);if(completed===totalParts)ui.status.textContent="All parts downloaded · assembling game";renderPartTracker()}
+function startProgressUpdates(){stopProgressUpdates();lastSpeedTime=Date.now();lastSpeedBytes=downloadedBytes;progressTimer=setInterval(()=>{const now=Date.now(),elapsed=(now-lastSpeedTime)/1000,delta=downloadedBytes-lastSpeedBytes;if(elapsed>0){const instant=delta/elapsed;speed=speed===0?instant:speed*.72+instant*.28}lastSpeedTime=now;lastSpeedBytes=downloadedBytes;updateProgress()},CONFIG.PROGRESS_INTERVAL)}
+function stopProgressUpdates(){if(progressTimer!==null){clearInterval(progressTimer);progressTimer=null}}
+function partUrl(number){return baseUrl+"/part"+number}
+async function readResponse(response,number){const header=Number(response.headers.get("content-length"));if(Number.isFinite(header)&&header>0&&!Number.isFinite(expectedSizes[number-1])){expectedSizes[number-1]=header;log(`Part ${number} size reported by server: ${formatBytes(header)}.`)}const reader=response.body&&response.body.getReader?response.body.getReader():null;if(!reader){const blob=await response.blob();inflightBytes[number-1]=blob.size;downloadedBytes+=blob.size;updateProgress();return blob}const chunks=[];let size=0;try{while(true){const result=await reader.read();if(result.done)break;if(result.value&&result.value.byteLength){chunks.push(result.value);size+=result.value.byteLength;inflightBytes[number-1]=size;downloadedBytes+=result.value.byteLength;updateProgress()}}}catch(error){try{await reader.cancel()}catch(_){}throw error}if(!size)throw new Error("Part "+number+" was empty.");return new Blob(chunks,{type:"application/octet-stream"})}
+async function downloadPart(number){let lastError;for(let attempt=1;attempt<=CONFIG.MAX_ATTEMPTS;attempt++){inflightBytes[number-1]=0;partStates[number-1]="downloading";updateProgress();try{log(`Download started: part ${number} · attempt ${attempt}`);const response=await fetch(partUrl(number),{cache:"no-store"});if(!response.ok)throw new Error("HTTP "+response.status);const blob=await readResponse(response,number);if(!blob.size)throw new Error("Empty part");const expected=expectedSizes[number-1];if(Number.isFinite(expected)&&expected>0&&blob.size!==expected)throw new Error(`Incomplete part ${number}: expected ${formatBytes(expected)}, received ${formatBytes(blob.size)}`);await saveCachedPart(number,blob);parts[number-1]=blob;inflightBytes[number-1]=0;partStates[number-1]="done";completed++;log(`Part ${number} validated and cached · ${formatBytes(blob.size)}`,"success");pulse();updateProgress();return blob}catch(error){lastError=error;inflightBytes[number-1]=0;partStates[number-1]="failed";updateProgress();log(`Part ${number} attempt ${attempt} failed: ${error.message}`,"warning");if(attempt<CONFIG.MAX_ATTEMPTS){const delay=CONFIG.RETRY_DELAY*Math.pow(2,attempt-1)*(0.85+Math.random()*.3);log(`Retrying part ${number} in ${formatTime(delay/1000)}.`);await sleep(delay)}}}throw new Error(`Part ${number} failed after ${CONFIG.MAX_ATTEMPTS} attempts: ${lastError?lastError.message:"unknown error"}`)}
+async function prepareParts(){parts=new Array(totalParts);partStates=new Array(totalParts).fill("missing");inflightBytes=new Array(totalParts).fill(0);completed=0;cached=0;cachedBytes=0;const records=await getAllCached();const lookup=new Map(records.map(record=>[record.key,record]));for(let i=1;i<=totalParts;i++){const record=lookup.get(cacheKey(i));if(!record)continue;const blob=record.blob;const expected=expectedSizes[i-1];const valid=blob instanceof Blob&&blob.size>0&&(!Number.isFinite(expected)||blob.size===expected);if(valid){parts[i-1]=blob;partStates[i-1]="cached";completed++;cached++;cachedBytes+=blob.size}else{log(`Discarding invalid cached part ${i}.`,"warning");await deleteCachedPart(i)}}ui.saved.textContent=formatBytes(cachedBytes);log(`Cache check complete: ${cached}/${totalParts} valid parts reused.`,"success");renderPartTracker();updateProgress()}
+async function validateGame(blob){log("Validating assembled game.");if(!blob||blob.size<20)throw new Error("Assembled game is empty or too small.");const first=await blob.slice(0,2048).text();if(!/^\s*(?:<!doctype\s+html|<html\b)/i.test(first))throw new Error("Game HTML header is invalid.");const last=await blob.slice(Math.max(0,blob.size-8192)).text();if(!/<\/html\s*>\s*$/i.test(last))throw new Error("Game HTML footer is invalid.");log("Game HTML validation successful.","success")}
+async function assembleGame(){if(completed!==totalParts||parts.some(part=>!(part instanceof Blob)))throw new Error("Cannot assemble: one or more parts are missing.");ui.status.textContent="Assembling game...";log(`Assembling ${totalParts} parts in original order.`);gameBlob=new Blob(parts,{type:"text/html;charset=utf-8"});await validateGame(gameBlob);updateProgress();ui.bar.style.width="100%";ui.progress.textContent=`100.0% · ${totalParts}/${totalParts} parts · ${formatBytes(gameBlob.size)}`;ui.eta.textContent="All assets ready";ui.status.textContent="CORK7 ready";ui.launch.disabled=false;ui.launch.textContent="Launch CORK7";log(`CORK7 assembled successfully · ${formatBytes(gameBlob.size)}.`,"success")}
+async function downloadGame(){if(isRunning)return;isRunning=true;ui.launch.disabled=true;ui.launch.textContent="Downloading CORK7...";ui.error.textContent="";gameBlob=null;downloadedBytes=0;speed=0;activeWorkers=0;try{ui.status.textContent="Initializing loader...";await openDatabase();requestPersistentStorage();await loadManifest();ui.status.textContent="Checking cached assets...";await prepareParts();startProgressUpdates();const missing=[];for(let i=1;i<=totalParts;i++)if(!parts[i-1])missing.push(i);log(`${missing.length} parts require downloading.`,"success");let next=0,failure=null;const workerCount=Math.min(Math.max(1,Math.min(CONFIG.CONCURRENCY,CONFIG.MAX_CONCURRENCY)),missing.length);async function worker(){while(next<missing.length&&!failure){const number=missing[next++];activeWorkers++;updateProgress();try{await downloadPart(number)}catch(error){failure=error}finally{activeWorkers--;updateProgress()}}}await Promise.all(Array.from({length:workerCount},()=>worker()));if(failure)throw failure;activeWorkers=0;updateProgress();await assembleGame()}catch(error){ui.status.textContent="Loader error";ui.error.textContent=error.message;ui.launch.disabled=false;ui.launch.textContent="Retry download";log("FATAL: "+error.message,"error");console.error(error)}finally{activeWorkers=0;isRunning=false;stopProgressUpdates();updateProgress()}}
+ui.launch.onclick=()=>{if(!gameBlob){downloadGame();return}log("Launching CORK7.","success");if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(gameBlob);window.location.assign(objectUrl)};
+ui.wipe.onclick=async()=>{if(!confirm("This will permanently delete all cached CORK7 assets and saved loader data. Continue?"))return;if(isRunning){ui.error.textContent="Wait for the current download to finish before wiping CORK7 data.";return}ui.wipe.disabled=true;ui.launch.disabled=true;try{if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}gameBlob=null;parts=[];completed=0;cached=0;cachedBytes=0;downloadedBytes=0;await wipeDatabase();log("All CORK7 IndexedDB data deleted.","success");location.reload()}catch(error){ui.error.textContent=error.message;log("Wipe failed: "+error.message,"error")}finally{ui.wipe.disabled=false}};
+async function initialize(){log("CORK7 loader initialized.","success");log(`Worker: ${baseUrl}`);ui.status.textContent="Connecting to CORK7...";try{await downloadGame()}catch(error){ui.error.textContent=error.message}}
+window.addEventListener("pagehide",()=>{stopProgressUpdates();if(db){db.close();db=null}if(objectUrl)URL.revokeObjectURL(objectUrl)});
+initialize();
 </script>
 </body>
 </html>
