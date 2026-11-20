@@ -1184,7 +1184,6 @@ body.bday #bdayBanner{display:flex}
         <label>back up, or move to another browser</label>
         <div class="note">Chats, keys, favourites and settings, in one file.</div>
         <div class="actions">
-          <button class="act" id="exportApp">export</button>
           <button class="act" id="importApp">import</button>
           <input type="file" id="appImport" accept="application/json" hidden>
         </div>
@@ -1228,7 +1227,6 @@ body.bday #bdayBanner{display:flex}
     <div class="zone-controls">
       <button onclick="fullscreenZone()">fullscreen</button>
       <button onclick="aboutBlank()">new tab</button>
-      <button onclick="downloadZone()">download</button>
       <button onclick="closeZone()">close</button>
     </div>
   </div>
@@ -5700,20 +5698,6 @@ $("testGem").onclick=async function(){
     $("gemNote").textContent="that key did not work: "+String(e.message||e);
   }
   this.disabled=false;
-};
-$("exportApp").onclick=function(){
-  var data={};
-  for(var i=0;i<localStorage.length;i++){
-    var k=localStorage.key(i);
-    if(k.indexOf("app")===0)data[k]=localStorage.getItem(k);
-  }
-  var blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-  var a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download="app-backup.json";
-  a.click();
-  setTimeout(function(){URL.revokeObjectURL(a.href)},4000);
-  toast("backup downloaded");
 };
 $("importApp").onclick=function(){$("appImport").click()};
 $("appImport").onchange=function(e){
