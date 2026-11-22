@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><html lang="en" data-loading-art-theme="dark" style="--cork7-startup-preview: url(''); --cork7-startup-portrait-preview: url('');"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><script>try{const key="whiteout-music";const settings=JSON.parse(localStorage.getItem(key)||"{}");localStorage.setItem(key,JSON.stringify({...settings,enabled:false}))}catch(error){console.warn("Could not disable the bundled soundtrack.",error)}</script><link rel="stylesheet" href="css/index.Bz59l1hk.css" data-rsc-css-href="/_next/static/css/index.Bz59l1hk.css" data-precedence="vite-rsc/importer-resources"><link rel="stylesheet" href="css/game-client.CvWVU7zX.css" data-precedence="vite-rsc/client-reference"><link rel="modulepreload" fetchpriority="low" href="js/index-CYJEV1ir.js"><script src="js/rolldown-runtime-C60lm6uB.js" type="module" async=""></script><script src="js/framework-D_rUT4EX.js" type="module" async=""></script><link rel="modulepreload" href="js/layout-segment-context-DlmCn-Y9.js" crossorigin=""><link rel="modulepreload" href="js/game-client-DLy4dmjW.js" crossorigin=""><link rel="modulepreload" href="js/desktop-downloads-DSNPNuob.js" crossorigin=""><link rel="modulepreload" href="js/shop-day-6HAdJFUr.js" crossorigin=""><link rel="modulepreload" href="js/rider-appearance-Doz8xDGh.js" crossorigin=""><link rel="modulepreload" href="js/season-CVOMoRYt.js" crossorigin=""><link rel="modulepreload" href="js/lobby-pose-CkwoFj9R.js" crossorigin=""><link rel="modulepreload" href="js/patch-notes-vb5RXYXa.js" crossorigin=""><link rel="modulepreload" href="js/createLucideIcon-BFameqYI.js" crossorigin=""><link rel="modulepreload" href="js/active-course-DPQtCkZu.js" crossorigin=""><link rel="modulepreload" href="js/graphics-quality-4bxd4nAR.js" crossorigin=""><link rel="modulepreload" href="js/replay-CuZDA9Gl.js" crossorigin=""><link rel="modulepreload" href="js/live-protocol-De4kJ6Rw.js" crossorigin=""><link rel="modulepreload" href="js/parks-BRv3oEpw.js" crossorigin=""><link rel="modulepreload" href="js/input-log-DKbJQDPh.js" crossorigin=""><link rel="modulepreload" href="js/chat-dOcK53M0.js" crossorigin=""><link rel="modulepreload" href="js/clip-export-BjJ-K6dA.js" crossorigin=""><link rel="modulepreload" href="js/replay-store-DRQEVDv4.js" crossorigin=""><link rel="modulepreload" href="js/supabase-DUDiAKuD.js" crossorigin=""><title>Cork7 — Free Online Ski Game · Solo &amp; Multiplayer</title><meta name="description" content="Play Cork7 free in your browser: a 3D freeski game with five parks, corks and flips, rails, multiplayer and 1v1. No download needed."><meta name="application-name" content="Cork7"><meta name="robots" content="index, follow"><meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><meta property="og:title" content="Cork7 — Free Online Ski Game · Solo &amp; Multiplayer"><meta property="og:description" content="Play Cork7 free in your browser: a 3D freeski game with five parks, corks and flips, rails, multiplayer and 1v1. No download needed."><meta property="og:url" content="https://cork7.com"><meta property="og:site_name" content="Cork7"><meta property="og:type" content="website"><meta property="og:image" content="images/cork7-share.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Cork7, free online ski game: a black skier silhouette carrying skis on white"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Cork7 — Free Online Ski Game · Solo &amp; Multiplayer"><meta name="twitter:description" content="Play Cork7 free in your browser: a 3D freeski game with five parks, corks and flips, rails, multiplayer and 1v1. No download needed."><meta name="twitter:image" content="images/cork7-share.jpg"><meta name="twitter:image:alt" content="Cork7, free online ski game: a black skier silhouette carrying skis on white"><link rel="icon" href="images/favicon.ico" sizes="48x48"><link rel="icon" href="images/favicon-96.png" type="image/png" sizes="96x96"><link rel="icon" href="images/favicon.svg" type="image/svg+xml" sizes="any"><link rel="apple-touch-icon" href="images/apple-touch-icon.png" sizes="180x180"><link rel="manifest" href="site.webmanifest"><link rel="canonical" href="https://cork7.com"><meta name="google-site-verification" content="_XndHZIsIPLlveCq6Sn6W5l47dmqyzj9gjuBrHEn3KQ"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Cork7"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#102b35"><script>Object.assign(((self[Symbol.for("vinext.navigationRuntime")]??={bootstrap:{routeManifest:null},functions:{}}).bootstrap.rsc??={rsc:[]}),{params:{},nav:{"pathname":"/","searchParams":[]}})</script><link rel="modulepreload" href="js/index-CYJEV1ir.js"><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -8,25 +8,75 @@
 <title>Aspen Logon</title>
 <link rel="icon" href="https://a.favicon.im/ri-portsmouth.myfollett.com" type="image/png">
 <script>
+/* Aspen Logon - game performance governor.
+   A game lives in #zoneFrame, an iframe with its own JS context. While it is
+   visible we freeze every host-page background job: recurring timers and RAF
+   callbacks bail out early, CSS animations/transitions are disabled, and every
+   other iframe is parked. The game keeps 100% of the main thread and GPU.
+   "Active" is derived from #zoneViewer's own style so every launch path is
+   covered automatically (normal zones, ZIP templates and external URLs). */
+(function(){
+  var P={};
+  P.gameActive=function(){
+    var v=document.getElementById('zoneViewer');
+    return !!(v&&v.style&&v.style.display==='block');
+  };
+  P.listeners=[];
+  P.onChange=function(fn){if(typeof fn==='function')P.listeners.push(fn)};
+  // Park every other iframe while a game runs so external pages cannot keep
+  // scripting, animating or polling in the background. Restored on close.
+  var parked=[];
+  function parkFrames(){
+    parked=[];
+    var frames=document.querySelectorAll('iframe');
+    for(var i=0;i<frames.length;i++){
+      var f=frames[i], src=f.getAttribute('src');
+      if(f.id==='zoneFrame'||!src||src==='about:blank')continue;
+      parked.push({el:f,src:src});
+      try{f.src='about:blank'}catch(e){}
+    }
+  }
+  function unparkFrames(){
+    for(var i=0;i<parked.length;i++){
+      var r=parked[i];
+      try{if(r.el&&r.el.isConnected)r.el.src=r.src}catch(e){}
+    }
+    parked=[];
+  }
+  var active=false;
+  P.sync=function(){
+    var now=P.gameActive();
+    if(now===active)return;
+    active=now;
+    if(now)parkFrames();else unparkFrames();
+    var root=document.documentElement;
+    if(root)root.classList.toggle('game-active',now);
+    for(var i=0;i<P.listeners.length;i++){
+      try{P.listeners[i](now)}catch(e){}
+    }
+  };
+  function watch(){
+    var v=document.getElementById('zoneViewer');
+    if(!v){document.addEventListener('DOMContentLoaded',watch,{once:true});return}
+    if(window.MutationObserver){
+      new MutationObserver(P.sync).observe(v,{attributes:true,attributeFilter:['style','hidden']});
+    }
+    P.sync();
+  }
+  watch();
+  window.__WHA_PERF=P;
+})();
+</script>
+<script>
 (function () {
   const faviconURL = "https://a.favicon.im/ri-portsmouth.myfollett.com";
-
-  function updateFavicon() {
-    let icon = document.getElementById("siteFavicon");
-
-    if (!icon) {
-      icon = document.createElement("link");
-      icon.id = "siteFavicon";
-      icon.rel = "icon";
-      document.head.appendChild(icon);
-    }
-
-    // Reapply the favicon
-    icon.href = faviconURL + "?t=" + Date.now();
-  }
-
-  updateFavicon();
-  setInterval(updateFavicon, 1000);
+  // One-shot only. Re-applying this every second was a permanent main-thread
+  // timer and a favicon reparse for no benefit.
+  let icon = document.createElement("link");
+  icon.id = "siteFavicon";
+  icon.rel = "icon";
+  icon.href = faviconURL + "?t=" + Date.now();
+  document.head.appendChild(icon);
 })();
 </script>
 <style>
@@ -169,6 +219,14 @@ body.gv .zone-item:hover{border-color:var(--line2)}
 .info-button{background:transparent;border:0;color:var(--mut);cursor:pointer;
   padding:2px 4px;font-size:12px;flex-shrink:0}
 .info-button:hover{color:var(--tx);background:var(--surf2)}
+
+/* Game mode: nothing on the host page animates, transitions or repaints while
+   a game is open. The iframe itself is untouched. */
+html.game-active *,html.game-active *::before,html.game-active *::after{
+  animation:none!important;transition:none!important;scroll-behavior:auto!important}
+/* Skip layout/paint for off-screen rows in the large list-view game library
+   (grid view has variable-height cards, so leave it alone). */
+body:not(.gv) .zone-item{content-visibility:auto;contain-intrinsic-size:auto 52px}
 
 
 #popupOverlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);display:none;
@@ -681,36 +739,6 @@ input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--tx);
 #whatsNewGo:hover{background:var(--bg);color:var(--tx)}
 body.wn-open{overflow:hidden}
 
-#confetti{position:fixed;inset:0;width:100%;height:100%;z-index:960;pointer-events:none;display:none}
-body.bday #confetti{display:block}
-#bdayBanner{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:961;
-  display:none;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;
-  background:linear-gradient(90deg,#ff2d78,#ff8a3d,#ffd23d,#3ddc84,#3da5ff,#b06bff);
-  color:#fff;font-weight:700;letter-spacing:1px;font-size:13px;
-  box-shadow:0 6px 24px rgba(255,45,120,.45);pointer-events:none;
-  animation:bdayPulse 1.8s ease-in-out infinite}
-body.bday #bdayBanner{display:flex}
-#bdayBanner span{font-size:16px;animation:bdayBob 1.4s ease-in-out infinite;will-change:transform}
-#bdayBanner span:last-child{animation-delay:.3s}
-@keyframes bdayPulse{0%,100%{transform:translateX(-50%) scale(1)}50%{transform:translateX(-50%) scale(1.06)}}
-@keyframes bdayBob{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-5px) rotate(8deg)}}
-#bdayLog{text-align:center}
-.bday-hero{padding:8px 0 4px}
-.bday-cake{font-size:56px;line-height:1;animation:bdayFloat 2.4s ease-in-out infinite;will-change:transform}
-@keyframes bdayFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.bday-title{margin:10px 0 4px;font-size:26px;letter-spacing:2px;
-  background:linear-gradient(90deg,#ff2d78,#ff8a3d,#ffd23d,#3ddc84,#3da5ff,#b06bff);
-  -webkit-background-clip:text;background-clip:text;color:transparent}
-.bday-sub{margin:0 0 14px;color:var(--mut);font-size:13px}
-.bday-emojis{font-size:26px;letter-spacing:6px;margin-bottom:14px}
-.bday-emojis span{display:inline-block;animation:bdayPop 1.6s ease-in-out infinite}
-.bday-emojis span:nth-child(2){animation-delay:.15s}
-.bday-emojis span:nth-child(3){animation-delay:.3s}
-.bday-emojis span:nth-child(4){animation-delay:.45s}
-.bday-emojis span:nth-child(5){animation-delay:.6s}
-@keyframes bdayPop{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.2)}}
-.bday-list{list-style:none;margin:0;padding:0;font-size:13px}
-.bday-list li{margin:6px 0}
 
 
 /* tutorial library */
@@ -747,11 +775,296 @@ body.bday #bdayBanner{display:flex}
 }
 
 </style>
+<style>
+/* pf-inject.css */
+@property --pf-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root{
+  --pf-line:rgba(255,255,255,.12);
+  --pf-line-soft:rgba(255,255,255,.07);
+  --pf-glass:rgba(10,10,10,.26);
+  --pf-glass-strong:rgba(8,9,11,.62);
+  --pf-white:#f4f6f8;
+  --pf-dim:#9aa0a8;
+}
+
+html{background:#050505}
+
+body{
+  background:transparent!important;
+  font-family:Inter,"Segoe UI",Arial,Helvetica,sans-serif;
+  color:var(--pf-white);
+}
+
+body.pf-drag-lock,body.pf-drag-lock *{user-select:none;-webkit-user-select:none;cursor:ew-resize!important}
+input[type="range"].pf-range-active{touch-action:none}
+
+.pf-background{
+  position:fixed;inset:0;width:100%;height:100%;
+  object-fit:cover;object-position:center;
+  background:#050505;z-index:-3;pointer-events:none;
+}
+.pf-overlay{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 78% -10%,rgba(255,255,255,.035),transparent 60%),
+    linear-gradient(180deg,rgba(0,0,0,.30),rgba(0,0,0,.62));
+}
+
+/* ---------- moving-border glass cards ---------- */
+.pf-card{
+  position:relative;isolation:isolate;
+  border-radius:28px;
+  background:var(--pf-glass);
+  box-shadow:0 25px 80px rgba(0,0,0,.30);
+  backdrop-filter:blur(20px) saturate(125%);
+  -webkit-backdrop-filter:blur(20px) saturate(125%);
+  transform-style:preserve-3d;
+}
+.pf-card::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;
+  background:conic-gradient(from var(--pf-angle),
+    transparent 0deg,transparent 285deg,
+    rgba(255,255,255,.05) 310deg,
+    rgba(255,255,255,.95) 330deg,
+    rgba(255,255,255,.18) 345deg,
+    transparent 360deg);
+  animation:pfBorderTravel 5s linear infinite;
+  pointer-events:none;z-index:3;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+}
+.pf-card::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:radial-gradient(circle at var(--pf-mx,50%) var(--pf-my,50%),rgba(255,255,255,.09),transparent 45%);
+  pointer-events:none;z-index:-1;
+}
+@keyframes pfBorderTravel{to{--pf-angle:360deg}}
+
+/* ---------- profile hero (Arb) ---------- */
+#viewGames{padding-top:6px}
+.pf-hero{
+  width:550px;max-width:100%;margin:14px auto 18px;
+  perspective:1100px;transform-style:preserve-3d;will-change:transform;
+}
+.pf-profile{min-height:310px;padding:35px 35px 58px}
+.pf-profile-content{display:flex;align-items:center;gap:28px;position:relative;z-index:1;transform:translateZ(45px)}
+.pf-avatar{
+  width:125px;height:125px;flex-shrink:0;border-radius:50%;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.02));
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  transform:translateZ(25px);
+}
+.pf-avatar img{width:100%;height:100%;display:block;object-fit:cover}
+.pf-info{min-width:0;flex:1}
+.pf-name{
+  min-height:37px;display:flex;align-items:center;
+  font-size:29px;font-weight:700;letter-spacing:-1px;
+}
+.pf-username{color:#888;font-size:13px;margin-top:5px}
+.pf-cursor{display:inline-block;margin-left:3px;font-weight:400;animation:pfBlink .5s steps(2,start) infinite}
+@keyframes pfBlink{to{visibility:hidden}}
+.pf-status{
+  display:inline-flex;align-items:center;gap:9px;margin-top:17px;
+  color:#b8bec7;font-size:12px;
+}
+.pf-status-dot{
+  width:9px;height:9px;flex-shrink:0;border-radius:50%;
+  background:#23a55a;box-shadow:0 0 5px #23a55a,0 0 12px rgba(35,165,90,.75),0 0 22px rgba(35,165,90,.45);
+}
+.pf-activity{margin-top:7px;color:rgba(255,255,255,.48);font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.pf-divider{height:1px;width:100%;background:rgba(255,255,255,.09);margin:28px 0 20px}
+.pf-quote-area{min-height:25px;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;z-index:1;transform:translateZ(25px)}
+.pf-quote{color:#aaa;font-size:13px;letter-spacing:.1px;min-height:18px;overflow-wrap:anywhere}
+.pf-views{
+  position:absolute;left:24px;bottom:17px;display:flex;align-items:center;gap:7px;
+  color:rgba(255,255,255,.45);font-size:11px;font-variant-numeric:tabular-nums;z-index:4;
+}
+.pf-views svg{width:15px;height:15px;fill:currentColor;opacity:.7}
+.pf-footer{position:absolute;right:24px;bottom:17px;color:#555;font-size:10px;z-index:4}
+.pf-discord{
+  position:absolute;right:35px;top:35px;width:46px;height:46px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.12);border-radius:12px;
+  background:rgba(255,255,255,.06);cursor:pointer;z-index:4;
+  transform:translateZ(35px);transition:background-color .2s ease,box-shadow .2s ease;
+}
+.pf-discord:hover{background:rgba(255,255,255,.14);box-shadow:0 5px 18px rgba(0,0,0,.2)}
+.pf-discord svg{width:19px;height:19px;fill:#fff}
+
+/* ---------- my web ports ---------- */
+.pf-ports{
+  width:100%;margin:0 auto 18px;padding:18px 22px 20px;
+  border-radius:22px;overflow:hidden;
+}
+.pf-ports-label{
+  position:relative;z-index:1;color:#9aa0a8;font-size:10px;
+  letter-spacing:.16em;text-transform:uppercase;margin-bottom:14px;
+}
+.pf-ports-grid{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;
+}
+.pf-port{
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  min-width:0;padding:15px 8px 12px;
+  border:1px solid rgba(255,255,255,.10);border-radius:14px;
+  background:rgba(255,255,255,.04);color:#f4f6f8;
+  cursor:pointer;text-align:center;
+  transition:background-color .18s ease,border-color .18s ease,transform .18s ease;
+}
+.pf-port:hover{
+  background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.38);
+  transform:translateY(-2px);
+}
+.pf-port:active{transform:translateY(0)}
+.pf-port.missing{opacity:.45;cursor:not-allowed}
+.pf-port-cover{
+  width:52px;height:52px;flex-shrink:0;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:linear-gradient(145deg,rgba(255,255,255,.20),rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.14);
+  font-size:22px;font-weight:700;color:#fff;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+}
+.pf-port-cover img{width:100%;height:100%;object-fit:cover;display:block}
+.pf-port-name{font-size:12px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.pf-port-play{
+  font-size:9px;color:rgba(255,255,255,.45);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+@media (max-width:700px){
+  .pf-ports-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* The original featured list must stay in the DOM for the launcher's sort
+   code, but the visible replacement is the My Web Ports panel above. */
+#featuredZonesWrapper{display:none!important}
+
+/* ---------- launcher chrome restyled ---------- */
+header{
+  background:var(--pf-glass-strong)!important;
+  border-bottom:1px solid var(--pf-line)!important;
+  backdrop-filter:blur(22px) saturate(130%);
+  -webkit-backdrop-filter:blur(22px) saturate(130%);
+}
+.header-content{max-width:1180px}
+.tab{
+  border:1px solid var(--pf-line)!important;border-radius:10px!important;
+  margin-right:4px;color:#aeb4bd!important;
+}
+.tab:hover{background:rgba(255,255,255,.10)!important;color:#fff!important}
+.tab.on{background:rgba(255,255,255,.92)!important;color:#08090b!important;border-color:transparent!important}
+#searchBar,#sortOptions,#filterOptions,.px-url,.ct-url{
+  background-color:rgba(8,9,11,.62)!important;
+  border:1px solid var(--pf-line)!important;border-radius:10px!important;
+  color:var(--pf-white)!important;
+}
+select option{background:#111!important;color:#fff!important}
+.modebtn,.control-button,.small-btn,.act,.settings-button{
+  border:1px solid var(--pf-line)!important;border-radius:10px!important;
+  background:rgba(255,255,255,.06)!important;color:#d7dbe0!important;
+}
+.modebtn:hover,.control-button:hover,.small-btn:hover,.act:hover,.settings-button:hover{background:rgba(255,255,255,.16)!important;color:#fff!important}
+main{max-width:1180px;position:relative;z-index:1}
+.pagehead{border-bottom:1px solid var(--pf-line)!important;color:#e9edf2}
+summary{color:#d7dbe0;cursor:pointer}
+summary:hover{background:rgba(255,255,255,.07)!important;border-radius:8px}
+
+#container{
+  border:1px solid var(--pf-line)!important;border-radius:18px;
+  padding:6px;background:rgba(8,9,11,.30);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+}
+.zone-item{
+  background:rgba(8,9,11,.34)!important;
+  border-bottom:1px solid var(--pf-line-soft)!important;
+  border-radius:10px;margin-bottom:4px;
+  transition:background-color .16s ease,border-color .16s ease;
+}
+.zone-item:hover{background:rgba(255,255,255,.10)!important}
+body.gv .zone-item{border:1px solid var(--pf-line)!important;background:rgba(8,9,11,.34)!important}
+body.gv .zone-item:last-child{border-bottom:1px solid var(--pf-line)!important}
+body.gv .zone-item:hover{border-color:rgba(255,255,255,.35)!important}
+
+.popup,.chat-wrap,.settings-wrap,.wn-box{
+  background:var(--pf-glass-strong)!important;
+  border:1px solid var(--pf-line)!important;
+  border-radius:18px!important;
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  color:var(--pf-white);
+}
+.popup-header,.chat-head{background:rgba(8,9,11,.72)!important;border-bottom:1px solid var(--pf-line)!important}
+
+#zoneViewer{background:#050505!important}
+.zone-header{background:rgba(8,9,11,.88)!important;border-bottom:1px solid var(--pf-line)!important;backdrop-filter:blur(18px)}
+#zoneFrame{background:#050505!important}
+
+/* ---------- custom four-corner cursor ---------- */
+@media (hover:hover) and (pointer:fine){
+  html.pf-cursor-on,html.pf-cursor-on *{cursor:none!important}
+  .pf-cursor-frame{
+    position:fixed;left:0;top:0;width:0;height:0;z-index:2147483000;
+    pointer-events:none;opacity:0;transition:opacity .2s ease;
+  }
+  .pf-cursor-frame.visible{opacity:1}
+  .pf-cursor-frame i{
+    position:absolute;left:0;top:0;width:13px;height:13px;
+    border:0 solid #fff;border-color:#fff;filter:drop-shadow(0 0 2px #000);
+    will-change:transform;
+  }
+  .pf-cursor-frame i:nth-child(1){border-top-width:1.5px;border-left-width:1.5px;border-top-left-radius:4px}
+  .pf-cursor-frame i:nth-child(2){border-top-width:1.5px;border-right-width:1.5px;border-top-right-radius:4px}
+  .pf-cursor-frame i:nth-child(3){border-bottom-width:1.5px;border-right-width:1.5px;border-bottom-right-radius:4px}
+  .pf-cursor-frame i:nth-child(4){border-bottom-width:1.5px;border-left-width:1.5px;border-bottom-left-radius:4px}
+}
+
+input[type="range"]{touch-action:none}
+html.game-active .pf-background,html.game-active .pf-overlay{display:none!important}
+
+@media (max-width:520px){
+  .pf-profile{padding:25px 25px 58px;min-height:280px}
+  .pf-profile-content{gap:18px}
+  .pf-avatar{width:90px;height:90px}
+  .pf-name{font-size:25px}
+  .pf-discord{top:18px;right:18px;width:42px;height:42px}
+  .pf-views{left:19px}
+  .pf-footer{right:19px}
+  .pf-ports{padding:16px}
+  .pf-ports-grid{gap:8px}
+  .pf-port{padding:12px 5px 10px}
+  .pf-port-cover{width:44px;height:44px;border-radius:12px;font-size:18px}
+}
+@media (max-width:370px){
+  .pf-profile-content{flex-direction:column;align-items:flex-start}
+}
+@media (max-height:680px){
+  .pf-hero{zoom:.9}
+}
+@media (max-height:560px){
+  .pf-hero{zoom:.78}
+}
+@media (prefers-reduced-motion:reduce){
+  .pf-card::before{animation:none}
+  .pf-port,.pf-port:hover{transform:none}
+  .pf-cursor{animation:none}
+}
+
+</style>
 </head>
 <body class="wn-open">
+<!-- Portfolio layer: Nissan rain background, Arb profile, My Web Ports, arrow cursor -->
+<video id="pfBackground" class="pf-background" src="https://raw.githubusercontent.com/isovarst/Portfolio/main/Nissan%20Silvia%20S13%20Gloomy%20Rain%20Live%20Wallpaper%204K%20%281%29.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+<div id="pfOverlay" class="pf-overlay" aria-hidden="true"></div>
+<div id="pfCursor" class="pf-cursor-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
-<canvas id="confetti" aria-hidden="true"></canvas>
-<div id="bdayBanner" aria-hidden="true"><span>🎂</span> happy birthday <span>🎉</span></div>
 
 <div id="whatsNew" role="dialog" aria-modal="true" aria-labelledby="wnTitle">
   <div class="wn-box">
@@ -762,8 +1075,6 @@ body.bday #bdayBanner{display:flex}
     </div>
 
     <div class="wn-body">
-      <div id="wnNormal">
-
         <div class="wn-sec">
           <h4>BIG UPDATE</h4>
 
@@ -835,25 +1146,6 @@ body.bday #bdayBanner{display:flex}
           </div>
 
         </div>
-      </div>
-
-      <div id="bdayLog" hidden>
-        <div class="bday-hero">
-          <div class="bday-cake">🎂</div>
-          <h2 class="bday-title">happy birthday!</h2>
-          <p class="bday-sub">the whole launcher is celebrating today</p>
-        </div>
-
-        <div class="bday-emojis">
-          <span>🎉</span><span>🎈</span><span>🎁</span><span>🧁</span><span>🎊</span>
-        </div>
-
-        <ul class="bday-list">
-          <li>confetti is falling just for you</li>
-          <li>there's a <b>birthday</b> theme in options</li>
-          <li>cakes, balloons and good vibes all day</li>
-        </ul>
-      </div>
     </div>
 
     <div class="wn-foot">
@@ -900,8 +1192,37 @@ body.bday #bdayBanner{display:flex}
 <main>
 
   <section class="view on" id="viewGames">
-    <h1 class="pagehead">games</h1>
-    <details id="featuredZonesWrapper" open>
+    
+<div class="pf-hero" id="pfHero">
+  <section class="pf-card pf-profile" aria-label="Arb portfolio profile">
+    <div class="pf-profile-content">
+      <div class="pf-avatar"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR43GdSI-vXUARMZ1apDyP1z5Zdg51TkzaeTpQH26RQAQ&s=10" alt="Arb's Discord avatar"></div>
+      <div class="pf-info">
+        <div class="pf-name"><span id="pfTypedName"></span><span class="pf-cursor" aria-hidden="true">|</span></div>
+        <div class="pf-username">@arb_i</div>
+        <div class="pf-status"><span class="pf-status-dot" aria-hidden="true"></span><span>Online</span></div>
+        <div class="pf-activity">playing games locally</div>
+      </div>
+    </div>
+
+    <a class="pf-discord" href="https://discord.com/users/1548499637936197673" target="_blank" rel="noopener noreferrer" title="Open Discord profile" aria-label="Open Discord profile">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.73 5.1a18.2 18.2 0 0 0-4.5-1.4l-.55 1.12a16.8 16.8 0 0 0-5.1 0L9.03 3.7a18.2 18.2 0 0 0-4.5 1.4C1.68 9.3.91 13.4 1.3 17.45a18.2 18.2 0 0 0 5.52 2.8l1.2-1.96a11.8 11.8 0 0 1-1.9-.92l.47-.37a13 13 0 0 0 11.82 0l.47.37c-.61.36-1.25.67-1.9.92l1.2 1.96a18.2 18.2 0 0 0 5.52-2.8c.47-4.7-.8-8.75-3.97-12.35ZM8.55 14.9c-1.1 0-2-.99-2-2.2s.88-2.2 2-2.2 2.02.99 2 2.2c0 1.21-.88 2.2-2 2.2Zm6.9 0c-1.1 0-2-.99-2-2.2s.88-2.2 2-2.2 2.02.99 2 2.2c0 1.21-.88 2.2-2 2.2Z"/></svg>
+    </a>
+
+    <div class="pf-divider"></div>
+    <div class="pf-quote-area"><div class="pf-quote"><span id="pfTypedQuote"></span><span class="pf-cursor" aria-hidden="true">|</span></div></div>
+    <div class="pf-views" id="pfViews">views</div>
+    <div class="pf-footer">© Arb</div>
+  </section>
+</div>
+<h1 class="pagehead">games</h1>
+
+<div class="pf-card pf-ports" id="pfPorts" aria-label="my web ports">
+  <div class="pf-ports-label">my web ports</div>
+  <div class="pf-ports-grid" id="pfPortsGrid"></div>
+</div>
+
+    <details id="featuredZonesWrapper" hidden>
       <summary id="allZonesSummary">featured</summary>
       <div id="featuredZones" class="zone-container"></div>
     </details>
@@ -1293,7 +1614,7 @@ if(RETIRED_KEYS.indexOf(apiKey)>=0){apiKey=DEFAULT_KEY;lsSet(LS.key,apiKey)}
 var models=[];
 
 
-var LS_THEME="appTheme",LS_GRID="appGrid",LS_GCOLS="appGridCols",LS_GCARD="appGridCard",LS_BDAY="appBirthday";
+var LS_THEME="appTheme",LS_GRID="appGrid",LS_GCOLS="appGridCols",LS_GCARD="appGridCard";
 function mkTheme(dark,bg,surf,surf2,line,line2,tx,mut,acc,accInk){
   return {dark:dark,bg:bg,surf:surf,surf2:surf2,line:line,line2:line2,
     tx:tx,mut:mut,acc:acc,accInk:accInk,dim:dark?"rgba(255,255,255,.06)":"rgba(0,0,0,.05)"};
@@ -1318,8 +1639,7 @@ var THEME_DEFS=[
 ["grape",1,"#140b1f","#1b1029","#271740","#43285f","#7048a0","#eadcff","#a98cc7","#b06bff","#120722"],
 ["ice",0,"#eef6fd","#f5faff","#dceafa","#b3d0ec","#6fa6d6","#123049","#517a9c","#2b8ae0","#ffffff"],
 ["peach",0,"#fff6ef","#fffaf5","#ffe8d6","#f2ccae","#dd9d6d","#4a2c17","#966b4f","#ff8a3d","#ffffff"],
-["mono",1,"#1a1a1a","#202020","#2a2a2a","#3d3d3d","#5c5c5c","#ededed","#a0a0a0","#d0d0d0","#1a1a1a"],
-["birthday",0,"#fff0f7","#fff7fb","#ffe3f1","#f7bcd9","#e07bb0","#5a1e3c","#a06a86","#ff2d78","#ffffff"]
+["mono",1,"#1a1a1a","#202020","#2a2a2a","#3d3d3d","#5c5c5c","#ededed","#a0a0a0","#d0d0d0","#1a1a1a"]
 ];
 var THEMES={},THEME_ORDER=[];
 THEME_DEFS.forEach(function(d){
@@ -1378,75 +1698,6 @@ function paintAppearance(){
   var wrap=$("gridOpts");
   if(wrap)wrap.style.display=gridStyle()==="grid"?"":"none";
 }
-function birthdayOn(){return lsGet(LS_BDAY,"off")==="on"}
-var bdayRaf=0,bdayParts=[],bdaySprites=null,bdayLast=0;
-function bdayMakeSprite(draw){
-  var s=document.createElement("canvas");s.width=40;s.height=40;
-  var x=s.getContext("2d");draw(x);return s;
-}
-function bdayBuildSprites(){
-  if(bdaySprites)return bdaySprites;
-  bdaySprites=[];
-  ["#ff2d78","#ff8a3d","#ffd23d","#3ddc84","#3da5ff","#b06bff","#ff5ca8","#ffffff"].forEach(function(col){
-    bdaySprites.push({img:bdayMakeSprite(function(x){x.fillStyle=col;x.fillRect(8,12,24,16)}),w:24,h:16});
-  });
-  ["🎂","🎈","🎉","🎁","🧁"].forEach(function(ch){
-    bdaySprites.push({img:bdayMakeSprite(function(x){x.font="30px serif";x.textAlign="center";x.textBaseline="middle";x.fillText(ch,20,21)}),w:30,h:30});
-  });
-  return bdaySprites;
-}
-function bdayConfettiStart(){
-  var c=$("confetti");
-  if(!c||bdayRaf)return;
-  var ctx=c.getContext("2d");
-  var spr=bdayBuildSprites();
-  function part(init){
-    return {x:Math.random()*innerWidth,y:init?Math.random()*innerHeight:-40-Math.random()*innerHeight,
-      s:0.6+Math.random()*0.8,vy:1.2+Math.random()*2.6,vx:-1.2+Math.random()*2.4,
-      rot:Math.random()*6.28,vr:-0.08+Math.random()*0.16,
-      k:Math.floor(Math.random()*spr.length),ph:Math.random()*6.28};
-  }
-  bdayParts=[];
-  for(var i=0;i<45;i++)bdayParts.push(part(true));
-  bdayLast=0;var t=0;
-  function frame(now){
-    bdayRaf=requestAnimationFrame(frame);
-    if(now-bdayLast<33)return;
-    bdayLast=now;
-    if(document.hidden)return;
-    if(c.width!==innerWidth||c.height!==innerHeight){c.width=innerWidth;c.height=innerHeight}
-    t++;
-    ctx.clearRect(0,0,c.width,c.height);
-    for(var i=0;i<bdayParts.length;i++){
-      var p=bdayParts[i];
-      p.y+=p.vy;p.x+=p.vx+Math.sin(t/26+p.ph)*1.4;p.rot+=p.vr;
-      if(p.y>c.height+50||p.x<-70||p.x>c.width+70){bdayParts[i]=part(false);continue}
-      var sp=spr[p.k],co=Math.cos(p.rot)*p.s,si=Math.sin(p.rot)*p.s;
-      ctx.setTransform(co,si,-si,co,p.x,p.y);
-      ctx.drawImage(sp.img,-sp.w/2,-sp.h/2,sp.w,sp.h);
-    }
-    ctx.setTransform(1,0,0,1,0,0);
-  }
-  bdayRaf=requestAnimationFrame(frame);
-}
-function bdayConfettiStop(){
-  if(bdayRaf){cancelAnimationFrame(bdayRaf);bdayRaf=0}
-  var c=$("confetti");
-  if(c){var ctx=c.getContext("2d");if(ctx){ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height)}}
-  bdayParts=[];
-}
-function applyBirthday(){
-  var on=birthdayOn();
-  document.body.classList.toggle("bday",on);
-  var normal=$("wnNormal"),log=$("bdayLog"),title=$("wnTitle"),ver=$("wnVer");
-  if(normal)normal.hidden=on;
-  if(log)log.hidden=!on;
-  if(title)title.textContent=on?"happy birthday":"what's new";
-  if(ver)ver.textContent=on?"birthday edition":"update log";
-  if(on)bdayConfettiStart();else bdayConfettiStop();
-  var sel=$("bdayMode");
-  if(sel)sel.value=on?"on":"off";
-}
 (function(){
   var sel=$("themeSelect");
   if(sel){
@@ -1469,18 +1720,10 @@ function applyBirthday(){
   if(gc)gc.oninput=function(){lsSet(LS_GCOLS,gc.value);queueGrid();paintAppearance()};
   var gk=$("gridCard");
   if(gk)gk.oninput=function(){lsSet(LS_GCARD,gk.value);queueGrid();paintAppearance()};
-  var bd=$("bdayMode");
-  if(bd)bd.onchange=function(){
-    lsSet(LS_BDAY,bd.value);
-    if(bd.value==="on"&&themeName()!=="birthday")applyTheme("birthday");
-    else if(bd.value==="off"&&themeName()==="birthday")applyTheme("dark");
-    applyBirthday();
-  };
 })();
 applyTheme(themeName(),true);
 applyGrid();
 paintAppearance();
-applyBirthday();
 
 
 var TAB_IDS=["games","chat","google","youtube","tutorial","settings"];
@@ -1504,6 +1747,7 @@ function setTab(id){
   document.body.classList.toggle("wide",WIDE_TABS.indexOf(id)>-1);
 
   if(id==="chat")$("input").focus();
+  if(id==="google"&&typeof pxTabs!=="undefined"&&pxTabs&&pxTabs.length&&typeof paintPx==="function")paintPx();
 }
 document.addEventListener("click",function(e){
   var b=e.target.closest&&e.target.closest("#tabs .tab");
@@ -2563,7 +2807,10 @@ function recentreZone(){
     if(now&&now!==f)centreSmallZone(now);
   }).observe($("zoneViewer"),{childList:true,subtree:true});
 
-  window.addEventListener("resize",function(){setTimeout(recentreZone,180)});
+  window.addEventListener("resize",function(){
+    if(window.__WHA_PERF&&window.__WHA_PERF.gameActive())return;
+    setTimeout(recentreZone,180);
+  },{passive:true});
 })();
 
 
@@ -2654,7 +2901,10 @@ function paintPx(){
   var t=pxTabs[pxActive];
   if(!t)return;
   $("pxUrl").value=t.url;
-  $("pxFrame").src=t.url;
+  // Lazy-load: creating the Google iframe at startup costs a full cross-origin
+  // page load even when the user never opens the proxy tab. setTab() loads it
+  // the first time that tab is actually shown.
+  if(activeTab==="google")$("pxFrame").src=t.url;
   lsSet(LS.pxUrl,t.url);
 }
 function pxGo(raw,forceNew){
@@ -3228,6 +3478,7 @@ function syncMineZones(){
 (function watchForZoneList(){
   var tries=0;
   var tick=function(){
+    if(window.__WHA_PERF&&window.__WHA_PERF.gameActive())return;
     if(syncMineZones())return;
     if(tries++<120)setTimeout(tick,500);
   };
@@ -3248,6 +3499,7 @@ function installZoneHooks(){
     var v=$("zoneViewer");
     if(!v)return;
     zoneToken++;
+    __pfRevokeGameUrl();
     v.hidden=false;
     v.style.display="none";
     var f=$("zoneFrame");
@@ -3393,7 +3645,23 @@ function zoneFrameNow(){
 }
 
 
+var __pfGameObjectUrl=null;
+function __pfRevokeGameUrl(){
+  if(__pfGameObjectUrl){
+    try{URL.revokeObjectURL(__pfGameObjectUrl)}catch(e){}
+    __pfGameObjectUrl=null;
+  }
+}
+window.addEventListener("message",function(e){
+  if(!e||!e.data||e.data.type!=="pf-cork7-game"||!e.data.blob)return;
+  var f=$("zoneFrame");
+  if(!f)return;
+  __pfRevokeGameUrl();
+  __pfGameObjectUrl=URL.createObjectURL(e.data.blob);
+  f.src=__pfGameObjectUrl;
+},false);
 function freshFrame(){
+  __pfRevokeGameUrl();
   var old=$("zoneFrame");
   if(old){
     try{
@@ -3472,6 +3740,31 @@ function showZoneHead(z){
 function playAnyZone(z){
   if(!z)return;
   if(z.tpl){tplPlay(z);return;}
+  if(z.id==="m-cork7"||/^cork7$/i.test(String(z.name||""))){
+    var token=++zoneToken;
+    showZoneHead(z);
+    var f=freshFrame();
+    zoneLoading(f,z.name).then(function(){
+      return fetch("https://raw.githubusercontent.com/isovarst/site/refs/heads/main/cork7.html?t="+Date.now(),{redirect:"follow"}).then(function(res){
+        if(!res.ok)throw new Error("the server said "+res.status);
+        return res.text();
+      });
+    }).then(function(loader){
+      if(token!==zoneToken||!loader)return;
+      if(loader.length<10)throw new Error("that file came back empty");
+      var needle='objectUrl=URL.createObjectURL(gameBlob);gameFrame=document.createElement("iframe");';
+      var handoff='try{if(window.parent&&window.parent!==window){window.parent.postMessage({type:"pf-cork7-game",blob:gameBlob},"*");ui.status.textContent="CORK7 ready";log("CORK7 sent to launcher.","success");return}}catch(e){}objectUrl=URL.createObjectURL(gameBlob);gameFrame=document.createElement("iframe");';
+      if(loader.indexOf(needle)>=0)loader=loader.replace(needle,handoff);
+      return writeInto(f,loader).then(function(okw){
+        if(okw===false&&token===zoneToken)zoneFailed(f,z.name,"the frame went away");
+      });
+    }).catch(function(err){
+      if(token!==zoneToken)return;
+      zoneFailed(f,z.name,err.message);
+      toast("could not load "+z.name,"bad");
+    });
+    return;
+  }
   var raw=String(z.url||"");
 
   if(!z.mine&&/^https?:\/\//i.test(raw)){
@@ -3487,13 +3780,23 @@ function playAnyZone(z){
   zoneLoading(f,z.name).then(function(){
     return fetch(url+"?t="+Date.now(),{redirect:"follow"}).then(function(res){
       if(!res.ok)throw new Error("the server said "+res.status);
-      return res.text();
+      return res.blob();
     });
-  }).then(function(html){
-    if(token!==zoneToken||!html)return;
-    if(html.length<10)throw new Error("that file came back empty");
-    return writeInto(f,html).then(function(okw){
-      if(okw===false&&token===zoneToken)zoneFailed(f,z.name,"the frame went away");
+  }).then(function(blob){
+    if(token!==zoneToken||!blob)return;
+    if(!blob.size)throw new Error("that file came back empty");
+    if(blob.size>33554432){
+      __pfRevokeGameUrl();
+      __pfGameObjectUrl=URL.createObjectURL(blob);
+      f.src=__pfGameObjectUrl;
+      return;
+    }
+    return blob.text().then(function(html){
+      if(token!==zoneToken||!html)return;
+      if(html.length<10)throw new Error("that file came back empty");
+      return writeInto(f,html).then(function(okw){
+        if(okw===false&&token===zoneToken)zoneFailed(f,z.name,"the frame went away");
+      });
     });
   }).catch(function(err){
     if(token!==zoneToken)return;
@@ -4678,6 +4981,7 @@ function dropShort(rec){
 (function(){
   var ticking=false;
   var onScroll=function(){
+    if(window.__WHA_PERF&&window.__WHA_PERF.gameActive())return;
     if(ticking)return;
     ticking=true;
     requestAnimationFrame(function(){
@@ -4685,7 +4989,7 @@ function dropShort(rec){
       if(ytPage.page==="shorts")syncShortFrames();
     });
   };
-  if(typeof document!=="undefined")document.addEventListener("scroll",onScroll,true);
+  if(typeof document!=="undefined")document.addEventListener("scroll",onScroll,{capture:true,passive:true});
 })();
 function ytShortMove(dir){
   var col=$("ytShortsCol");
@@ -5305,6 +5609,7 @@ function aiInWindow(){
   if(!aiAttach(win)){toast("that window would not take it","bad");return}
   if(aiWatch)clearInterval(aiWatch);
   aiWatch=setInterval(function(){
+    if(window.__WHA_PERF&&window.__WHA_PERF.gameActive())return;
     if(!aiWin||aiWin.closed){
       clearInterval(aiWatch);
       aiWatch=null;
@@ -5798,12 +6103,430 @@ try { if (window.__appAfterAlice) window.__appAfterAlice(); } catch (e) { consol
 
 setInterval(function(){
   try{
+    if(window.__WHA_PERF&&window.__WHA_PERF.gameActive())return;
     var v=document.getElementById("zoneViewer");
     if(v&&v.style.display==="block")return;
     if(typeof window.listZones==="function")window.listZones();
     if(window.APP&&window.APP.mineSync)setTimeout(function(){window.APP.mineSync()},900);
   }catch(e){}
 },30000);
+</script>
+
+<script>
+/* pf-inject.js */
+(function(){
+  'use strict';
+
+  var P = window.__WHA_PERF;
+  var root = document.documentElement;
+  var mq = window.matchMedia ? window.matchMedia.bind(window) : function(){return {matches:false}};
+  var reduceMotion = mq('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = mq('(hover: hover) and (pointer: fine)').matches;
+
+  function active(){ return !!(P && P.gameActive()); }
+  function $(id){ return document.getElementById(id); }
+
+  document.title = 'Arb';
+
+  /* ------------------------------------------------------------------ */
+  /* Nissan background only — released completely while a game is open  */
+  /* ------------------------------------------------------------------ */
+  var nissanSrc = 'https://raw.githubusercontent.com/isovarst/Portfolio/main/Nissan%20Silvia%20S13%20Gloomy%20Rain%20Live%20Wallpaper%204K%20%281%29.mp4';
+  var video = $('pfBackground');
+
+  function playVideo(){
+    if(!video || active() || reduceMotion) return;
+    if(!video.getAttribute('src')) video.setAttribute('src', nissanSrc);
+    var p = video.play();
+    if(p && typeof p.catch === 'function') p.catch(function(){});
+  }
+
+  playVideo();
+
+  /* ------------------------------------------------------------------ */
+  /* Profile typewriters + view counter                                  */
+  /* ------------------------------------------------------------------ */
+  var typedName = $('pfTypedName');
+  var typedQuote = $('pfTypedQuote');
+  var viewsEl = $('pfViews');
+  var nameText = 'Arb';
+  var quotes = [
+    'f1 racers r tuff',
+    'goated ig',
+    'wasm rip',
+    'audio.mp3',
+    '"Hello, World!"',
+    'top paster',
+    '"larp larp larp sahur"',
+    '"works fine for me"',
+    'git clone',
+    '"ill fix it later"'
+  ];
+  var nameTimer = null;
+  var quoteTimer = null;
+  var quoteIndex = 0;
+  var quoteChar = 0;
+  var quoteDeleting = false;
+
+  function typeNameStep(){
+    if(!typedName) return;
+    var n = typedName.textContent.length;
+    if(n < nameText.length){
+      typedName.textContent += nameText.charAt(n);
+      nameTimer = window.setTimeout(typeNameStep, 90);
+    } else {
+      nameTimer = null;
+    }
+  }
+
+  function typeQuoteStep(){
+    if(!typedQuote) return;
+    var msg = quotes[quoteIndex];
+    if(!quoteDeleting && quoteChar < msg.length){
+      quoteChar++;
+    } else if(quoteDeleting && quoteChar > 0){
+      quoteChar--;
+    } else if(quoteChar === msg.length){
+      quoteDeleting = true;
+      quoteTimer = window.setTimeout(typeQuoteStep, 2000);
+      return;
+    } else {
+      quoteDeleting = false;
+      quoteIndex = (quoteIndex + 1) % quotes.length;
+    }
+    typedQuote.textContent = msg.slice(0, quoteChar);
+    quoteTimer = window.setTimeout(typeQuoteStep, quoteDeleting ? 75 : 150);
+  }
+
+  function startTypers(){
+    if(active()) return;
+    if(typedName && !nameTimer && typedName.textContent.length < nameText.length) typeNameStep();
+    if(typedQuote && !quoteTimer) typeQuoteStep();
+  }
+
+  function stopTypers(){
+    if(nameTimer){ clearTimeout(nameTimer); nameTimer = null; }
+    if(quoteTimer){ clearTimeout(quoteTimer); quoteTimer = null; }
+  }
+
+  startTypers();
+
+  try{
+    var saved = Number(localStorage.getItem('arb-profile-views') || 0);
+    var count = Math.max(saved, 1273) + 1;
+    localStorage.setItem('arb-profile-views', String(count));
+    if(viewsEl) viewsEl.textContent = count.toLocaleString() + (count === 1 ? ' view' : ' views');
+  }catch(e){
+    if(viewsEl) viewsEl.textContent = 'views';
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* My Web Ports — the ports I actually made (no rotation, no timers)    */
+  /* ------------------------------------------------------------------ */
+  var portsGrid = $('pfPortsGrid');
+  var portNames = [
+    'Cork7',
+    'Among Us (WASM)',
+    'Subway Surfers',
+    'Grand Theft Auto 3'
+  ];
+  var portsInitTimer = null;
+  var portsReady = false;
+
+  function zoneList(){
+    return (typeof zones !== 'undefined' && zones && zones.length) ? zones : [];
+  }
+
+  function stopPortsInit(){
+    if(portsInitTimer){ clearTimeout(portsInitTimer); portsInitTimer = null; }
+  }
+
+  function findPortZone(name){
+    var all = zoneList();
+    for(var i=0;i<all.length;i++){
+      if(all[i] && String(all[i].name||'') === name) return all[i];
+    }
+    return null;
+  }
+
+  function allPortsFound(){
+    for(var i=0;i<portNames.length;i++){
+      if(!findPortZone(portNames[i])) return false;
+    }
+    return true;
+  }
+
+  function paintPorts(){
+    if(!portsGrid) return;
+    portsGrid.innerHTML = '';
+    portNames.forEach(function(name){
+      var z = findPortZone(name);
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'pf-port' + (z ? '' : ' missing');
+      btn.setAttribute('aria-label', 'Play ' + name);
+
+      var cover = document.createElement('span');
+      cover.className = 'pf-port-cover';
+      var imgUrl = z ? String(z.cover || (z.mine && z.mine.icon) || '') : '';
+      function fallback(){ cover.textContent = name.charAt(0); }
+      if(/^https?:\/\//i.test(imgUrl)){
+        var img = document.createElement('img');
+        img.alt = '';
+        img.onerror = function(){ if(img.parentNode) img.parentNode.removeChild(img); fallback(); };
+        cover.appendChild(img);
+        img.src = imgUrl;
+      } else {
+        fallback();
+      }
+
+      var label = document.createElement('span');
+      label.className = 'pf-port-name';
+      label.textContent = name;
+
+      var hint = document.createElement('span');
+      hint.className = 'pf-port-play';
+      hint.textContent = z ? 'play' : 'not in library';
+
+      btn.appendChild(cover);
+      btn.appendChild(label);
+      btn.appendChild(hint);
+      if(z){
+        btn.addEventListener('click', function(){
+          if(active()) return;
+          if(typeof window.openZone === 'function') window.openZone(z);
+          else if(typeof window.playMineZone === 'function') window.playMineZone(z);
+        });
+      } else {
+        btn.disabled = true;
+      }
+      portsGrid.appendChild(btn);
+    });
+  }
+
+  function initPortsWhenReady(tries){
+    if(active() || portsReady) return;
+    if(allPortsFound()){
+      portsReady = true;
+      paintPorts();
+      return;
+    }
+    paintPorts();
+    if((tries || 0) >= 80) return;
+    portsInitTimer = window.setTimeout(function(){
+      portsInitTimer = null;
+      initPortsWhenReady((tries || 0) + 1);
+    }, 250);
+  }
+
+  initPortsWhenReady(0);
+
+  /* ------------------------------------------------------------------ */
+  /* 3D tilt on the profile hero                                         */
+  /* ------------------------------------------------------------------ */
+  var hero = $('pfHero');
+  var tiltFrame = null;
+  var tiltLast = 0;
+  var tiltActive = false;
+  var tx = 0, ty = 0, cx = 0, cy = 0, vx = 0, vy = 0;
+
+  function tiltStep(time){
+    var dt = tiltLast ? Math.min((time - tiltLast) / 16.67, 2) : 1;
+    tiltLast = time;
+    vx = (vx + (tx - cx) * 0.085 * dt) * Math.pow(0.82, dt);
+    vy = (vy + (ty - cy) * 0.085 * dt) * Math.pow(0.82, dt);
+    cx += vx * dt;
+    cy += vy * dt;
+    if(hero) hero.style.transform = 'perspective(1100px) rotateX(' + (-cy) + 'deg) rotateY(' + cx + 'deg)';
+    var settled = Math.abs(tx-cx) < .015 && Math.abs(ty-cy) < .015 && Math.abs(vx) < .015 && Math.abs(vy) < .015;
+    if(!tiltActive && settled){
+      if(hero) hero.style.transform = '';
+      tiltFrame = null; tiltLast = 0;
+      return;
+    }
+    tiltFrame = requestAnimationFrame(tiltStep);
+  }
+
+  function startTilt(){
+    if(active() || reduceMotion || !hero || tiltFrame) return;
+    tiltFrame = requestAnimationFrame(tiltStep);
+  }
+
+  function stopTilt(){
+    tiltActive = false;
+    if(tiltFrame){ cancelAnimationFrame(tiltFrame); tiltFrame = null; }
+    tiltLast = 0;
+    if(hero) hero.style.transform = '';
+  }
+
+  if(hero && !reduceMotion){
+    document.addEventListener('pointermove', function(e){
+      if(active()) return;
+      tx = ((e.clientX / Math.max(1, innerWidth)) - .5) * 14;
+      ty = ((e.clientY / Math.max(1, innerHeight)) - .5) * 14;
+      tiltActive = true;
+      startTilt();
+    }, { passive:true });
+    document.addEventListener('pointerleave', function(){ tiltActive = false; startTilt(); });
+    window.addEventListener('blur', function(){ tiltActive = false; startTilt(); });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Four-corner cursor — pointer-events:none, so all controls still work */
+  /* ------------------------------------------------------------------ */
+  var cursor = $('pfCursor');
+  var corners = cursor ? Array.prototype.slice.call(cursor.querySelectorAll('i')) : [];
+  var cursorFrame = null;
+  var cursorLast = 0;
+  var pointerX = innerWidth / 2;
+  var pointerY = innerHeight / 2;
+  var cursorTarget = null;
+  var cursorVisible = false;
+  var cursorAngle = 0;
+  var cornerPos = corners.map(function(){ return { x:pointerX, y:pointerY }; });
+
+  function enableCursor(){
+    if(finePointer && !reduceMotion && !active()) root.classList.add('pf-cursor-on');
+  }
+
+  function stopCursor(){
+    if(cursorFrame){ cancelAnimationFrame(cursorFrame); cursorFrame = null; }
+    cursorLast = 0;
+    if(cursor) cursor.classList.remove('visible');
+    cursorVisible = false;
+    root.classList.remove('pf-cursor-on');
+  }
+
+  function cursorStep(time){
+    var dt = cursorLast ? Math.min(40, time - cursorLast) : 16;
+    cursorLast = time;
+    var goals, rotation = 0, size = 13;
+
+    if(cursorTarget && cursorTarget.isConnected){
+      var r = cursorTarget.getBoundingClientRect();
+      var pad = 9;
+      var left = r.left - pad, right = r.right + pad;
+      var top = r.top - pad, bottom = r.bottom + pad;
+      goals = [[left,top],[right-size,top],[right-size,bottom-size],[left,bottom-size]];
+      size = Math.min(18, Math.max(11, Math.min(right-left, bottom-top) / 5));
+    } else {
+      cursorAngle += dt * 0.065;
+      var radius = 9;
+      var a = cursorAngle * Math.PI / 180;
+      var c = Math.cos(a), s = Math.sin(a);
+      goals = [[-radius,-radius],[radius,-radius],[radius,radius],[-radius,radius]]
+        .map(function(p){ return [pointerX + p[0]*c - p[1]*s, pointerY + p[0]*s + p[1]*c]; });
+      rotation = cursorAngle;
+    }
+
+    var ease = 1 - Math.exp(-dt / (cursorTarget ? 105 : 62));
+    corners.forEach(function(el, i){
+      cornerPos[i].x += (goals[i][0] - cornerPos[i].x) * ease;
+      cornerPos[i].y += (goals[i][1] - cornerPos[i].y) * ease;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.transform = 'translate3d(' + cornerPos[i].x + 'px,' + cornerPos[i].y + 'px,0) rotate(' + rotation + 'deg)';
+    });
+
+    if(cursorVisible && !document.hidden && !active()){
+      cursorFrame = requestAnimationFrame(cursorStep);
+    } else {
+      cursorFrame = null; cursorLast = 0;
+    }
+  }
+
+  if(cursor && finePointer && !reduceMotion){
+    enableCursor();
+    document.addEventListener('pointermove', function(e){
+      if(active()) return;
+      pointerX = e.clientX; pointerY = e.clientY;
+      var el = document.elementFromPoint(pointerX, pointerY);
+      cursorTarget = el && el.closest
+        ? el.closest('button,a,select,input,summary,textarea,.zone-item,.pf-avatar,.pf-port')
+        : null;
+      cursorVisible = true;
+      cursor.classList.add('visible');
+      if(!cursorFrame) cursorFrame = requestAnimationFrame(cursorStep);
+    }, { passive:true });
+    document.addEventListener('pointerleave', function(){
+      cursorVisible = false;
+      if(cursor) cursor.classList.remove('visible');
+    });
+    document.addEventListener('visibilitychange', function(){
+      if(!document.hidden && cursorVisible && !cursorFrame && !active()) cursorFrame = requestAnimationFrame(cursorStep);
+    });
+  }
+
+  /* Subtle cursor glow on glass cards */
+  document.addEventListener('pointermove', function(e){
+    if(active()) return;
+    var card = e.target && e.target.closest ? e.target.closest('.pf-card') : null;
+    if(!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty('--pf-mx', ((e.clientX - r.left) / r.width * 100) + '%');
+    card.style.setProperty('--pf-my', ((e.clientY - r.top) / r.height * 100) + '%');
+  }, { passive:true });
+
+  /* ------------------------------------------------------------------ */
+  /* Lock the pointer to sliders while left-click is held                */
+  /* ------------------------------------------------------------------ */
+  (function lockRangeDrags(){
+    var dragging = null;
+
+    document.addEventListener('pointerdown', function(e){
+      if(e.button !== 0) return;
+      var el = e.target && e.target.closest ? e.target.closest('input[type="range"]') : null;
+      if(!el) return;
+      dragging = el;
+      try{ if(el.setPointerCapture) el.setPointerCapture(e.pointerId); }catch(err){}
+      el.classList.add('pf-range-active');
+      document.body.classList.add('pf-drag-lock');
+    }, true);
+
+    function endDrag(e){
+      if(!dragging) return;
+      var el = dragging;
+      dragging = null;
+      try{
+        if(e && e.pointerId != null && el.hasPointerCapture && el.hasPointerCapture(e.pointerId)){
+          el.releasePointerCapture(e.pointerId);
+        }
+      }catch(err){}
+      el.classList.remove('pf-range-active');
+      document.body.classList.remove('pf-drag-lock');
+    }
+
+    document.addEventListener('pointerup', endDrag, true);
+    document.addEventListener('pointercancel', endDrag, true);
+    document.addEventListener('lostpointercapture', endDrag, true);
+  })();
+
+  /* ------------------------------------------------------------------ */
+  /* Game mode: kill every decorative loop and release the video decoder */
+  /* ------------------------------------------------------------------ */
+  function suspend(){
+    if(video){
+      video.pause();
+      video.removeAttribute('src');
+      video.load();
+    }
+    stopTypers();
+    stopPortsInit();
+    stopTilt();
+    stopCursor();
+  }
+
+  function resume(){
+    playVideo();
+    startTypers();
+    if(!portsReady) initPortsWhenReady(0);
+    enableCursor();
+  }
+
+  if(P) P.onChange(function(on){ if(on) suspend(); else resume(); });
+  if(active()) suspend();
+})();
+
 </script>
 </body>
 </html>
