@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#95FF50">
+<title>Cinejoy Loader</title>
+<style>
+  :root {
+    --green: #95ff50;
+    --wordmark: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyNDAxLjYgNjM4LjUiPgogIDwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyOS44LjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiAyLjEuMSBCdWlsZCAyKSAgLS0+CiAgPGRlZnM+CiAgICA8c3R5bGU+CiAgICAgIC5zdDAgewogICAgICAgIGZpbGw6ICM5NWZmNTA7CiAgICAgIH0KCiAgICAgIC5zdDEgewogICAgICAgIGZpbGw6ICNmZmY7CiAgICAgIH0KICAgIDwvc3R5bGU+CiAgPC9kZWZzPgogIDxnPgogICAgPHBhdGggY2xhc3M9InN0MSIgZD0iTTI2LjMsMjEwLjhjMy45LDE2LjgsMjYuNCwxOS45LDM0LjgsNC45bDYzLjgtMTEzLjdjOC0xNC4zLTQuNy0zMS4zLTIwLjctMjcuNmwtODUuNywyMGMtMTAuMSwyLjQtMTYuNSwxMi41LTE0LjEsMjIuN2wyMS45LDkzLjdaIi8+CiAgICA8cGF0aCBjbGFzcz0ic3QxIiBkPSJNNDkzLjUsMTg5LjRsODUuNC0yMS45YzEwLTIuNiwxNi4xLTEyLjgsMTMuNi0yMi44bC0yMi44LTkxLjNjLTQuMi0xNi42LTI2LjUtMTkuNS0zNC44LTQuNWwtNjIuNiwxMTMuMmMtOCwxNC41LDUuMiwzMS41LDIxLjIsMjcuNFoiLz4KICAgIDxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik0xOTkuMSwyNjMuM2w3Ni4yLTIwLjYsMjQtNi41YzQuOS0xLjMsOS4xLTQuNiwxMS42LTkuMUw0MjAuMiwyOGM3LjktMTQuNC01LjItMzEuNC0yMS4xLTI3LjRsLTk3LjgsMjQuNmMtNS4xLDEuMy05LjMsNC42LTExLjksOS4ybC0xMTEuNywyMDEuNmMtMS4yLDIuMi0yLDQuNS0yLjIsNi44LTEuNywxMi41LDEwLDI0LjIsMjMuNiwyMC42WiIvPgogICAgPHBhdGggY2xhc3M9InN0MCIgZD0iTTU1NS43LDI0Mi43aC0xMTMuNWM2LjMsOC40LDcuMywyMC4yLDEuNSwyOS44bC00NSw3NC44LDc2LTEzLjFjMTQuNi0yLjUsMjguNCw3LjIsMzAuOSwyMS44LDIuNSwxNC41LTcuMywyOC40LTIxLjgsMzAuOWwtMTMzLjUsMjNjLTEuNS4zLTMsLjQtNC41LjQtOC43LDAtMTctNC4zLTIyLjEtMTEuNi01LjktOC43LTYuMi0xOS45LS44LTI4LjlsNzUuMS0xMjQuOGMuNS0uOC45LTEuNSwxLjUtMi4yaC01MC43bC0yLjIsNGMtNy44LDE0LjEtMjEuMSwyNC42LTM2LjcsMjguOGwtMTAwLjEsMjcuMWMtNS4xLDEuNC0xMC40LDIuMS0xNS43LDIuMS0yMC45LDAtNDAuNS0xMS4zLTUxLjItMjkuNC01LjktMTAuMS04LjctMjEuMy04LjItMzIuNWgtNDIuN2MtMTEuMSwxNC41LTI4LjUsMjMuMy00Ny4xLDIzLjNzLTI0LTMuNy0zMy42LTEwLjJjLTYuOSw3LjQtMTEuMiwxNy4zLTExLjIsMjguMnYzMTMuMmMwLDIyLjgsMTguNSw0MS4zLDQxLjMsNDEuM2gxNTkuM2MtMTAuNy01LjMtMjAuOS0xMS42LTMwLjQtMTguNi03LjMtNS40LTExLTEzLjUtMTEtMjEuN3MzLjYtMTYsMTAuNy0yMS4zYzkuNC03LDIyLjMtNy4xLDMxLjgsMCwyNS4xLDE4LjYsNTYuMiwyOS42LDg5LjgsMjkuNiw3NS44LDAsMTM4LjctNTUuOSwxNDkuNy0xMjguNywyLTEzLDEzLjItMjIuNywyNi40LTIyLjdoMGMxNi40LDAsMjguOCwxNC43LDI2LjQsMzAuOS0xMC4yLDY3LTUzLDEyMy40LTExMS42LDE1Mi41aDE3My4zYzIyLjgsMCw0MS4zLTE4LjUsNDEuMy00MS4zdi0zMTMuMmMwLTIyLjgtMTguNS00MS4zLTQxLjMtNDEuM1pNMTY4LjMsNDc1LjRjLTQyLjYsMC03Ny4xLTM0LjUtNzcuMS03Ny4xczM0LjUtNzcuMSw3Ny4xLTc3LjEsNzcuMSwzNC41LDc3LjEsNzcuMS0zNC41LDc3LjEtNzcuMSw3Ny4xWiIvPgogIDwvZz4KICA8Zz4KICAgIDxwYXRoIGNsYXNzPSJzdDEiIGQ9Ik05NTMuNiw0MzkuN2gtODEuN2MtMjguMSwwLTQ4LjktNS42LTYyLjItMTYuNy0xMy40LTExLjItMjAuMS0yOC4zLTIwLjEtNTEuNXYtMTA0LjFjMC0yMy40LDYuNy00MC43LDIwLjEtNTEuOSwxMy40LTExLjIsMzQuMS0xNi43LDYyLjItMTYuN2g4MS43YzgsMCwxMiw0LDEyLDEyLjF2NDAuNWMwLDgtNCwxMi0xMiwxMmgtNjcuM2MtMTMuNiwwLTIwLjQsNS42LTIwLjQsMTYuN3Y3OS42YzAsMTAuNyw2LjgsMTYuMSwyMC40LDE2LjFoNjcuM2M4LDAsMTIsNCwxMiwxMi4xdjM5LjhjMCw4LTQsMTItMTIsMTJaIi8+CiAgICA8cGF0aCBjbGFzcz0ic3QxIiBkPSJNMTAxOC41LDQzOS43Yy04LDAtMTIuMS00LTEyLjEtMTJ2LTM5LjhjMC04LDQtMTIuMSwxMi4xLTEyLjFoMzMuMXYtMTEyLjRoLTMzLjFjLTgsMC0xMi4xLTQtMTIuMS0xMnYtNDAuNWMwLTgsNC0xMi4xLDEyLjEtMTIuMWgxNDIuNmM4LDAsMTIuMSw0LDEyLjEsMTIuMXY0MC41YzAsOC00LDEyLTEyLjEsMTJoLTMyLjV2MTEyLjRoMzIuNWM4LDAsMTIuMSw0LDEyLjEsMTIuMXYzOS44YzAsOC00LDEyLTEyLjEsMTJoLTE0Mi42WiIvPgogICAgPHBhdGggY2xhc3M9InN0MSIgZD0iTTEyODQuOSw0MzkuN2gtNTAuMmMtOCwwLTEyLTQtMTItMTJ2LTIxNi45YzAtOCw0LTEyLjEsMTItMTIuMWgzNC44YzgsMCwxNC42LDMsMTkuNyw5bDY0LjksNzQuM3YtNzEuM2MwLTgsNC0xMi4xLDEyLjEtMTIuMWg1MC4yYzgsMCwxMiw0LDEyLDEyLjF2MjE2LjljMCw4LTQsMTItMTIsMTJoLTUwLjJjLTgsMC0xMi4xLTQtMTIuMS0xMnYtNDEuMmwtNTcuMi02OS4zdjExMC40YzAsOC00LDEyLTEyLDEyWiIvPgogICAgPHBhdGggY2xhc3M9InN0MSIgZD0iTTE2NTAuNCw0MzkuN2gtMTU1LjNjLTgsMC0xMi00LTEyLTEydi0yMTYuOWMwLTgsNC0xMi4xLDEyLTEyLjFoMTU1LjNjOCwwLDEyLDQsMTIsMTIuMXYzOS4xYzAsOC00LDEyLjEtMTIsMTIuMWgtOTIuNHYyNS44aDY1LjNjOCwwLDEyLjEsNCwxMi4xLDEyLjF2MzUuOGMwLDgtNCwxMi4xLTEyLjEsMTIuMWgtNjUuM3YyOC44aDkyLjRjOCwwLDEyLDQsMTIsMTIuMXYzOS4yYzAsOC00LDEyLTEyLDEyWiIvPgogICAgPHBhdGggY2xhc3M9InN0MCIgZD0iTTE4OTYsMzc2LjVjMCwxMy42LTIuNywyNS41LTguMiwzNS44LTUuNSwxMC4zLTE1LjIsMTguMi0yOS4zLDIzLjktMTQuMSw1LjctMzQuMiw4LjUtNjAuNiw4LjVzLTQ1LjktMi44LTU5LjktOC41Yy0xNC4xLTUuNy0yMy44LTEzLjctMjkuMS0yMy45LTUuNC0xMC4zLTgtMjIuMi04LTM1Ljh2LTU0LjJjMC04LDQtMTIsMTItMTJoNDguNWM4LDAsMTIuMSw0LDEyLjEsMTJ2NDAuOGMwLDQuNSwxLjQsOC4yLDQuMiwxMS4yLDIuOCwzLDkuMyw0LjUsMTkuNiw0LjVzMTUuOS0xLjUsMTguNC00LjVjMi41LTMsMy43LTYuNywzLjctMTEuMnYtMTUyLjNjMC04LDQtMTIuMSwxMi4xLTEyLjFoNTIuNWM4LDAsMTIuMSw0LDEyLjEsMTIuMXYxNjUuN1oiLz4KICAgIDxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMTUzLDM3Ni41YzAsMTAuMy0xLjUsMTkuNi00LjUsMjcuOS0zLDguNC04LjMsMTUuNi0xNS45LDIxLjYtNy42LDYtMTguMSwxMC43LTMxLjYsMTMuOS0xMy41LDMuMi0zMC43LDQuOS01MS43LDQuOXMtMzguMi0xLjYtNTEuNy00LjljLTEzLjUtMy4yLTI0LTcuOS0zMS42LTEzLjktNy42LTYtMTIuOS0xMy4yLTE2LjEtMjEuNi0zLjEtOC40LTQuNy0xNy43LTQuNy0yNy45di0xMTQuMWMwLTEwLjMsMS42LTE5LjYsNC43LTI3LjksMy4xLTguNCw4LjUtMTUuNiwxNi4xLTIxLjYsNy42LTYsMTguMS0xMC43LDMxLjYtMTQuMSwxMy41LTMuMywzMC43LTUsNTEuNy01czM4LjIsMS43LDUxLjcsNWMxMy41LDMuMywyNCw4LDMxLjYsMTQuMSw3LjYsNiwxMi45LDEzLjIsMTUuOSwyMS42LDMsOC40LDQuNSwxNy43LDQuNSwyNy45djExNC4xWk0yMDIxLjEsMzY0LjRjMCw0LjUsMS43LDguMiw1LDExLjIsMy40LDMsMTEsNC41LDIzLjEsNC41czIwLTEuNSwyMy4zLTQuNWMzLjItMyw0LjktNi43LDQuOS0xMS4ydi05MGMwLTQuNS0xLjYtOC4xLTQuOS0xMS0zLjItMi45LTExLTQuMy0yMy4zLTQuM3MtMTkuNywxLjUtMjMuMSw0LjNjLTMuMywyLjktNSw2LjYtNSwxMXY5MFoiLz4KICAgIDxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMzI2LDQzOS43aC01NC4yYy04LDAtMTItNC0xMi0xMnYtNDIuOGwtNTEuMi02OC42Yy0zLjMtNC43LTYtOC44LTcuOS0xMi40LTEuOS0zLjYtMy4yLTcuNS0zLjgtMTEuOS0uNy00LjQtMS0xMC0xLTE2Ljl2LTY0LjNjMC04LDQtMTIuMSwxMi0xMi4xaDUxLjVjOCwwLDEyLDQsMTIsMTIuMXY1NC45YzAsMi4yLjEsNC41LjMsNi45czEuMSw0LjcsMi43LDcuMmwxNS40LDI0LjFjMi4yLDMuOCw0LjksNS43LDgsNS43aDMuM2MzLjEsMCw1LjgtMS45LDgtNS43bDE1LjQtMjQuMWMxLjYtMi41LDIuNS00LjksMi43LTcuMi4yLTIuMy4zLTQuNi4zLTYuOXYtNTQuOWMwLTgsNC0xMi4xLDEyLjEtMTIuMWg0OS45YzgsMCwxMiw0LDEyLDEyLjF2NjQuM2MwLDYuOS0uMywxMi41LTEsMTYuOS0uNyw0LjMtMiw4LjMtMy44LDExLjktMS45LDMuNi00LjUsNy43LTcuOSwxMi40bC01MC45LDY4Ljl2NDIuNWMwLDgtNCwxMi0xMi4xLDEyWiIvPgogIDwvZz4KPC9zdmc+");
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: #050505;
+    color: #fff;
+    font-family: Inter, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .bg {
+    position: fixed;
+    inset: -46px;
+    z-index: -2;
+    background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThEWMQrwPiqElWwP6nToissQ50j3Xkw_5eoYzEs4KRBA&s=10");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(24px) brightness(0.34) saturate(0.82);
+    transform: scale(1.06);
+  }
+
+  .shade {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(circle at 50% 44%, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.74) 78%),
+      linear-gradient(rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.48));
+  }
+
+  #screen {
+    position: relative;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding: 32px;
+  }
+
+  .logo {
+    width: min(62vw, 390px);
+    aspect-ratio: 2401.6 / 638.5;
+    background: var(--wordmark) center / contain no-repeat;
+    filter:
+      drop-shadow(0 8px 26px rgba(0, 0, 0, 0.8))
+      drop-shadow(0 0 26px rgba(149, 255, 80, 0.22));
+  }
+
+  .progress {
+    width: min(460px, 86vw);
+  }
+
+  .track {
+    position: relative;
+    height: 11px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 3px 20px rgba(0, 0, 0, 0.55),
+      inset 0 1px 3px rgba(0, 0, 0, 0.55);
+  }
+
+  .fill {
+    position: relative;
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #57df24, var(--green), #d8ffbd);
+    box-shadow: 0 0 22px rgba(149, 255, 80, 0.6);
+    transition: width 0.18s ease-out;
+  }
+
+  .fill::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transform: translateX(-100%);
+    animation: sheen 1.9s linear infinite;
+  }
+
+  .track.waiting .fill {
+    width: 38% !important;
+    animation: indeterminate 1.25s ease-in-out infinite;
+  }
+
+  .track.waiting .fill::after { animation: none; }
+
+  #message {
+    display: none;
+    max-width: min(460px, 86vw);
+    margin: -14px 0 0;
+    color: #ffb3a7;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+    overflow-wrap: anywhere;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+  }
+
+  #screen[data-state="error"] #message,
+  #screen[data-state="retrying"] #message { display: block; }
+
+  #retry {
+    margin-top: -14px;
+    padding: 11px 20px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--green);
+    color: #071006;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 750;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(149, 255, 80, 0.3);
+    transition: transform 0.15s ease, filter 0.15s ease;
+  }
+
+  #retry:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  #retry:active { transform: translateY(0); }
+  #retry:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+  #cinejoy-frame {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #050505;
+    z-index: 1;
+  }
+
+  [hidden] { display: none !important; }
+
+  @keyframes sheen {
+    to { transform: translateX(100%); }
+  }
+
+  @keyframes indeterminate {
+    from { transform: translateX(-115%); }
+    to { transform: translateX(320%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<div class="shade" aria-hidden="true"></div>
+
+<main id="screen" data-state="loading" aria-busy="true">
+  <div class="logo" role="img" aria-label="Cinejoy"></div>
+
+  <div class="progress">
+    <div id="track" class="track" role="progressbar" aria-label="Cinejoy load progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <div id="fill" class="fill"></div>
+    </div>
+  </div>
+
+  <p id="message" role="status" aria-live="polite"></p>
+  <button id="retry" type="button" hidden>Retry now</button>
+</main>
+
+<iframe id="cinejoy-frame" title="Cinejoy Loader content" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen hidden></iframe>
+
+<script>
+(function () {
+  "use strict";
+
+  var SOURCE = 'https://cinejoy.holdenfernandesss.workers.dev/';
+  var EXPECTED_BYTES = 72505164;
+  var LOADER_TITLE = 'Cinejoy Loader';
+  var READY_TIMEOUT = 60000;
+
+  var loaderFetch = window.fetch.bind(window);
+  var screenEl = document.getElementById('screen');
+  var trackEl = document.getElementById('track');
+  var fillEl = document.getElementById('fill');
+  var messageEl = document.getElementById('message');
+  var retryEl = document.getElementById('retry');
+  var frameEl = document.getElementById('cinejoy-frame');
+
+  var lastPct = -1;
+  var attempts = 0;
+  var lastError = 'Connection failed';
+  var retryTimer = null;
+  var countdownTimer = null;
+  var frameTimer = null;
+  var stopped = false;
+  var loaded = false;
+  var readySince = 0;
+
+  function log(msg) {
+    console.log('[cinejoy-loader] ' + msg);
+  }
+
+  function describeError(e) {
+    if (!e) return 'unknown error';
+    return (e.name ? e.name + ': ' : '') + (e.message || String(e));
+  }
+
+  function enforceTitle() {
+    try {
+      if (document.title !== LOADER_TITLE) document.title = LOADER_TITLE;
+    } catch (e) {}
+  }
+
+  document.title = LOADER_TITLE;
+  enforceTitle();
+  try {
+    new MutationObserver(enforceTitle).observe(document.head, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  } catch (e) {}
+  setInterval(enforceTitle, 1000);
+
+  function setProgress(pct) {
+    if (pct === null || pct === undefined || !isFinite(pct)) {
+      trackEl.classList.add('waiting');
+      fillEl.style.width = '';
+      return;
+    }
+
+    var p = Math.max(0, Math.min(100, pct));
+    trackEl.classList.remove('waiting');
+    fillEl.style.width = p + '%';
+    trackEl.setAttribute('aria-valuenow', String(Math.floor(p)));
+    lastPct = Math.floor(p / 10) * 10;
+  }
+
+  function validate(html) {
+    var s = String(html || '');
+    if (!/^\s*<(!doctype|html)/i.test(s)) {
+      throw new Error('response was not HTML (starts with ' + JSON.stringify(s.slice(0, 50)) + ')');
+    }
+    if (s.indexOf('cinejoy-root') < 0 || s.indexOf('__sveltekit_9bnozi') < 0) {
+      throw new Error('HTML was not Cinejoy (missing cinejoy-root / __sveltekit_9bnozi; got ' + s.length.toLocaleString() + ' chars)');
+    }
+    if (s.indexOf('__c7primeCache') < 0) {
+      throw new Error('HTML was not the fixed Cinejoy build (missing __c7primeCache; got ' + s.length.toLocaleString() + ' chars)');
+    }
+    return s;
+  }
+
+  function clearRetryTimers() {
+    if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+    if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  }
+
+  function clearFrameTimer() {
+    if (frameTimer) { clearInterval(frameTimer); frameTimer = null; }
+  }
+
+  function clearAllTimers() {
+    clearRetryTimers();
+    clearFrameTimer();
+  }
+
+  function showMessage(text) {
+    messageEl.textContent = text;
+    messageEl.hidden = false;
+  }
+
+  function hideMessage() {
+    messageEl.hidden = true;
+    messageEl.textContent = '';
+  }
+
+  function showLoader(state) {
+    frameEl.hidden = true;
+    screenEl.hidden = false;
+    screenEl.dataset.state = state || 'loading';
+    screenEl.setAttribute('aria-busy', state === 'loading' ? 'true' : 'false');
+  }
+
+  function showFrame() {
+    screenEl.hidden = true;
+    screenEl.setAttribute('aria-busy', 'false');
+    frameEl.hidden = false;
+  }
+
+  function frameReady() {
+    try {
+      var d = frameEl.contentDocument;
+      if (!d) return false;
+      var root = d.getElementById('cinejoy-root');
+      return !!(root && root.childNodes.length > 0);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function clearFrame() {
+    try { frameEl.srcdoc = ''; } catch (e) {}
+  }
+
+  function embed(html) {
+    loaded = false;
+    readySince = Date.now();
+    showLoader('loading');
+    clearFrame();
+    frameEl.srcdoc = html;
+
+    clearFrameTimer();
+    frameTimer = setInterval(function () {
+      if (frameReady()) {
+        clearFrameTimer();
+        clearRetryTimers();
+        loaded = true;
+        setProgress(100);
+        showFrame();
+        log('EMBED READY → ' + html.length.toLocaleString() + ' chars');
+        return;
+      }
+      if (Date.now() - readySince > READY_TIMEOUT) {
+        clearFrameTimer();
+        lastError = 'Embedded app did not become ready in time';
+        log('ERROR → ' + lastError);
+        showLoader('retrying');
+        scheduleRetry();
+      }
+    }, 250);
+  }
+
+  function pause(ms) {
+    return new Promise(function (resolve) { setTimeout(resolve, ms); });
+  }
+
+  async function loadOnce() {
+    clearAllTimers();
+    stopped = false;
+    loaded = false;
+    attempts += 1;
+    lastPct = -1;
+    retryEl.hidden = true;
+    hideMessage();
+    showLoader('loading');
+    setProgress(null);
+    clearFrame();
+    log('ATTEMPT ' + attempts + ' → ' + SOURCE);
+
+    var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeout = controller ? setTimeout(function () { controller.abort(); }, 180000) : null;
+
+    try {
+      var res = await loaderFetch(SOURCE, {
+        cache: 'no-store',
+        signal: controller ? controller.signal : undefined
+      });
+      if (timeout) clearTimeout(timeout);
+
+      log('RESPONSE → HTTP ' + res.status + ' | ' + (res.headers.get('content-type') || '?'));
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+
+      var total = Number(res.headers.get('content-length')) || EXPECTED_BYTES;
+      var html = '';
+      var received = 0;
+
+      if (res.body && res.body.getReader) {
+        var reader = res.body.getReader();
+        var decoder = new TextDecoder();
+        var out = '';
+
+        while (true) {
+          var chunk = await reader.read();
+          if (chunk.done) break;
+          received += chunk.value.length;
+          out += decoder.decode(chunk.value, { stream: true });
+
+          var pct = Math.min(99, (received / total) * 100);
+          var bucket = Math.floor(pct / 10) * 10;
+          if (bucket !== lastPct) {
+            lastPct = bucket;
+            setProgress(pct);
+          }
+        }
+        out += decoder.decode();
+        html = out;
+        log('STREAM COMPLETE → ' + received.toLocaleString() + ' bytes');
+      } else {
+        html = await res.text();
+        received = html.length;
+      }
+
+      if (received < total * 0.98) {
+        throw new Error('truncated response: received ' + received.toLocaleString() + ' of ' + total.toLocaleString() + ' bytes');
+      }
+
+      var checked = validate(html);
+      setProgress(100);
+      await pause(140);
+      embed(checked);
+      return true;
+    } catch (e) {
+      if (timeout) clearTimeout(timeout);
+      lastError = describeError(e);
+      log('ERROR → ' + lastError);
+      return false;
+    }
+  }
+
+  function scheduleRetry() {
+    if (stopped) return;
+    showLoader('retrying');
+
+    var delay = Math.min(1000 * Math.pow(1.6, Math.min(attempts - 1, 8)), 15000);
+    var deadline = Date.now() + delay;
+
+    function tick() {
+      var secs = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+      showMessage(lastError + ' — retrying in ' + secs + 's');
+      retryEl.textContent = secs > 0 ? 'Retry now · ' + secs + 's' : 'Retry now';
+    }
+
+    tick();
+    retryEl.hidden = false;
+    clearRetryTimers();
+    countdownTimer = setInterval(tick, 500);
+    retryTimer = setTimeout(function () {
+      clearRetryTimers();
+      loadOnce().then(function (ok) { if (!ok) scheduleRetry(); });
+    }, delay);
+  }
+
+  retryEl.addEventListener('click', function () {
+    clearAllTimers();
+    loadOnce().then(function (ok) { if (!ok) scheduleRetry(); });
+  });
+
+  log('BOOT → Cinejoy loader started');
+  log('TITLE → ' + LOADER_TITLE);
+  log('SOURCE → ' + SOURCE);
+  loadOnce().then(function (ok) { if (!ok) scheduleRetry(); });
+})();
+</script>
+</body>
+</html>
